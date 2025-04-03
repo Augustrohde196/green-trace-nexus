@@ -52,8 +52,13 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="flex items-center justify-center p-6">
         <div className="flex items-center gap-2">
-          <div className="h-10 w-10 rounded-md bg-techGreen flex items-center justify-center">
-            <span className="text-techDark font-bold text-lg">R</span>
+          <div className="relative h-10 w-10 overflow-hidden rounded-md bg-techGreen">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="font-bold text-techDark text-2xl">R</div>
+            </div>
+            <div className="absolute -right-1 -top-1 h-6 w-6 rounded-full bg-[#2C2C2C] flex items-center justify-center">
+              <div className="h-3 w-3 rounded-full bg-techGreen"></div>
+            </div>
           </div>
           <span className="font-bold text-white text-xl tracking-tight">Renuw</span>
         </div>

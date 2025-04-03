@@ -20,7 +20,7 @@ export function AppHeader() {
       <div className="flex h-16 items-center gap-4 px-6">
         <SidebarTrigger />
         <div className="flex-1">
-          <h1 className="text-xl font-semibold text-techPurple">Guarantees of Origin Portal</h1>
+          <h1 className="text-xl font-semibold text-[#2C2C2C] dark:text-white">Guarantees of Origin Portal</h1>
         </div>
         <div className="flex items-center gap-4">
           <Button 
