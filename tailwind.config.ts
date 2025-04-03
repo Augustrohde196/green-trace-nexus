@@ -63,12 +63,13 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
+				// Add direct HEX colors
+				techPurple: "#735DFF",
+				techDark: "#2C2C2C",
+				techGreen: "#D9F0C2",
+				techWhite: "#FFFFFF",
 				solar: "#F59E0B",
 				wind: "#3B82F6",
-				renuwGreen: {
-					DEFAULT: "#0C6E4E",
-					light: "#4DA167",
-				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
