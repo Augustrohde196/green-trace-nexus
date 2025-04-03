@@ -41,7 +41,7 @@ const menuItems = [
     url: "/matching",
   },
   {
-    title: "Billing",
+    title: "GO Billing",
     icon: Receipt,
     url: "/billing",
   },
