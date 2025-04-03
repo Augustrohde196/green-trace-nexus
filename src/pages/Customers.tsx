@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Plus, FileBarChart, Filter, Search } from "lucide-react";
+import { Plus, FileBarChart, Filter, Search, Users, Activity, BarChart3 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
