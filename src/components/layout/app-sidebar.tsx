@@ -53,11 +53,12 @@ export function AppSidebar() {
       <SidebarHeader className="flex items-center justify-center p-6">
         <div className="flex items-center gap-2">
           <div className="relative h-10 w-10 overflow-hidden rounded-md bg-techGreen">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="font-bold text-techDark text-2xl">R</div>
-            </div>
-            <div className="absolute -right-1 -top-1 h-6 w-6 rounded-full bg-[#2C2C2C] flex items-center justify-center">
-              <div className="h-3 w-3 rounded-full bg-techGreen"></div>
+            {/* New logo design - abstract leaf/renewable energy symbol */}
+            <div className="absolute inset-0">
+              <div className="absolute left-1 top-1 h-4 w-6 rounded-full bg-[#2C2C2C]"></div>
+              <div className="absolute bottom-1 right-1 h-4 w-6 rounded-full bg-[#2C2C2C]"></div>
+              <div className="absolute left-1/2 top-1/2 h-8 w-1.5 -translate-x-1/2 -translate-y-1/2 -rotate-45 transform bg-[#2C2C2C]"></div>
+              <div className="absolute left-1/2 top-1/2 h-8 w-1.5 -translate-x-1/2 -translate-y-1/2 rotate-45 transform bg-[#2C2C2C]"></div>
             </div>
           </div>
           <span className="font-bold text-white text-xl tracking-tight">Renuw</span>
