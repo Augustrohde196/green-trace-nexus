@@ -39,7 +39,14 @@ export function ProductionChart({ data }: ProductionChartProps) {
               />
               <YAxis />
               <Tooltip 
-                labelFormatter={(value) => displayData[value].formattedDate}
+                labelFormatter={(value) => {
+                  // Check if the value is a valid index and displayData[value] exists
+                  if (typeof value === 'number' && displayData[value] && displayData[value].formattedDate) {
+                    return displayData[value].formattedDate;
+                  }
+                  // Fallback if the index is out of range or the data doesn't exist
+                  return 'Data not available';
+                }}
                 formatter={(value: number) => [`${value} MW`, 'Output']}
               />
               <Bar 
