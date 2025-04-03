@@ -1,5 +1,5 @@
 
-import { Home, PieChart, Users, BarChart3, Activity } from "lucide-react";
+import { Home, PieChart, Users, BarChart3, Activity, Receipt } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   Sidebar,
@@ -39,6 +39,11 @@ const menuItems = [
     title: "Matching Engine",
     icon: Activity,
     url: "/matching",
+  },
+  {
+    title: "Billing",
+    icon: Receipt,
+    url: "/billing",
   },
 ];
 
