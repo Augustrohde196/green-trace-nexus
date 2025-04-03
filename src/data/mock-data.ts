@@ -1,4 +1,3 @@
-
 import { Asset, Customer, DashboardMetrics, ProductionData } from "./models";
 
 export const mockAssets: Asset[] = [
@@ -20,6 +19,10 @@ export const mockAssets: Asset[] = [
       { customerId: "c-1", customerName: "EcoRetail", allocatedCapacity: 45 },
       { customerId: "c-3", customerName: "GreenTech", allocatedCapacity: 40 },
     ],
+    gsrn: "578900000123456",
+    installationType: "FTM",
+    gridConnection: "High-voltage",
+    owner: "NorthWind Energy"
   },
   {
     id: "wind-2",
@@ -39,6 +42,10 @@ export const mockAssets: Asset[] = [
       { customerId: "c-2", customerName: "SustainCorp", allocatedCapacity: 45 },
       { customerId: "c-4", customerName: "CleanManufacturing", allocatedCapacity: 20 },
     ],
+    gsrn: "569800000234567",
+    installationType: "FTM",
+    gridConnection: "Medium-voltage",
+    owner: "Highland Green Power"
   },
   {
     id: "solar-1",
@@ -58,6 +65,10 @@ export const mockAssets: Asset[] = [
       { customerId: "c-1", customerName: "EcoRetail", allocatedCapacity: 25 },
       { customerId: "c-3", customerName: "GreenTech", allocatedCapacity: 30 },
     ],
+    gsrn: "553900000345678",
+    installationType: "BTM",
+    gridConnection: "Low-voltage",
+    owner: "SolarMeadows Ltd."
   },
   {
     id: "solar-2",
@@ -77,6 +88,10 @@ export const mockAssets: Asset[] = [
       { customerId: "c-2", customerName: "SustainCorp", allocatedCapacity: 20 },
       { customerId: "c-4", customerName: "CleanManufacturing", allocatedCapacity: 20 },
     ],
+    gsrn: "561200000456789",
+    installationType: "BTM",
+    gridConnection: "Low-voltage",
+    owner: "Valley Energy Solutions"
   },
   {
     id: "wind-3",
@@ -96,6 +111,10 @@ export const mockAssets: Asset[] = [
       { customerId: "c-1", customerName: "EcoRetail", allocatedCapacity: 60 },
       { customerId: "c-2", customerName: "SustainCorp", allocatedCapacity: 60 },
     ],
+    gsrn: "585100000567890",
+    installationType: "FTM",
+    gridConnection: "High-voltage",
+    owner: "Offshore Wind Partners"
   },
 ];
 
@@ -168,7 +187,6 @@ export const mockCustomers: Customer[] = [
   },
 ];
 
-// Generate mock time-series data
 export const generateProductionData = (days: number): ProductionData[] => {
   const data: ProductionData[] = [];
   const now = new Date();
@@ -177,13 +195,9 @@ export const generateProductionData = (days: number): ProductionData[] => {
     const date = new Date(now);
     date.setHours(now.getHours() - i);
     
-    // Generate varying output with some randomness but following a pattern
-    // Solar has a bell curve during daylight hours
-    // Wind is more random but has some patterns
-    
     const hour = date.getHours();
     let solarOutput = 0;
-    if (hour >= 6 && hour <= 18) { // Daylight hours
+    if (hour >= 6 && hour <= 18) {
       const midPoint = 12;
       const distance = Math.abs(hour - midPoint);
       solarOutput = Math.max(0, 100 - (distance * 12)) * (0.8 + Math.random() * 0.4);
@@ -201,7 +215,6 @@ export const generateProductionData = (days: number): ProductionData[] => {
   return data;
 };
 
-// Calculate dashboard metrics
 export const calculateDashboardMetrics = (): DashboardMetrics => {
   const totalAssets = mockAssets.length;
   const totalCapacity = mockAssets.reduce((sum, asset) => sum + asset.capacity, 0);
@@ -211,7 +224,6 @@ export const calculateDashboardMetrics = (): DashboardMetrics => {
   const totalCustomers = mockCustomers.length;
   const averageMatchingScore = mockCustomers.reduce((sum, customer) => sum + customer.matchingScore, 0) / totalCustomers;
   
-  // Calculate production by type
   const windAssets = mockAssets.filter(a => a.type === "wind");
   const solarAssets = mockAssets.filter(a => a.type === "solar");
   

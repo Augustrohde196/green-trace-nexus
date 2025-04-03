@@ -1,4 +1,3 @@
-
 export interface Asset {
   id: string;
   name: string;
@@ -14,6 +13,10 @@ export interface Asset {
     lng: number;
   };
   customers: CustomerAllocation[];
+  gsrn: string; // Global Service Relation Number
+  installationType: "BTM" | "FTM"; // Behind-the-Meter or Front-of-the-Meter
+  gridConnection: string; // Grid connection details
+  owner: string; // Asset owner information
 }
 
 export interface Customer {
