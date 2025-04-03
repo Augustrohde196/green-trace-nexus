@@ -1,5 +1,5 @@
 
-import { Home, PieChart, Users, BarChart3, Activity, Receipt } from "lucide-react";
+import { Home, PieChart, Users, BarChart3, Activity, Receipt, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   Sidebar,
@@ -37,8 +37,9 @@ const menuItems = [
   },
   {
     title: "Matching Engine",
-    icon: Activity,
+    icon: Zap,
     url: "/matching",
+    highlight: true,
   },
   {
     title: "Billing",
@@ -60,7 +61,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild className={item.highlight ? "bg-primary/20" : ""}>
                     <Link to={item.url}>
                       <item.icon size={20} />
                       <span>{item.title}</span>
