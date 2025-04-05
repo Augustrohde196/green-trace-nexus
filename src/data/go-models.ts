@@ -38,3 +38,58 @@ export interface MatchingMetrics {
   allocatedMWh: number;
   availableMWh: number;
 }
+
+// New models for granular data collection
+export interface ConsumptionData {
+  id: string;
+  customerId: string;
+  timestamp: string;
+  value: number; // kWh
+  meteringPointId: string; // Metering point ID from Energinet
+  source: "energinet" | "manual" | "api"; // Data source
+  resolution: "15min" | "hourly" | "daily"; // Data resolution
+  validationStatus: "validated" | "provisional" | "estimated";
+}
+
+export interface ProductionData {
+  id: string;
+  assetId: string;
+  timestamp: string;
+  value: number; // kWh
+  meteringPointId: string; // Metering point ID from Energinet
+  source: "energinet" | "manual" | "api"; // Data source
+  resolution: "15min" | "hourly" | "daily"; // Data resolution
+  validationStatus: "validated" | "provisional" | "estimated";
+  weatherConditions?: {
+    temperature?: number;
+    windSpeed?: number;
+    cloudCover?: number;
+    precipitation?: number;
+  };
+}
+
+// Energinet API response models
+export interface EnerginetMeteringPoint {
+  id: string;
+  gsrn: string;
+  address: string;
+  type: "consumption" | "production";
+  connectionState: "connected" | "disconnected";
+  gridArea: string;
+  ownerName: string;
+  ownerHasConsent: boolean;
+}
+
+export interface EnerginetTimeSeries {
+  meteringPointId: string;
+  period: {
+    start: string;
+    end: string;
+  };
+  resolution: string;
+  points: Array<{
+    timestamp: string;
+    quantity: number;
+    quality: string;
+  }>;
+}

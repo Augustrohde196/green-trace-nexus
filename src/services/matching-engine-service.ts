@@ -2,8 +2,10 @@
 import { Customer } from "@/data/models";
 import { GuaranteeOfOrigin, AllocationPrediction } from "@/data/go-models";
 import { goService } from "./go-service";
+import { dataCollectionService } from "./data-collection-service";
 import { mockAssets, mockCustomers } from "@/data/mock-data";
 import { toast } from "@/hooks/use-toast";
+import { calculateMatchingScore } from "@/lib/utils";
 
 // This class simulates a machine learning model for GO matching
 // In a real application, this would call a backend ML service built with scikit-learn
@@ -20,10 +22,10 @@ class MatchingEngineService {
   }
   
   // Simulate ML prediction for optimal GO allocation
-  public predictOptimalAllocations(
+  public async predictOptimalAllocations(
     availableGOs: GuaranteeOfOrigin[],
     customers: Customer[]
-  ): AllocationPrediction[] {
+  ): Promise<AllocationPrediction[]> {
     const predictions: AllocationPrediction[] = [];
     
     // Group GOs by asset
@@ -34,7 +36,7 @@ class MatchingEngineService {
     }, {} as Record<string, GuaranteeOfOrigin[]>);
     
     // For each customer, predict allocations based on their preferences
-    customers.forEach(customer => {
+    for (const customer of customers) {
       // Calculate total volume needed for this customer
       const totalConsumptionMWh = customer.annualConsumption * 1000; // Convert GWh to MWh
       let allocatedVolume = 0;
@@ -46,32 +48,52 @@ class MatchingEngineService {
       // Calculate remaining volume needed
       const remainingNeedMWh = Math.max(0, totalConsumptionMWh - currentAllocationMWh);
       
-      if (remainingNeedMWh <= 0) return; // Customer has all they need
+      if (remainingNeedMWh <= 0) continue; // Customer has all they need
       
-      // Create consumption pattern (simulated)
-      const consumptionPattern = this.generateConsumptionPattern(customer);
+      // Try to get real consumption pattern from collected data
+      let consumptionPattern = dataCollectionService.getConsumptionPattern(customer.id);
+      
+      // If no real data, generate a simulated pattern
+      if (consumptionPattern.every(val => val === 0)) {
+        consumptionPattern = this.generateConsumptionPattern(customer);
+        
+        // Collect data for future use
+        dataCollectionService.collectCustomerConsumption(customer.id).catch(err => {
+          console.error("Failed to collect consumption data:", err);
+        });
+      }
       
       // For each asset, check if it matches customer preferences
-      Object.entries(gosByAsset).forEach(([assetId, gos]) => {
+      for (const [assetId, gos] of Object.entries(gosByAsset)) {
         const asset = mockAssets.find(a => a.id === assetId);
-        if (!asset) return;
+        if (!asset) continue;
         
         // Check if asset type matches customer portfolio preferences
         const assetTypePreference = asset.type === 'solar' ? customer.portfolioMix.solar : customer.portfolioMix.wind;
-        if (assetTypePreference < 10) return; // Skip if customer has low preference for this type
+        if (assetTypePreference < 10) continue; // Skip if customer has low preference for this type
         
         // Calculate available volume from this asset
         const availableVolume = gos.reduce((sum, go) => sum + go.volume, 0);
         
         // Determine volume to allocate (limited by both availability and need)
         const volumeToAllocate = Math.min(availableVolume, remainingNeedMWh);
-        if (volumeToAllocate <= 0) return;
+        if (volumeToAllocate <= 0) continue;
         
-        // Generate production pattern for this asset (simulated)
-        const productionPattern = this.generateProductionPattern(asset.type);
+        // Try to get real production pattern from collected data
+        let productionPattern = dataCollectionService.getProductionPattern(asset.id);
+        
+        // If no real data, generate a simulated pattern or collect it
+        if (productionPattern.every(val => val === 0)) {
+          productionPattern = this.generateProductionPattern(asset.type);
+          
+          // Collect data for future use
+          dataCollectionService.collectAssetProduction(asset.id).catch(err => {
+            console.error("Failed to collect production data:", err);
+          });
+        }
         
         // Calculate match score between consumption and production
-        const matchScore = this.calculateMatchScore(consumptionPattern, productionPattern);
+        const matchScore = calculateMatchingScore(consumptionPattern, productionPattern);
         
         // Create prediction
         predictions.push({
@@ -88,8 +110,8 @@ class MatchingEngineService {
         
         // Update remaining need
         allocatedVolume += volumeToAllocate;
-      });
-    });
+      }
+    }
     
     // Sort predictions by match score (descending)
     return predictions.sort((a, b) => b.predictedScore - a.predictedScore);
@@ -141,7 +163,7 @@ class MatchingEngineService {
     return successfulAllocations;
   }
   
-  // Helper methods to simulate ML functionality
+  // Helper methods
   
   private generateConsumptionPattern(customer: Customer): number[] {
     // Simulate 24-hour consumption pattern based on industry
@@ -181,28 +203,6 @@ class MatchingEngineService {
         return 0.3 + Math.random() * 0.7;
       }
     });
-  }
-  
-  private calculateMatchScore(consumption: number[], production: number[]): number {
-    if (consumption.length !== production.length) {
-      return 0; // Patterns must be same length
-    }
-    
-    // Calculate correlation and scale to 0-100
-    let sumProduct = 0;
-    let sumConsumptionSquared = 0;
-    let sumProductionSquared = 0;
-    
-    for (let i = 0; i < consumption.length; i++) {
-      sumProduct += consumption[i] * production[i];
-      sumConsumptionSquared += consumption[i] * consumption[i];
-      sumProductionSquared += production[i] * production[i];
-    }
-    
-    const correlation = sumProduct / (Math.sqrt(sumConsumptionSquared) * Math.sqrt(sumProductionSquared));
-    
-    // Convert correlation (-1 to 1) to score (0 to 100)
-    return Math.round(((correlation + 1) / 2) * 100);
   }
 }
 
