@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { Zap, BarChart3, Check, Waves, Activity, Lightbulb } from "lucide-react";
+import { Zap, BarChart3, Check, Waves, Activity, Lightbulb, Database } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -13,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { GOTrackingTable } from "@/components/go/go-tracking-table";
+import { DataSimulationPanel } from "@/components/data-simulation/data-simulation-panel";
 import { matchingEngineService } from "@/services/matching-engine-service";
 import { goService } from "@/services/go-service";
 import { mockCustomers } from "@/data/mock-data";
@@ -152,7 +152,9 @@ export default function MatchingEngine() {
           <TabsTrigger value="predictions">ML Predictions</TabsTrigger>
           <TabsTrigger value="allocations">Allocated GOs</TabsTrigger>
           <TabsTrigger value="available">Available GOs</TabsTrigger>
+          <TabsTrigger value="data-simulation">Data Simulation</TabsTrigger>
         </TabsList>
+        
         <TabsContent value="overview" className="mt-6 space-y-6">
           <Card>
             <CardHeader>
@@ -294,6 +296,110 @@ export default function MatchingEngine() {
             guaranteesOfOrigin={goService.getAvailableGOs()} 
             title="Available Guarantees of Origin" 
           />
+        </TabsContent>
+        
+        <TabsContent value="data-simulation" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div>
+              <DataSimulationPanel />
+            </div>
+            
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Database className="h-5 w-5" />
+                    Collected Data Insights
+                  </CardTitle>
+                  <CardDescription>
+                    Insights from collected production and consumption data
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">Benefits of Data Collection</h3>
+                      <ul className="space-y-2 text-sm">
+                        <li className="flex items-center gap-2">
+                          <Check size={16} className="text-green-500" />
+                          More accurate matching between production and consumption
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check size={16} className="text-green-500" />
+                          Improved ML model training with real-time data
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check size={16} className="text-green-500" />
+                          Better predictions for future GO allocations
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check size={16} className="text-green-500" />
+                          Enables time-matching of energy production and consumption
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">API Integration</h3>
+                      <p className="text-sm text-muted-foreground">
+                        The API simulates real-time integration with Energinet's data services,
+                        collecting metering data from both assets and customers.
+                        Start a simulation to see data being collected in real-time.
+                      </p>
+                    </div>
+                    
+                    <div className="text-xs text-muted-foreground mt-4">
+                      <p>Note: In a production environment, this would connect to the actual Energinet API</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Data Flow</CardTitle>
+                  <CardDescription>
+                    How data flows through the system
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>Data collection</span>
+                        <span className="font-medium">Energinet API → Our System</span>
+                      </div>
+                      <Progress value={100} className="h-2" />
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>Data processing</span>
+                        <span className="font-medium">Raw Data → Pattern Analysis</span>
+                      </div>
+                      <Progress value={75} className="h-2" />
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>ML model integration</span>
+                        <span className="font-medium">Patterns → Predictions</span>
+                      </div>
+                      <Progress value={50} className="h-2" />
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>GO allocation</span>
+                        <span className="font-medium">Predictions → Allocations</span>
+                      </div>
+                      <Progress value={90} className="h-2" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
