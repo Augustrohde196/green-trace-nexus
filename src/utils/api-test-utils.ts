@@ -1,8 +1,9 @@
 
 import { dataCollectionService } from "@/services/data-collection-service";
-import { energinetApiService } from "@/services/energinet-api";
+import { fetchCustomerConsumption, fetchAssetProduction } from "@/services/energinet-api";
 import { mockAssets, mockCustomers } from "@/data/mock-data";
 import { toast } from "@/hooks/use-toast";
+import { ConsumptionData, ProductionData } from "@/data/go-models";
 
 /**
  * Utility for testing the data collection API with simulated data
@@ -28,7 +29,7 @@ export class ApiTestUtils {
     });
     
     // Run initial data collection
-    energinetApiService.fetchCustomerConsumption(customerId, 1)
+    fetchCustomerConsumption(customerId, 1)
       .then(data => {
         dataCollectionService.uploadConsumptionData(customerId, data);
       })
@@ -38,7 +39,7 @@ export class ApiTestUtils {
     
     // Set up interval for ongoing data collection
     this.intervalIds[`consumption-${customerId}`] = setInterval(() => {
-      energinetApiService.fetchCustomerConsumption(customerId, 1)
+      fetchCustomerConsumption(customerId, 1)
         .then(data => {
           // Add small random variation to simulate changing consumption
           const modifiedData = data.map(point => ({
@@ -72,7 +73,7 @@ export class ApiTestUtils {
     });
     
     // Run initial data collection
-    energinetApiService.fetchAssetProduction(assetId, 1)
+    fetchAssetProduction(assetId, 1)
       .then(data => {
         dataCollectionService.uploadProductionData(assetId, data);
       })
@@ -82,7 +83,7 @@ export class ApiTestUtils {
     
     // Set up interval for ongoing data collection
     this.intervalIds[`production-${assetId}`] = setInterval(() => {
-      energinetApiService.fetchAssetProduction(assetId, 1)
+      fetchAssetProduction(assetId, 1)
         .then(data => {
           // Add small random variation to simulate changing production
           const modifiedData = data.map(point => ({
@@ -152,30 +153,15 @@ export class ApiTestUtils {
       return { type, id };
     });
   }
-}
-
-/**
- * Create a singleton instance of the Energinet API service
- */
-export const energinetApiService = {
-  fetchCustomerConsumption: async (customerId: string, days: number = 7) => {
-    const timestamp = new Date().toISOString();
-    console.log(`Fetching customer consumption data at ${timestamp}`);
-    return energinetApiService.generateSimulatedConsumptionData(customerId, days);
-  },
   
-  fetchAssetProduction: async (assetId: string, days: number = 7) => {
-    const timestamp = new Date().toISOString();
-    console.log(`Fetching asset production data at ${timestamp}`);
-    return energinetApiService.generateSimulatedProductionData(assetId, days);
-  },
-  
-  // Helper method to generate simulated consumption data
-  generateSimulatedConsumptionData: (customerId: string, days: number = 1) => {
+  /**
+   * Generate simulated consumption data for testing
+   */
+  public static generateSimulatedConsumptionData(customerId: string, days: number = 1): ConsumptionData[] {
     const customer = mockCustomers.find(c => c.id === customerId);
     if (!customer) return [];
     
-    const data = [];
+    const data: ConsumptionData[] = [];
     const now = new Date();
     const startTime = new Date(now);
     startTime.setHours(now.getHours() - (days * 24));
@@ -233,14 +219,16 @@ export const energinetApiService = {
     }
     
     return data;
-  },
+  }
   
-  // Helper method to generate simulated production data
-  generateSimulatedProductionData: (assetId: string, days: number = 1) => {
+  /**
+   * Generate simulated production data for testing
+   */
+  public static generateSimulatedProductionData(assetId: string, days: number = 1): ProductionData[] {
     const asset = mockAssets.find(a => a.id === assetId);
     if (!asset) return [];
     
-    const data = [];
+    const data: ProductionData[] = [];
     const now = new Date();
     const startTime = new Date(now);
     startTime.setHours(now.getHours() - (days * 24));
@@ -306,4 +294,4 @@ export const energinetApiService = {
     
     return data;
   }
-};
+}
