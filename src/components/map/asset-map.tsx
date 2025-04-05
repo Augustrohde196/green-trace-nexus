@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState } from "react";
-import { MapPin, Wind, Sun, Info } from "lucide-react";
+import { MapPin, Wind, Sun, Info, Map as MapIcon } from "lucide-react";
 import { GuaranteeOfOrigin } from "@/data/go-models";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,34 +9,30 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { mockAssets } from "@/data/mock-data";
 import { 
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { formatDate } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
-// Mock coordinates for different parts of Denmark
-const DENMARK_COORDINATES = [
-  { lat: 55.676098, lng: 12.568337 }, // Copenhagen
-  { lat: 57.048820, lng: 9.921747 }, // Aalborg
-  { lat: 55.403756, lng: 10.402370 }, // Odense
-  { lat: 56.156361, lng: 10.203921 }, // Aarhus
-  { lat: 55.708870, lng: 9.536067 }, // Vejle
-  { lat: 55.862982, lng: 9.850121 }, // Horsens
-  { lat: 55.230573, lng: 10.139542 }, // Svendborg
-  { lat: 55.859631, lng: 8.526903 }, // Herning
-  { lat: 55.477592, lng: 8.459305 }, // Esbjerg
-  { lat: 56.950249, lng: 8.699974 }, // Thisted
-];
+// This would be stored in an environment variable in a real application
+// For this demo, we'll use a public token with restricted capabilities
+const MAPBOX_TOKEN = 'pk.eyJ1IjoibHVjaWRjaGFydHMiLCJhIjoiY2luMjRzMnluMGRsdXdlbTQxdGVydmVrZSJ9.KQ8YQOSUBRGvIHXH2rGYAw';
 
 interface AssetMapProps {
   guaranteesOfOrigin: GuaranteeOfOrigin[];
 }
 
 export function AssetMap({ guaranteesOfOrigin }: AssetMapProps) {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<GuaranteeOfOrigin | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
   const [heatmapMode, setHeatmapMode] = useState(true);
   
   // Group GOs by asset for map display
@@ -49,22 +45,17 @@ export function AssetMap({ guaranteesOfOrigin }: AssetMapProps) {
   }, {} as Record<string, GuaranteeOfOrigin[]>);
   
   const assetData = Object.entries(assetGOMap).map(([assetId, gos]) => {
-    const asset = mockAssets.find(a => a.id === assetId);
     const totalVolume = gos.reduce((sum, go) => sum + go.volume, 0);
     const averageScore = Math.round(
       gos.reduce((sum, go) => sum + (go.allocationScore || 0), 0) / gos.length
     );
-    
-    // Assign random coordinates from Denmark list if the asset doesn't have coordinates
-    const coordinates = asset?.coordinates || 
-      DENMARK_COORDINATES[Math.floor(Math.random() * DENMARK_COORDINATES.length)];
     
     return {
       id: assetId,
       name: gos[0].assetName,
       type: gos[0].type,
       location: gos[0].gridArea,
-      coordinates,
+      coordinates: gos[0].coordinates,
       totalCertificates: gos.length,
       totalVolume,
       averageScore,
@@ -72,133 +63,120 @@ export function AssetMap({ guaranteesOfOrigin }: AssetMapProps) {
     };
   });
   
-  // Center the map on Denmark
-  const mapCenter = { lat: 55.676098, lng: 12.568337 }; // Copenhagen
+  useEffect(() => {
+    // Initialize map
+    if (!mapContainer.current || map.current) return;
+    
+    mapboxgl.accessToken = MAPBOX_TOKEN;
+    
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/light-v11',
+      center: [10.4, 56.0], // Center of Denmark
+      zoom: 6,
+      minZoom: 5,
+      maxZoom: 12
+    });
+    
+    // Add navigation controls
+    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    
+    map.current.on('load', () => {
+      setMapLoaded(true);
+    });
+    
+    return () => {
+      map.current?.remove();
+      map.current = null;
+    };
+  }, []);
   
-  // In a real application, this would be a proper interactive map using a library like Leaflet or Google Maps
-  return (
-    <div className="relative w-full h-full bg-slate-100 dark:bg-slate-900 overflow-hidden">
-      {/* Denmark map outline (simplified for demo) */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="text-slate-300 dark:text-slate-700 text-8xl font-bold">
-          Denmark Map
-        </div>
-      </div>
+  // Add markers when map is loaded
+  useEffect(() => {
+    if (!map.current || !mapLoaded) return;
+    
+    // Remove any existing markers first
+    const markers = document.querySelectorAll('.mapboxgl-marker');
+    markers.forEach(marker => marker.remove());
+    
+    // Add new markers for each asset
+    assetData.forEach(asset => {
+      // Create custom marker element
+      const markerEl = document.createElement('div');
+      markerEl.className = 'flex items-center justify-center rounded-full shadow-lg cursor-pointer transition-all duration-300';
       
-      {/* Asset markers */}
-      <div className="absolute inset-0">
-        {assetData.map(asset => {
-          // Calculate position based on coordinates relative to map size
-          const left = `${30 + (asset.coordinates.lng - 8.0) * 20}%`;
-          const top = `${70 - (asset.coordinates.lat - 54.5) * 30}%`;
-          
-          // Calculate marker size based on volume (for heatmap mode)
-          const size = heatmapMode 
-            ? Math.max(30, Math.min(100, 30 + (asset.totalVolume / 50))) 
-            : 40;
-          
-          return (
-            <Popover key={asset.id}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className={`absolute rounded-full ${
-                    heatmapMode ? 'bg-opacity-60 hover:bg-opacity-80' : ''
-                  } ${
-                    asset.type === 'wind' 
-                      ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                      : 'bg-amber-500 hover:bg-amber-600 text-white'
-                  }`}
-                  style={{
-                    left,
-                    top,
-                    width: `${size}px`,
-                    height: `${size}px`,
-                    transform: 'translate(-50%, -50%)',
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  {asset.type === 'wind' ? (
-                    <Wind className="h-4 w-4" />
-                  ) : (
-                    <Sun className="h-4 w-4" />
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80">
-                <div className="space-y-2">
-                  <h3 className="font-medium text-lg">{asset.name}</h3>
-                  <div className="text-sm font-medium flex items-center gap-1">
-                    {asset.type === 'wind' ? (
-                      <>
-                        <Wind className="h-4 w-4 text-blue-500" />
-                        <span>Wind Power</span>
-                      </>
-                    ) : (
-                      <>
-                        <Sun className="h-4 w-4 text-amber-500" />
-                        <span>Solar Power</span>
-                      </>
-                    )}
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-2 text-sm mt-2">
-                    <div>
-                      <p className="text-muted-foreground">Location:</p>
-                      <p className="font-medium">{asset.location}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Total Volume:</p>
-                      <p className="font-medium">{asset.totalVolume} MWh</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Certificates:</p>
-                      <p className="font-medium">{asset.totalCertificates}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Match Score:</p>
-                      <p className="font-medium">{asset.averageScore}%</p>
-                    </div>
-                  </div>
-                  
-                  <h4 className="font-medium mt-2">Recent Certificates:</h4>
-                  <div className="max-h-40 overflow-y-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-1">Date</th>
-                          <th className="text-right py-1">Volume</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {asset.gos.slice(0, 5).map(go => (
-                          <tr key={go.id} className="border-b border-dashed">
-                            <td className="py-1">{formatDate(go.productionTimestamp)}</td>
-                            <td className="text-right py-1">{go.volume} MWh</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-          );
-        })}
-      </div>
+      // Set size based on volume in heatmap mode
+      const size = heatmapMode 
+        ? Math.max(30, Math.min(80, 30 + (asset.totalVolume / 50))) 
+        : 40;
+      
+      markerEl.style.width = `${size}px`;
+      markerEl.style.height = `${size}px`;
+      markerEl.style.backgroundColor = asset.type === 'wind' ? '#3b82f6' : '#f59e0b';
+      
+      // Create icon element
+      const iconEl = document.createElement('div');
+      iconEl.className = 'text-white';
+      iconEl.innerHTML = asset.type === 'wind' 
+        ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+      
+      markerEl.appendChild(iconEl);
+      
+      // Create popup with asset information
+      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+        <div class="p-2">
+          <h3 class="font-medium text-base">${asset.name}</h3>
+          <div class="text-sm font-medium flex items-center gap-1 my-1">
+            ${asset.type === 'wind' 
+              ? '<span class="text-blue-500">Wind Power</span>' 
+              : '<span class="text-amber-500">Solar Power</span>'}
+          </div>
+          <div class="grid grid-cols-2 gap-1 text-xs mt-1">
+            <div>
+              <p class="text-gray-500">Location:</p>
+              <p class="font-medium">${asset.location}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Total Volume:</p>
+              <p class="font-medium">${asset.totalVolume} MWh</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Certificates:</p>
+              <p class="font-medium">${asset.totalCertificates}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Match Score:</p>
+              <p class="font-medium">${asset.averageScore}%</p>
+            </div>
+          </div>
+        </div>
+      `);
+      
+      // Add marker to map
+      new mapboxgl.Marker(markerEl)
+        .setLngLat([asset.coordinates.lng, asset.coordinates.lat])
+        .setPopup(popup)
+        .addTo(map.current!);
+    });
+  }, [assetData, mapLoaded, heatmapMode]);
+  
+  return (
+    <div className="relative w-full h-full">
+      <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
       
       {/* Map controls */}
-      <div className="absolute top-4 right-4 space-y-2">
+      <div className="absolute top-4 right-4 space-y-2 z-10">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="secondary"
                 size="icon"
-                className="bg-white dark:bg-gray-800"
+                className="bg-white dark:bg-gray-800 shadow-md"
                 onClick={() => setHeatmapMode(!heatmapMode)}
               >
-                <MapPin className="h-4 w-4" />
+                <MapIcon className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -206,35 +184,18 @@ export function AssetMap({ guaranteesOfOrigin }: AssetMapProps) {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="secondary"
-                size="icon"
-                className="bg-white dark:bg-gray-800"
-              >
-                <Info className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Note: This is a simplified map visualization. In a production app, this would use a proper map library.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
       </div>
       
       {/* Map legend */}
-      <div className="absolute bottom-4 left-4 bg-white dark:bg-gray-800 rounded-md p-2 shadow-md">
+      <Card className="absolute bottom-4 left-4 z-10 p-2 shadow-md bg-white/90 dark:bg-gray-800/90">
         <div className="text-sm font-medium mb-1">Legend</div>
         <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-1">
-            <div className="bg-blue-500 rounded-full w-3 h-3"></div>
+            <Badge className="bg-blue-500 h-3 w-3 p-0" />
             <span>Wind</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="bg-amber-500 rounded-full w-3 h-3"></div>
+            <Badge className="bg-amber-500 h-3 w-3 p-0" />
             <span>Solar</span>
           </div>
           {heatmapMode && (
@@ -245,7 +206,7 @@ export function AssetMap({ guaranteesOfOrigin }: AssetMapProps) {
             </div>
           )}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
