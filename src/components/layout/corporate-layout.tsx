@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { BarChart3, Home, User, Activity, FileText, Sliders } from "lucide-react";
+import { BarChart3, Home, User, Activity, FileText, Sliders, MapPin } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import { Bell, Moon, Sun } from "lucide-react";
@@ -58,6 +58,10 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
             <Link to="/corporate/consumption" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
               <Activity size={20} />
               <span>Consumption</span>
+            </Link>
+            <Link to="/corporate/tracing" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
+              <MapPin size={20} />
+              <span>Certificate Tracing</span>
             </Link>
             <Link to="/corporate/analytics" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
               <BarChart3 size={20} />

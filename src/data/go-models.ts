@@ -15,6 +15,7 @@ export interface GuaranteeOfOrigin {
   gsrn: string; // Global Service Relation Number of the producing asset
   gridArea: string; // Grid area where the energy was produced
   trackingCode: string; // Unique tracking code for this GO
+  coordinates?: { lat: number; lng: number }; // Optional coordinates for map display
 }
 
 export interface AllocationPrediction {

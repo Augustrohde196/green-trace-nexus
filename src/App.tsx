@@ -18,6 +18,7 @@ import CorporateCertificates from "./pages/corporate/CorporateCertificates";
 import CorporateConsumption from "./pages/corporate/CorporateConsumption";
 import CorporateAnalytics from "./pages/corporate/CorporateAnalytics";
 import CorporatePortfolio from "./pages/corporate/CorporatePortfolio";
+import CorporateTracing from "./pages/corporate/CorporateTracing";
 import CorporateOnboarding from "./pages/corporate/CorporateOnboarding";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/corporate/consumption" element={<CorporateLayout><CorporateConsumption /></CorporateLayout>} />
             <Route path="/corporate/analytics" element={<CorporateLayout><CorporateAnalytics /></CorporateLayout>} />
             <Route path="/corporate/portfolio" element={<CorporateLayout><CorporatePortfolio /></CorporateLayout>} />
+            <Route path="/corporate/tracing" element={<CorporateLayout><CorporateTracing /></CorporateLayout>} />
             
             {/* Corporate Onboarding */}
             <Route path="/corporate/onboarding" element={<CorporateOnboarding />} />
