@@ -36,23 +36,33 @@ export default function MatchingEngine() {
     setMetrics(goService.getMetrics());
   }, [activeTab]);
   
-  const runPredictionModel = () => {
+  const runPredictionModel = async () => {
     setIsRunningPrediction(true);
     
     // Simulate ML processing time
-    setTimeout(() => {
-      const availableGOs = goService.getAvailableGOs();
-      const predictions = matchingEngineService.predictOptimalAllocations(
-        availableGOs,
-        mockCustomers
-      );
-      setPredictions(predictions);
-      setIsRunningPrediction(false);
-      
-      toast({
-        title: "Model Execution Complete",
-        description: `Generated ${predictions.length} allocation predictions`,
-      });
+    setTimeout(async () => {
+      try {
+        const availableGOs = goService.getAvailableGOs();
+        const predictionResults = await matchingEngineService.predictOptimalAllocations(
+          availableGOs,
+          mockCustomers
+        );
+        setPredictions(predictionResults);
+        
+        toast({
+          title: "Model Execution Complete",
+          description: `Generated ${predictionResults.length} allocation predictions`,
+        });
+      } catch (error) {
+        console.error("Error running prediction model:", error);
+        toast({
+          title: "Prediction Error",
+          description: "An error occurred while generating predictions",
+          variant: "destructive"
+        });
+      } finally {
+        setIsRunningPrediction(false);
+      }
     }, 1500);
   };
   

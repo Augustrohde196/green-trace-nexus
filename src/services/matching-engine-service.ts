@@ -1,4 +1,3 @@
-
 import { Customer } from "@/data/models";
 import { GuaranteeOfOrigin, AllocationPrediction } from "@/data/go-models";
 import { goService } from "./go-service";
@@ -26,95 +25,98 @@ class MatchingEngineService {
     availableGOs: GuaranteeOfOrigin[],
     customers: Customer[]
   ): Promise<AllocationPrediction[]> {
-    const predictions: AllocationPrediction[] = [];
-    
-    // Group GOs by asset
-    const gosByAsset = availableGOs.reduce((acc, go) => {
-      if (!acc[go.assetId]) acc[go.assetId] = [];
-      acc[go.assetId].push(go);
-      return acc;
-    }, {} as Record<string, GuaranteeOfOrigin[]>);
-    
-    // For each customer, predict allocations based on their preferences
-    for (const customer of customers) {
-      // Calculate total volume needed for this customer
-      const totalConsumptionMWh = customer.annualConsumption * 1000; // Convert GWh to MWh
-      let allocatedVolume = 0;
+    // Return a Promise that resolves with the prediction results
+    return new Promise((resolve) => {
+      const predictions: AllocationPrediction[] = [];
       
-      // Get current allocations for this customer
-      const currentCustomerGOs = goService.getGOsByCustomer(customer.id);
-      const currentAllocationMWh = currentCustomerGOs.reduce((sum, go) => sum + go.volume, 0);
+      // Group GOs by asset
+      const gosByAsset = availableGOs.reduce((acc, go) => {
+        if (!acc[go.assetId]) acc[go.assetId] = [];
+        acc[go.assetId].push(go);
+        return acc;
+      }, {} as Record<string, GuaranteeOfOrigin[]>);
       
-      // Calculate remaining volume needed
-      const remainingNeedMWh = Math.max(0, totalConsumptionMWh - currentAllocationMWh);
-      
-      if (remainingNeedMWh <= 0) continue; // Customer has all they need
-      
-      // Try to get real consumption pattern from collected data
-      let consumptionPattern = dataCollectionService.getConsumptionPattern(customer.id);
-      
-      // If no real data, generate a simulated pattern
-      if (consumptionPattern.every(val => val === 0)) {
-        consumptionPattern = this.generateConsumptionPattern(customer);
+      // For each customer, predict allocations based on their preferences
+      for (const customer of customers) {
+        // Calculate total volume needed for this customer
+        const totalConsumptionMWh = customer.annualConsumption * 1000; // Convert GWh to MWh
+        let allocatedVolume = 0;
         
-        // Collect data for future use
-        dataCollectionService.collectCustomerConsumption(customer.id).catch(err => {
-          console.error("Failed to collect consumption data:", err);
-        });
-      }
-      
-      // For each asset, check if it matches customer preferences
-      for (const [assetId, gos] of Object.entries(gosByAsset)) {
-        const asset = mockAssets.find(a => a.id === assetId);
-        if (!asset) continue;
+        // Get current allocations for this customer
+        const currentCustomerGOs = goService.getGOsByCustomer(customer.id);
+        const currentAllocationMWh = currentCustomerGOs.reduce((sum, go) => sum + go.volume, 0);
         
-        // Check if asset type matches customer portfolio preferences
-        const assetTypePreference = asset.type === 'solar' ? customer.portfolioMix.solar : customer.portfolioMix.wind;
-        if (assetTypePreference < 10) continue; // Skip if customer has low preference for this type
+        // Calculate remaining volume needed
+        const remainingNeedMWh = Math.max(0, totalConsumptionMWh - currentAllocationMWh);
         
-        // Calculate available volume from this asset
-        const availableVolume = gos.reduce((sum, go) => sum + go.volume, 0);
+        if (remainingNeedMWh <= 0) continue; // Customer has all they need
         
-        // Determine volume to allocate (limited by both availability and need)
-        const volumeToAllocate = Math.min(availableVolume, remainingNeedMWh);
-        if (volumeToAllocate <= 0) continue;
+        // Try to get real consumption pattern from collected data
+        let consumptionPattern = dataCollectionService.getConsumptionPattern(customer.id);
         
-        // Try to get real production pattern from collected data
-        let productionPattern = dataCollectionService.getProductionPattern(asset.id);
-        
-        // If no real data, generate a simulated pattern or collect it
-        if (productionPattern.every(val => val === 0)) {
-          productionPattern = this.generateProductionPattern(asset.type);
+        // If no real data, generate a simulated pattern
+        if (consumptionPattern.every(val => val === 0)) {
+          consumptionPattern = this.generateConsumptionPattern(customer);
           
           // Collect data for future use
-          dataCollectionService.collectAssetProduction(asset.id).catch(err => {
-            console.error("Failed to collect production data:", err);
+          dataCollectionService.collectCustomerConsumption(customer.id).catch(err => {
+            console.error("Failed to collect consumption data:", err);
           });
         }
         
-        // Calculate match score between consumption and production
-        const matchScore = calculateMatchingScore(consumptionPattern, productionPattern);
-        
-        // Create prediction
-        predictions.push({
-          customerId: customer.id,
-          customerName: customer.name,
-          assetId: asset.id,
-          assetName: asset.name,
-          allocatedVolume: volumeToAllocate,
-          predictedScore: matchScore,
-          consumptionPattern,
-          productionPattern,
-          matchConfidence: 0.8 + (Math.random() * 0.15) // 80-95% confidence
-        });
-        
-        // Update remaining need
-        allocatedVolume += volumeToAllocate;
+        // For each asset, check if it matches customer preferences
+        for (const [assetId, gos] of Object.entries(gosByAsset)) {
+          const asset = mockAssets.find(a => a.id === assetId);
+          if (!asset) continue;
+          
+          // Check if asset type matches customer portfolio preferences
+          const assetTypePreference = asset.type === 'solar' ? customer.portfolioMix.solar : customer.portfolioMix.wind;
+          if (assetTypePreference < 10) continue; // Skip if customer has low preference for this type
+          
+          // Calculate available volume from this asset
+          const availableVolume = gos.reduce((sum, go) => sum + go.volume, 0);
+          
+          // Determine volume to allocate (limited by both availability and need)
+          const volumeToAllocate = Math.min(availableVolume, remainingNeedMWh);
+          if (volumeToAllocate <= 0) continue;
+          
+          // Try to get real production pattern from collected data
+          let productionPattern = dataCollectionService.getProductionPattern(asset.id);
+          
+          // If no real data, generate a simulated pattern or collect it
+          if (productionPattern.every(val => val === 0)) {
+            productionPattern = this.generateProductionPattern(asset.type);
+            
+            // Collect data for future use
+            dataCollectionService.collectAssetProduction(asset.id).catch(err => {
+              console.error("Failed to collect production data:", err);
+            });
+          }
+          
+          // Calculate match score between consumption and production
+          const matchScore = calculateMatchingScore(consumptionPattern, productionPattern);
+          
+          // Create prediction
+          predictions.push({
+            customerId: customer.id,
+            customerName: customer.name,
+            assetId: asset.id,
+            assetName: asset.name,
+            allocatedVolume: volumeToAllocate,
+            predictedScore: matchScore,
+            consumptionPattern,
+            productionPattern,
+            matchConfidence: 0.8 + (Math.random() * 0.15) // 80-95% confidence
+          });
+          
+          // Update remaining need
+          allocatedVolume += volumeToAllocate;
+        }
       }
-    }
-    
-    // Sort predictions by match score (descending)
-    return predictions.sort((a, b) => b.predictedScore - a.predictedScore);
+      
+      // Sort predictions by match score (descending)
+      resolve(predictions.sort((a, b) => b.predictedScore - a.predictedScore));
+    });
   }
   
   // Execute the allocations based on predictions
