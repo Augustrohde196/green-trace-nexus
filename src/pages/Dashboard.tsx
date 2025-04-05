@@ -1,11 +1,13 @@
 
-import { BarChart3, Wind, SunMedium, Users, LightbulbIcon, Battery } from "lucide-react";
+import { BarChart3, Wind, SunMedium, Users, LightbulbIcon, Battery, ExternalLink } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { ProductionChart } from "@/components/dashboard/production-chart";
 import { EnergyMixChart } from "@/components/dashboard/energy-mix-chart";
 import { AssetAllocation } from "@/components/dashboard/asset-allocation";
 import { CustomersTable } from "@/components/dashboard/customers-table";
 import { calculateDashboardMetrics, mockAssets, mockCustomers } from "@/data/mock-data";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   // In a real app, we would fetch this data from a server
@@ -13,9 +15,17 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <p className="text-muted-foreground">Manage your Guarantees of Origin portfolio and customers</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+          <p className="text-muted-foreground">Manage your Guarantees of Origin portfolio and customers</p>
+        </div>
+        <Link to="/corporate">
+          <Button className="gap-2">
+            <ExternalLink size={16} />
+            Corporate Portal
+          </Button>
+        </Link>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
