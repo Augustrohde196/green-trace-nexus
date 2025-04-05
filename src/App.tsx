@@ -10,6 +10,7 @@ import Assets from "./pages/Assets";
 import Customers from "./pages/Customers";
 import Billing from "./pages/Billing";
 import MatchingEngine from "./pages/MatchingEngine";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -33,7 +34,7 @@ const App = () => (
             />
             <Route path="/assets" element={<AppLayout><Assets /></AppLayout>} />
             <Route path="/customers" element={<AppLayout><Customers /></AppLayout>} />
-            <Route path="/analytics" element={<AppLayout><div className="p-4"><h1 className="text-2xl font-bold">Analytics</h1><p className="text-muted-foreground">This page is under construction.</p></div></AppLayout>} />
+            <Route path="/analytics" element={<AppLayout><Analytics /></AppLayout>} />
             <Route path="/matching" element={<AppLayout><MatchingEngine /></AppLayout>} />
             <Route path="/billing" element={<AppLayout><Billing /></AppLayout>} />
             <Route path="*" element={<NotFound />} />

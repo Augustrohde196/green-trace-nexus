@@ -1,3 +1,4 @@
+
 export interface Asset {
   id: string;
   name: string;
@@ -17,6 +18,8 @@ export interface Asset {
   installationType: "BTM" | "FTM"; // Behind-the-Meter or Front-of-the-Meter
   gridConnection: string; // Grid connection details
   owner: string; // Asset owner information
+  matchingScore?: number; // How well the asset's production profile matches consumption
+  carbonIntensity?: number; // Carbon intensity in gCO2eq/kWh
 }
 
 export interface Customer {
@@ -31,6 +34,7 @@ export interface Customer {
   };
   assets: AssetAllocation[];
   matchingScore: number; // 0-100%, how well their consumption matches production
+  utilityProvider?: string; // The utility or energy trader servicing this customer
 }
 
 export interface CustomerAllocation {

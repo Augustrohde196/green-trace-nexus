@@ -8,7 +8,11 @@ import {
   Receipt, 
   Search,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  FileText,
+  Building,
+  Euro,
+  CreditCard
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +40,7 @@ export default function Billing() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [filterStatus, setFilterStatus] = useState("all");
+  const [selectedUtility, setSelectedUtility] = useState("all");
   
   // Calculate the first day of the selected month
   const firstDayOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
@@ -63,10 +68,20 @@ export default function Billing() {
     setSelectedMonth(newDate);
   };
 
-  // Calculate billing for each customer
-  const customerBillings = customers.map(customer => {
-    // Calculate monthly consumption (simplified for this demo: yearly / 12)
-    const monthlyConsumption = customer.annualConsumption / 12;
+  // Mock utilities/traders
+  const utilities = [
+    { id: "ut1", name: "Energi Danmark A/S", country: "Denmark" },
+    { id: "ut2", name: "Norlys Energy Trading A/S", country: "Denmark" },
+    { id: "ut3", name: "Vattenfall Energy Trading GmbH", country: "Germany" },
+  ];
+
+  // Calculate customer distribution by utility
+  const customersByUtility = utilities.map(utility => {
+    // In this mock, we'll assign customers to utilities based on modulo of their id
+    const utilityCustomers = customers.filter((_, index) => index % utilities.length === utilities.indexOf(utility));
+    
+    // Calculate monthly consumption
+    const monthlyConsumption = utilityCustomers.reduce((acc, customer) => acc + customer.annualConsumption / 12, 0);
     
     // Calculate billing amount
     const billingAmount = monthlyConsumption * 1000 * RATE_PER_MWH; // Convert GWh to MWh
@@ -76,30 +91,34 @@ export default function Billing() {
     const paymentStatus = statuses[Math.floor(Math.random() * statuses.length)];
     
     return {
-      ...customer,
+      ...utility,
+      customerCount: utilityCustomers.length,
+      customers: utilityCustomers,
       monthlyConsumption,
       billingAmount,
       paymentStatus,
       invoiceDate: format(firstDayOfMonth, "yyyy-MM-dd"),
-      dueDate: format(new Date(firstDayOfMonth.getTime() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd")
+      dueDate: format(new Date(firstDayOfMonth.getTime() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
+      invoiceNumber: `INV-${utility.id.toUpperCase()}-${format(firstDayOfMonth, "yyyyMM")}`
     };
   });
 
-  // Filter the billings based on search query and status filter
-  const filteredBillings = customerBillings.filter(billing => {
+  // Filter the billing data based on search query and status filter
+  const filteredBillings = customersByUtility.filter(billing => {
     const matchesSearch = billing.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesUtility = selectedUtility === "all" || billing.id === selectedUtility;
     
-    if (filterStatus === "all") return matchesSearch;
-    return matchesSearch && billing.paymentStatus === filterStatus;
+    if (filterStatus === "all") return matchesSearch && matchesUtility;
+    return matchesSearch && matchesUtility && billing.paymentStatus === filterStatus;
   });
 
   // Calculate totals
-  const totalConsumption = customerBillings.reduce((sum, billing) => sum + billing.monthlyConsumption, 0);
-  const totalBilled = customerBillings.reduce((sum, billing) => sum + billing.billingAmount, 0);
-  const totalPaid = customerBillings
+  const totalConsumption = customersByUtility.reduce((sum, billing) => sum + billing.monthlyConsumption, 0);
+  const totalBilled = customersByUtility.reduce((sum, billing) => sum + billing.billingAmount, 0);
+  const totalPaid = customersByUtility
     .filter(billing => billing.paymentStatus === "paid")
     .reduce((sum, billing) => sum + billing.billingAmount, 0);
-  const totalPending = customerBillings
+  const totalPending = customersByUtility
     .filter(billing => billing.paymentStatus === "pending")
     .reduce((sum, billing) => sum + billing.billingAmount, 0);
 
@@ -109,7 +128,7 @@ export default function Billing() {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Billing</h2>
           <p className="text-muted-foreground">
-            Manage billing for corporate customers based on GO consumption
+            Monthly billing for utilities and energy traders
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -126,7 +145,7 @@ export default function Billing() {
             onClick={() => {}}
           >
             <Download size={16} />
-            Export Data
+            Export Invoices
           </Button>
         </div>
       </div>
@@ -163,7 +182,7 @@ export default function Billing() {
             <CardTitle className="text-sm font-medium">
               Total Billed
             </CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
+            <Euro className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">DKK {totalBilled.toLocaleString("da-DK")}</div>
@@ -178,7 +197,7 @@ export default function Billing() {
             <CardTitle className="text-sm font-medium">
               Paid
             </CardTitle>
-            <Receipt className="h-4 w-4 text-green-500" />
+            <CreditCard className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-500">
@@ -195,7 +214,7 @@ export default function Billing() {
             <CardTitle className="text-sm font-medium">
               Pending
             </CardTitle>
-            <Receipt className="h-4 w-4 text-yellow-500" />
+            <FileText className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-500">
@@ -212,12 +231,23 @@ export default function Billing() {
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search customers..."
+            placeholder="Search utilities..."
             className="pl-9"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        <Select value={selectedUtility} onValueChange={setSelectedUtility}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Filter by utility" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Utilities</SelectItem>
+            {utilities.map(utility => (
+              <SelectItem key={utility.id} value={utility.id}>{utility.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by status" />
@@ -236,10 +266,12 @@ export default function Billing() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Customer</TableHead>
-              <TableHead>Invoice Date</TableHead>
+              <TableHead>Utility/Trader</TableHead>
+              <TableHead>Invoice #</TableHead>
+              <TableHead>Issue Date</TableHead>
               <TableHead>Due Date</TableHead>
-              <TableHead>Consumption (MWh)</TableHead>
+              <TableHead>Corporate Customers</TableHead>
+              <TableHead>Total Volume (MWh)</TableHead>
               <TableHead>Rate (DKK/MWh)</TableHead>
               <TableHead className="text-right">Amount (DKK)</TableHead>
               <TableHead>Status</TableHead>
@@ -248,9 +280,26 @@ export default function Billing() {
           <TableBody>
             {filteredBillings.map((billing) => (
               <TableRow key={billing.id}>
-                <TableCell className="font-medium">{billing.name}</TableCell>
+                <TableCell className="font-medium">
+                  <div>
+                    {billing.name}
+                    <div className="text-xs text-muted-foreground">{billing.country}</div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                    {billing.invoiceNumber}
+                  </div>
+                </TableCell>
                 <TableCell>{billing.invoiceDate}</TableCell>
                 <TableCell>{billing.dueDate}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Building className="h-3.5 w-3.5 text-muted-foreground" />
+                    {billing.customerCount}
+                  </div>
+                </TableCell>
                 <TableCell>{(billing.monthlyConsumption * 1000).toFixed(0)}</TableCell>
                 <TableCell>{RATE_PER_MWH}</TableCell>
                 <TableCell className="text-right">{billing.billingAmount.toLocaleString("da-DK")}</TableCell>
@@ -277,6 +326,75 @@ export default function Billing() {
           </TableBody>
         </Table>
       </div>
+      
+      {/* Customer Breakdown Section */}
+      {selectedUtility !== "all" && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Customer Breakdown</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Industry</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Volume (MWh)</TableHead>
+                  <TableHead className="text-right">Billing Amount (DKK)</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {customersByUtility
+                  .find(u => u.id === selectedUtility)?.customers
+                  .map(customer => {
+                    const consumption = customer.annualConsumption / 12 * 1000; // Monthly in MWh
+                    const amount = consumption * RATE_PER_MWH;
+                    
+                    return (
+                      <TableRow key={customer.id}>
+                        <TableCell className="font-medium">{customer.name}</TableCell>
+                        <TableCell>{customer.industry}</TableCell>
+                        <TableCell>{customer.location}</TableCell>
+                        <TableCell>{consumption.toFixed(0)}</TableCell>
+                        <TableCell className="text-right">{amount.toLocaleString("da-DK")}</TableCell>
+                      </TableRow>
+                    );
+                  })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Billing Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4 text-sm">
+            <p>
+              Our billing model charges utilities and energy traders for the GO matching and allocation services
+              we provide to their corporate customers. The standard rate is <span className="font-medium">DKK 20 per MWh</span> of 
+              allocated renewable energy.
+            </p>
+            <p>
+              This fee covers:
+            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>AI-powered GO allocation and matching</li>
+              <li>Temporal matching between production and consumption</li>
+              <li>Portfolio mix optimization based on customer preferences</li>
+              <li>GO tracking and verification services</li>
+              <li>Customer-specific analytics and reporting</li>
+            </ul>
+            <p>
+              Invoices are generated monthly based on the total volume of renewable energy
+              allocated to corporate customers during the billing period.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
