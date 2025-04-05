@@ -1,5 +1,5 @@
 
-import { BarChart3, Wind, SunMedium, Users, LightbulbIcon, Battery, ExternalLink } from "lucide-react";
+import { BarChart3, Wind, SunMedium, Users, LightbulbIcon, Battery, ExternalLink, UserPlus } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { ProductionChart } from "@/components/dashboard/production-chart";
 import { EnergyMixChart } from "@/components/dashboard/energy-mix-chart";
@@ -20,12 +20,20 @@ const Dashboard = () => {
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <p className="text-muted-foreground">Manage your Guarantees of Origin portfolio and customers</p>
         </div>
-        <Link to="/corporate">
-          <Button className="gap-2">
-            <ExternalLink size={16} />
-            Corporate Portal
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link to="/corporate/onboarding">
+            <Button variant="outline" className="gap-2">
+              <UserPlus size={16} />
+              Add New Customer
+            </Button>
+          </Link>
+          <Link to="/corporate">
+            <Button className="gap-2">
+              <ExternalLink size={16} />
+              Corporate Portal
+            </Button>
+          </Link>
+        </div>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
