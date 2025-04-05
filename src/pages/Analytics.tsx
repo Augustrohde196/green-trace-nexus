@@ -776,7 +776,7 @@ export default function Analytics() {
                 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>Poor (>15% deviation)</span>
+                    <span>Poor ({'>'}15% deviation)</span>
                     <span className="font-medium">
                       {filteredCustomers.filter(c => c.portfolioMixDeviation > 15).length} customers
                     </span>
