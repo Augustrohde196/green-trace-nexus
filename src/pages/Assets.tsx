@@ -29,6 +29,7 @@ import {
 import { mockAssets } from "@/data/mock-data";
 import { Asset } from "@/data/models";
 import { AssetDetailCard } from "@/components/assets/asset-detail-card";
+import { PortfolioDistribution } from "@/components/assets/portfolio-distribution";
 
 export default function Assets() {
   const [selectedType, setSelectedType] = useState<string>("all");
@@ -60,6 +61,9 @@ export default function Assets() {
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
+
+      {/* Portfolio Distribution Section */}
+      <PortfolioDistribution assets={mockAssets} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">

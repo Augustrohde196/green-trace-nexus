@@ -30,9 +30,9 @@ const Dashboard = () => {
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <DashboardCard
-          title="Total Assets"
-          value={metrics.totalAssets}
-          description={`${metrics.totalCapacity} MW of total capacity`}
+          title="Total Capacity"
+          value={`${metrics.totalCapacity} MW`}
+          description={`${metrics.totalAssets} assets in portfolio`}
           icon={BarChart3}
         />
         <DashboardCard

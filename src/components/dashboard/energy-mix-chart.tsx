@@ -9,11 +9,12 @@ interface EnergyMixChartProps {
 
 export function EnergyMixChart({ data }: EnergyMixChartProps) {
   const COLORS = ["#3B82F6", "#F59E0B"]; // Wind: blue, Solar: amber
+  const totalProduction = data.reduce((sum, item) => sum + item.value, 0);
 
   return (
     <Card className="col-span-2">
       <CardHeader>
-        <CardTitle>Energy Mix (GWh)</CardTitle>
+        <CardTitle>Energy Mix (Last Year Production)</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[220px]">
@@ -34,7 +35,7 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
                 ))}
               </Pie>
               <Tooltip 
-                formatter={(value: number) => [`${value} GWh`, 'Production']}
+                formatter={(value: number) => [`${value} GWh (${Math.round((value/totalProduction)*100)}%)`, 'Production']}
               />
               <Legend />
             </PieChart>
