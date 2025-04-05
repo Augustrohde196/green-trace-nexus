@@ -4,15 +4,15 @@ import { format } from "date-fns";
 import { 
   Calendar, 
   Download, 
-  Filter, 
-  Receipt, 
   Search,
   ChevronLeft,
   ChevronRight,
   FileText,
   Building,
   Euro,
-  CreditCard
+  CreditCard,
+  AlertTriangle,
+  CheckCircle
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,13 +25,6 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useMockCustomers } from "@/hooks/use-mock-customers";
 
@@ -39,8 +32,6 @@ export default function Billing() {
   const { customers } = useMockCustomers();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(new Date());
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [selectedUtility, setSelectedUtility] = useState("all");
   
   // Calculate the first day of the selected month
   const firstDayOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
@@ -68,59 +59,33 @@ export default function Billing() {
     setSelectedMonth(newDate);
   };
 
-  // Mock utilities/traders
-  const utilities = [
-    { id: "ut1", name: "Energi Danmark A/S", country: "Denmark" },
-    { id: "ut2", name: "Norlys Energy Trading A/S", country: "Denmark" },
-    { id: "ut3", name: "Vattenfall Energy Trading GmbH", country: "Germany" },
-  ];
+  // Mock single utility/trader
+  const utility = {
+    id: "ut1",
+    name: "Energi Danmark A/S",
+    country: "Denmark",
+    invoiceNumber: `INV-ED-${format(firstDayOfMonth, "yyyyMM")}`,
+    invoiceDate: format(firstDayOfMonth, "yyyy-MM-dd"),
+    dueDate: format(new Date(firstDayOfMonth.getTime() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
+    paymentStatus: "pending"
+  };
+  
+  // Assign all customers to this utility for the demo
+  const utilityCustomers = customers;
+  
+  // Calculate monthly consumption and billing amount
+  const monthlyConsumption = utilityCustomers.reduce((acc, customer) => acc + customer.annualConsumption / 12, 0);
+  const billingAmount = monthlyConsumption * 1000 * RATE_PER_MWH; // Convert GWh to MWh for billing
+  
+  // Filter customers based on search query
+  const filteredCustomers = utilityCustomers.filter(customer => 
+    customer.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  // Calculate customer distribution by utility
-  const customersByUtility = utilities.map(utility => {
-    // In this mock, we'll assign customers to utilities based on modulo of their id
-    const utilityCustomers = customers.filter((_, index) => index % utilities.length === utilities.indexOf(utility));
-    
-    // Calculate monthly consumption
-    const monthlyConsumption = utilityCustomers.reduce((acc, customer) => acc + customer.annualConsumption / 12, 0);
-    
-    // Calculate billing amount
-    const billingAmount = monthlyConsumption * 1000 * RATE_PER_MWH; // Convert GWh to MWh
-    
-    // Randomly assign a payment status for demo purposes
-    const statuses = ["paid", "pending", "overdue"];
-    const paymentStatus = statuses[Math.floor(Math.random() * statuses.length)];
-    
-    return {
-      ...utility,
-      customerCount: utilityCustomers.length,
-      customers: utilityCustomers,
-      monthlyConsumption,
-      billingAmount,
-      paymentStatus,
-      invoiceDate: format(firstDayOfMonth, "yyyy-MM-dd"),
-      dueDate: format(new Date(firstDayOfMonth.getTime() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
-      invoiceNumber: `INV-${utility.id.toUpperCase()}-${format(firstDayOfMonth, "yyyyMM")}`
-    };
-  });
-
-  // Filter the billing data based on search query and status filter
-  const filteredBillings = customersByUtility.filter(billing => {
-    const matchesSearch = billing.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesUtility = selectedUtility === "all" || billing.id === selectedUtility;
-    
-    if (filterStatus === "all") return matchesSearch && matchesUtility;
-    return matchesSearch && matchesUtility && billing.paymentStatus === filterStatus;
-  });
-
-  // Calculate totals
-  const totalConsumption = customersByUtility.reduce((sum, billing) => sum + billing.monthlyConsumption, 0);
-  const totalBilled = customersByUtility.reduce((sum, billing) => sum + billing.billingAmount, 0);
-  const totalPaid = customersByUtility
-    .filter(billing => billing.paymentStatus === "paid")
-    .reduce((sum, billing) => sum + billing.billingAmount, 0);
-  const totalPending = customersByUtility
-    .filter(billing => billing.paymentStatus === "pending")
-    .reduce((sum, billing) => sum + billing.billingAmount, 0);
+  // Calculate previous month stats for comparison
+  const prevMonthConsumption = monthlyConsumption * 0.95; // 5% less for demo
+  const prevMonthAmount = prevMonthConsumption * 1000 * RATE_PER_MWH;
+  const monthlyChange = (monthlyConsumption - prevMonthConsumption) / prevMonthConsumption * 100;
 
   return (
     <div className="space-y-6">
@@ -128,7 +93,7 @@ export default function Billing() {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Billing</h2>
           <p className="text-muted-foreground">
-            Monthly billing for utilities and energy traders
+            Monthly billing for {utility.name}
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -145,7 +110,7 @@ export default function Billing() {
             onClick={() => {}}
           >
             <Download size={16} />
-            Export Invoices
+            Export Invoice
           </Button>
         </div>
       </div>
@@ -161,18 +126,82 @@ export default function Billing() {
         </Button>
       </div>
 
+      {/* Utility/Trader Invoice Details */}
+      <Card className="border-primary/20">
+        <CardHeader className="pb-2">
+          <div className="flex justify-between">
+            <CardTitle className="flex items-center gap-2">
+              Invoice Details
+              {utility.paymentStatus === "paid" ? (
+                <CheckCircle className="h-5 w-5 text-green-500" />
+              ) : utility.paymentStatus === "overdue" ? (
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+              ) : (
+                <FileText className="h-5 w-5 text-yellow-500" />
+              )}
+            </CardTitle>
+            <Badge
+              variant="outline"
+              className={
+                utility.paymentStatus === "paid"
+                  ? "bg-green-100 text-green-800 hover:bg-green-100"
+                  : utility.paymentStatus === "pending"
+                  ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+                  : "bg-red-100 text-red-800 hover:bg-red-100"
+              }
+            >
+              {utility.paymentStatus === "paid"
+                ? "Paid"
+                : utility.paymentStatus === "pending"
+                ? "Pending"
+                : "Overdue"}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div>
+              <div className="text-sm text-muted-foreground">Utility/Trader</div>
+              <div className="font-medium">{utility.name}</div>
+              <div className="text-xs text-muted-foreground">{utility.country}</div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-foreground">Invoice Number</div>
+              <div className="font-medium">{utility.invoiceNumber}</div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-foreground">Invoice Date</div>
+              <div className="font-medium">{utility.invoiceDate}</div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-foreground">Due Date</div>
+              <div className="font-medium">{utility.dueDate}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Total Consumption
             </CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
+            <Building className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalConsumption.toFixed(1)} GWh</div>
-            <p className="text-xs text-muted-foreground">
-              {(totalConsumption * 1000).toFixed(0)} MWh
+            <div className="text-2xl font-bold">{monthlyConsumption.toFixed(1)} GWh</div>
+            <p className="text-xs text-muted-foreground flex items-center">
+              {monthlyChange >= 0 ? (
+                <span className="text-green-500 flex items-center">
+                  ↑ {monthlyChange.toFixed(1)}%
+                </span>
+              ) : (
+                <span className="text-red-500 flex items-center">
+                  ↓ {Math.abs(monthlyChange).toFixed(1)}%
+                </span>
+              )}
+              <span className="ml-1">from last month</span>
             </p>
           </CardContent>
         </Card>
@@ -185,7 +214,7 @@ export default function Billing() {
             <Euro className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">DKK {totalBilled.toLocaleString("da-DK")}</div>
+            <div className="text-2xl font-bold">DKK {billingAmount.toLocaleString("da-DK")}</div>
             <p className="text-xs text-muted-foreground">
               For {format(firstDayOfMonth, "MMMM yyyy")}
             </p>
@@ -195,16 +224,16 @@ export default function Billing() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Paid
+              Rate
             </CardTitle>
-            <CreditCard className="h-4 w-4 text-green-500" />
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-500">
-              DKK {totalPaid.toLocaleString("da-DK")}
+            <div className="text-2xl font-bold">
+              DKK {RATE_PER_MWH}/MWh
             </div>
             <p className="text-xs text-muted-foreground">
-              {((totalPaid / totalBilled) * 100).toFixed(1)}% of total
+              Standard GO allocation rate
             </p>
           </CardContent>
         </Card>
@@ -212,160 +241,67 @@ export default function Billing() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Pending
+              Corporate Customers
             </CardTitle>
-            <FileText className="h-4 w-4 text-yellow-500" />
+            <Building className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-500">
-              DKK {totalPending.toLocaleString("da-DK")}
+            <div className="text-2xl font-bold">
+              {utilityCustomers.length}
             </div>
             <p className="text-xs text-muted-foreground">
-              {((totalPending / totalBilled) * 100).toFixed(1)}% of total
+              Total customers served
             </p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search utilities..."
-            className="pl-9"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <Select value={selectedUtility} onValueChange={setSelectedUtility}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Filter by utility" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Utilities</SelectItem>
-            {utilities.map(utility => (
-              <SelectItem key={utility.id} value={utility.id}>{utility.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="paid">Paid</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="overdue">Overdue</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* Search for customers */}
+      <div className="relative">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search customers..."
+          className="pl-9"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
-      {/* Billing table */}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Utility/Trader</TableHead>
-              <TableHead>Invoice #</TableHead>
-              <TableHead>Issue Date</TableHead>
-              <TableHead>Due Date</TableHead>
-              <TableHead>Corporate Customers</TableHead>
-              <TableHead>Total Volume (MWh)</TableHead>
-              <TableHead>Rate (DKK/MWh)</TableHead>
-              <TableHead className="text-right">Amount (DKK)</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredBillings.map((billing) => (
-              <TableRow key={billing.id}>
-                <TableCell className="font-medium">
-                  <div>
-                    {billing.name}
-                    <div className="text-xs text-muted-foreground">{billing.country}</div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-                    {billing.invoiceNumber}
-                  </div>
-                </TableCell>
-                <TableCell>{billing.invoiceDate}</TableCell>
-                <TableCell>{billing.dueDate}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Building className="h-3.5 w-3.5 text-muted-foreground" />
-                    {billing.customerCount}
-                  </div>
-                </TableCell>
-                <TableCell>{(billing.monthlyConsumption * 1000).toFixed(0)}</TableCell>
-                <TableCell>{RATE_PER_MWH}</TableCell>
-                <TableCell className="text-right">{billing.billingAmount.toLocaleString("da-DK")}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={
-                      billing.paymentStatus === "paid"
-                        ? "bg-green-100 text-green-800 hover:bg-green-100"
-                        : billing.paymentStatus === "pending"
-                        ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
-                        : "bg-red-100 text-red-800 hover:bg-red-100"
-                    }
-                  >
-                    {billing.paymentStatus === "paid"
-                      ? "Paid"
-                      : billing.paymentStatus === "pending"
-                      ? "Pending"
-                      : "Overdue"}
-                  </Badge>
-                </TableCell>
+      {/* Customer Breakdown */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Customer Breakdown</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Customer</TableHead>
+                <TableHead>Industry</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Volume (MWh)</TableHead>
+                <TableHead className="text-right">Billing Amount (DKK)</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      
-      {/* Customer Breakdown Section */}
-      {selectedUtility !== "all" && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Customer Breakdown</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Industry</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Volume (MWh)</TableHead>
-                  <TableHead className="text-right">Billing Amount (DKK)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {customersByUtility
-                  .find(u => u.id === selectedUtility)?.customers
-                  .map(customer => {
-                    const consumption = customer.annualConsumption / 12 * 1000; // Monthly in MWh
-                    const amount = consumption * RATE_PER_MWH;
-                    
-                    return (
-                      <TableRow key={customer.id}>
-                        <TableCell className="font-medium">{customer.name}</TableCell>
-                        <TableCell>{customer.industry}</TableCell>
-                        <TableCell>{customer.location}</TableCell>
-                        <TableCell>{consumption.toFixed(0)}</TableCell>
-                        <TableCell className="text-right">{amount.toLocaleString("da-DK")}</TableCell>
-                      </TableRow>
-                    );
-                  })}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
+            </TableHeader>
+            <TableBody>
+              {filteredCustomers.map(customer => {
+                const consumption = customer.annualConsumption / 12 * 1000; // Monthly in MWh
+                const amount = consumption * RATE_PER_MWH;
+                
+                return (
+                  <TableRow key={customer.id}>
+                    <TableCell className="font-medium">{customer.name}</TableCell>
+                    <TableCell>{customer.industry}</TableCell>
+                    <TableCell>{customer.location}</TableCell>
+                    <TableCell>{consumption.toFixed(0)}</TableCell>
+                    <TableCell className="text-right">{amount.toLocaleString("da-DK")}</TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
       
       <Card>
         <CardHeader>
