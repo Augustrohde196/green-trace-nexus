@@ -1,8 +1,10 @@
+
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { BarChart3, Wind, SunMedium, Clock, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -65,7 +67,13 @@ export function PortfolioSelectionStep({ data, updateData }: PortfolioSelectionS
   }, [form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    updateData(values);
+    // Ensure all required properties are passed to updateData
+    updateData({
+      solarPercentage: values.solarPercentage,
+      windPercentage: values.windPercentage,
+      timeMatching: values.timeMatching,
+      locationPreference: values.locationPreference,
+    });
   }
 
   const solarPercentage = form.watch("solarPercentage");

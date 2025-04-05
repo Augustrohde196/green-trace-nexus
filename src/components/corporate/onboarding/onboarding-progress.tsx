@@ -2,17 +2,17 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface OnboardingProgressProps {
-  steps: Array<{ id: string; label: string }>;
-  currentStep: string;
-  onStepClick: (stepId: string) => void;
+interface OnboardingProgressProps<T extends string> {
+  steps: Array<{ id: T; label: string }>;
+  currentStep: T;
+  onStepClick: (stepId: T) => void;
 }
 
-export function OnboardingProgress({ 
+export function OnboardingProgress<T extends string>({ 
   steps, 
   currentStep, 
   onStepClick 
-}: OnboardingProgressProps) {
+}: OnboardingProgressProps<T>) {
   const currentStepIndex = steps.findIndex(step => step.id === currentStep);
 
   return (

@@ -114,7 +114,7 @@ export function OnboardingForm({ onComplete, isSubmitting }: OnboardingFormProps
       <OnboardingProgress 
         steps={steps} 
         currentStep={currentStep} 
-        onStepClick={(stepId) => {
+        onStepClick={(stepId: OnboardingStep) => {
           // Only allow clicking on previous steps or the current step
           const clickedIndex = steps.findIndex(step => step.id === stepId);
           if (clickedIndex <= currentStepIndex) {

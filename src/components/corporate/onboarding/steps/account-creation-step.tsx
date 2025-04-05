@@ -58,7 +58,13 @@ export function AccountCreationStep({ data, updateData }: AccountCreationStepPro
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    updateData(values);
+    // Here we ensure all required properties are passed to updateData
+    updateData({
+      companyName: values.companyName,
+      email: values.email,
+      password: values.password,
+      industry: values.industry,
+    });
   }
 
   return (
