@@ -17,7 +17,7 @@ import CorporateDashboard from "./pages/corporate/CorporateDashboard";
 import CorporateCertificates from "./pages/corporate/CorporateCertificates";
 import CorporateConsumption from "./pages/corporate/CorporateConsumption";
 import CorporateAnalytics from "./pages/corporate/CorporateAnalytics";
-import CorporateBilling from "./pages/corporate/CorporateBilling";
+import CorporatePortfolio from "./pages/corporate/CorporatePortfolio";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const queryClient = new QueryClient();
@@ -50,7 +50,7 @@ const App = () => (
             <Route path="/corporate/certificates" element={<CorporateLayout><CorporateCertificates /></CorporateLayout>} />
             <Route path="/corporate/consumption" element={<CorporateLayout><CorporateConsumption /></CorporateLayout>} />
             <Route path="/corporate/analytics" element={<CorporateLayout><CorporateAnalytics /></CorporateLayout>} />
-            <Route path="/corporate/billing" element={<CorporateLayout><CorporateBilling /></CorporateLayout>} />
+            <Route path="/corporate/portfolio" element={<CorporateLayout><CorporatePortfolio /></CorporateLayout>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

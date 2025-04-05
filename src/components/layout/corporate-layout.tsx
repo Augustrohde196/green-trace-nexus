@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { BarChart3, Home, Receipt, User, Activity, FileText } from "lucide-react";
+import { BarChart3, Home, User, Activity, FileText, Sliders } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import { Bell, Moon, Sun } from "lucide-react";
@@ -15,11 +15,11 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
   return (
     <div className="flex min-h-screen w-full flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-[51] border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-16 items-center gap-4 px-6">
           <div className="flex-1">
             <Link to="/corporate" className="flex items-center gap-2">
-              <span className="font-bold text-xl text-primary">Renuw Corporate</span>
+              <span className="font-bold text-xl text-primary">Renuw</span>
             </Link>
           </div>
           <div className="flex items-center gap-4">
@@ -44,28 +44,28 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
 
       {/* Main content with sidebar */}
       <div className="flex flex-1">
-        {/* Sidebar */}
-        <aside className="w-64 border-r bg-background">
+        {/* Sidebar - now with black background */}
+        <aside className="w-64 border-r bg-black text-white">
           <nav className="p-4 space-y-2">
-            <Link to="/corporate" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted">
+            <Link to="/corporate" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
               <Home size={20} />
               <span>Dashboard</span>
             </Link>
-            <Link to="/corporate/certificates" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted">
+            <Link to="/corporate/certificates" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
               <FileText size={20} />
               <span>My Certificates</span>
             </Link>
-            <Link to="/corporate/consumption" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted">
+            <Link to="/corporate/consumption" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
               <Activity size={20} />
               <span>Consumption</span>
             </Link>
-            <Link to="/corporate/analytics" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted">
+            <Link to="/corporate/analytics" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
               <BarChart3 size={20} />
               <span>Analytics</span>
             </Link>
-            <Link to="/corporate/billing" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted">
-              <Receipt size={20} />
-              <span>Billing</span>
+            <Link to="/corporate/portfolio" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
+              <Sliders size={20} />
+              <span>Portfolio Settings</span>
             </Link>
           </nav>
         </aside>
