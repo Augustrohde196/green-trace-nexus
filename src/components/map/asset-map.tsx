@@ -24,6 +24,13 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 // For this demo, we'll use a public token with restricted capabilities
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibHVjaWRjaGFydHMiLCJhIjoiY2luMjRzMnluMGRsdXdlbTQxdGVydmVrZSJ9.KQ8YQOSUBRGvIHXH2rGYAw';
 
+// Denmark boundaries for map centering
+const DENMARK_CENTER = [10.4, 56.0];
+const DENMARK_BOUNDS = [
+  [8.0, 54.5], // Southwest coordinates
+  [13.0, 57.8]  // Northeast coordinates
+];
+
 interface AssetMapProps {
   guaranteesOfOrigin: GuaranteeOfOrigin[];
 }
@@ -72,16 +79,56 @@ export function AssetMap({ guaranteesOfOrigin }: AssetMapProps) {
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/light-v11',
-      center: [10.4, 56.0], // Center of Denmark
+      center: DENMARK_CENTER,
       zoom: 6,
       minZoom: 5,
-      maxZoom: 12
+      maxZoom: 12,
+      bounds: DENMARK_BOUNDS,
+      fitBoundsOptions: { padding: 40 }
     });
     
     // Add navigation controls
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
     
+    // Add fullscreen control
+    map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+    
+    // Add scale control
+    map.current.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
+    
     map.current.on('load', () => {
+      // Add Denmark's borders for better visualization
+      if (map.current) {
+        // Add Denmark's regions as a background layer
+        map.current.addSource('denmark-regions', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            geometry: {
+              type: 'Polygon',
+              coordinates: [[
+                [8.0, 54.5],  // Southwest Jutland
+                [8.0, 57.8],  // Northwest Jutland
+                [13.0, 57.8], // Northeast
+                [13.0, 54.5], // Southeast
+                [8.0, 54.5]   // Back to start
+              ]]
+            }
+          }
+        });
+        
+        map.current.addLayer({
+          id: 'denmark-outline',
+          type: 'line',
+          source: 'denmark-regions',
+          layout: {},
+          paint: {
+            'line-color': '#627BC1',
+            'line-width': 2
+          }
+        });
+      }
+      
       setMapLoaded(true);
     });
     
@@ -103,7 +150,7 @@ export function AssetMap({ guaranteesOfOrigin }: AssetMapProps) {
     assetData.forEach(asset => {
       // Create custom marker element
       const markerEl = document.createElement('div');
-      markerEl.className = 'flex items-center justify-center rounded-full shadow-lg cursor-pointer transition-all duration-300';
+      markerEl.className = 'flex items-center justify-center rounded-full shadow-lg cursor-pointer transition-all duration-300 hover:scale-110';
       
       // Set size based on volume in heatmap mode
       const size = heatmapMode 
@@ -122,6 +169,15 @@ export function AssetMap({ guaranteesOfOrigin }: AssetMapProps) {
         : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
       
       markerEl.appendChild(iconEl);
+      
+      // Add count indicator for multiple certificates
+      if (asset.totalCertificates > 1) {
+        const countEl = document.createElement('div');
+        countEl.className = 'absolute -top-2 -right-2 bg-white dark:bg-gray-800 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2';
+        countEl.style.borderColor = asset.type === 'wind' ? '#3b82f6' : '#f59e0b';
+        countEl.textContent = asset.totalCertificates.toString();
+        markerEl.appendChild(countEl);
+      }
       
       // Create popup with asset information
       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
@@ -166,7 +222,7 @@ export function AssetMap({ guaranteesOfOrigin }: AssetMapProps) {
       <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
       
       {/* Map controls */}
-      <div className="absolute top-4 right-4 space-y-2 z-10">
+      <div className="absolute top-4 left-4 space-y-2 z-10">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -188,7 +244,7 @@ export function AssetMap({ guaranteesOfOrigin }: AssetMapProps) {
       
       {/* Map legend */}
       <Card className="absolute bottom-4 left-4 z-10 p-2 shadow-md bg-white/90 dark:bg-gray-800/90">
-        <div className="text-sm font-medium mb-1">Legend</div>
+        <div className="text-sm font-medium mb-1">Certificate Sources</div>
         <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-1">
             <Badge className="bg-blue-500 h-3 w-3 p-0" />

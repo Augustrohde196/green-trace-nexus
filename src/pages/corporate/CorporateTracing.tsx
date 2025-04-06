@@ -9,39 +9,46 @@ import { Calendar, Download, Map, List } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { GuaranteeOfOrigin } from "@/data/go-models";
 
-// Denmark coordinates for simulating asset locations
+// Real Denmark coordinates for simulating asset locations
 const DENMARK_COORDINATES = [
-  { region: "Capital Region", lat: 55.676, lng: 12.568 }, // Copenhagen
-  { region: "North Denmark", lat: 57.048, lng: 9.921 }, // Aalborg
-  { region: "South Denmark", lat: 55.403, lng: 10.402 }, // Odense
-  { region: "Central Denmark", lat: 56.156, lng: 10.203 }, // Aarhus
-  { region: "Central Denmark", lat: 55.708, lng: 9.536 }, // Vejle
-  { region: "Central Denmark", lat: 55.862, lng: 9.850 }, // Horsens
-  { region: "South Denmark", lat: 55.230, lng: 10.139 }, // Svendborg
-  { region: "Central Denmark", lat: 55.859, lng: 8.526 }, // Herning
-  { region: "South Denmark", lat: 55.477, lng: 8.459 }, // Esbjerg
-  { region: "North Denmark", lat: 56.950, lng: 8.699 }, // Thisted
-  { region: "Zealand", lat: 55.312, lng: 11.557 }, // Slagelse
-  { region: "Zealand", lat: 55.640, lng: 12.081 }, // Roskilde
-  { region: "South Denmark", lat: 54.912, lng: 9.792 }, // Sønderborg
-  { region: "South Denmark", lat: 55.059, lng: 10.612 }, // Svendborg
-  { region: "North Denmark", lat: 57.458, lng: 10.038 }, // Frederikshavn
+  { region: "Capital Region", name: "Copenhagen", lat: 55.676, lng: 12.568 },
+  { region: "North Denmark", name: "Aalborg", lat: 57.048, lng: 9.921 },
+  { region: "South Denmark", name: "Odense", lat: 55.403, lng: 10.402 },
+  { region: "Central Denmark", name: "Aarhus", lat: 56.156, lng: 10.203 },
+  { region: "Central Denmark", name: "Vejle", lat: 55.708, lng: 9.536 },
+  { region: "Central Denmark", name: "Horsens", lat: 55.862, lng: 9.850 },
+  { region: "South Denmark", name: "Svendborg", lat: 55.230, lng: 10.139 },
+  { region: "Central Denmark", name: "Herning", lat: 55.859, lng: 8.526 },
+  { region: "South Denmark", name: "Esbjerg", lat: 55.477, lng: 8.459 },
+  { region: "North Denmark", name: "Thisted", lat: 56.950, lng: 8.699 },
+  { region: "Zealand", name: "Slagelse", lat: 55.312, lng: 11.557 },
+  { region: "Zealand", name: "Roskilde", lat: 55.640, lng: 12.081 },
+  { region: "South Denmark", name: "Sønderborg", lat: 54.912, lng: 9.792 },
+  { region: "South Denmark", name: "Middelfart", lat: 55.503, lng: 9.732 },
+  { region: "North Denmark", name: "Frederikshavn", lat: 57.458, lng: 10.538 },
+  { region: "North Jutland", name: "Skagen", lat: 57.721, lng: 10.590 },
+  { region: "Zealand", name: "Hillerød", lat: 55.927, lng: 12.300 },
+  { region: "Zealand", name: "Kalundborg", lat: 55.681, lng: 11.088 },
+  { region: "Zealand", name: "Køge", lat: 55.457, lng: 12.182 },
+  { region: "South Denmark", name: "Nyborg", lat: 55.312, lng: 10.789 }
 ];
 
-// Asset names
-const ASSET_NAMES = [
-  "Middelgrunden Wind Farm", "Anholt Offshore", "Nordjylland Solar Park", 
-  "Horns Rev Wind Farm", "Thy National Park Solar", "Zealand Wind Cooperative", 
-  "Aarhus Harbor Wind", "Esbjerg Energy Park", "Copenhagen Solar Array",
-  "Odense Clean Energy", "Vejle Green Power", "Aalborg Sustainable",
-  "Roskilde Solar Plant", "Herning Wind Collective", "Skagen Coastal Wind"
+// Danish wind farm and solar park names
+const DENMARK_ASSET_NAMES = [
+  "Anholt Offshore Wind Farm", "Kriegers Flak Wind Farm", "Horns Rev 3", 
+  "Middelgrunden Wind Farm", "Rødsand Wind Farm", "Vesterhav Nord", 
+  "Nissum Bredning Wave Energy", "Nordjylland Solar Park", "Nørhede Wind Park",
+  "Tjæreborg Wind Farm", "Zealand Solar Array", "Holstebro Solar Park",
+  "Copenhagen Energy Community", "Samsø Renewable Energy Island", "Bornholm Green Energy",
+  "Djursland Wind Collective", "Hvide Sande Harbor Wind", "Ringkøbing Solar Field",
+  "Lolland Community Energy", "Hirsholm Island Offshore"
 ];
 
-// Grid areas in Denmark
+// Danish grid areas
 const GRID_AREAS = [
-  "DK1 - West", "DK2 - East", "N1 - North Jutland", "FYN - Funen",
-  "KBH - Copenhagen", "SYD - South Jutland", "MID - Central Jutland",
-  "ZEA - Zealand", "BOR - Bornholm"
+  "DK1 - West Jutland", "DK2 - East Denmark", "N1 - North Jutland", "FYN - Funen",
+  "KBH - Copenhagen", "SJL - South Jutland", "MJL - Mid Jutland",
+  "ZEA - Zealand", "BOR - Bornholm", "NOR - Northern Zealand"
 ];
 
 // Generate a random date in the last month
@@ -62,21 +69,27 @@ const generateSimulatedGOs = (count: number): GuaranteeOfOrigin[] => {
   const gos: GuaranteeOfOrigin[] = [];
   
   for (let i = 0; i < count; i++) {
-    const assetIndex = Math.floor(Math.random() * ASSET_NAMES.length);
     const locationIndex = Math.floor(Math.random() * DENMARK_COORDINATES.length);
+    const location = DENMARK_COORDINATES[locationIndex];
+    const assetNameIndex = Math.floor(Math.random() * DENMARK_ASSET_NAMES.length);
     const gridAreaIndex = Math.floor(Math.random() * GRID_AREAS.length);
-    const type = Math.random() > 0.6 ? "wind" : "solar";
+    
+    // Determine type based on asset name (for more realistic assignments)
+    const assetName = DENMARK_ASSET_NAMES[assetNameIndex];
+    const type = assetName.toLowerCase().includes("wind") || assetName.toLowerCase().includes("offshore") ? 
+                "wind" : "solar";
+    
     const volume = Math.floor(Math.random() * 50) + 10;
     const allocationScore = Math.floor(Math.random() * 40) + 60;
     
     // Add small random offset to prevent assets from stacking exactly
-    const latOffset = (Math.random() - 0.5) * 0.2;
-    const lngOffset = (Math.random() - 0.5) * 0.3;
+    const latOffset = (Math.random() - 0.5) * 0.1;
+    const lngOffset = (Math.random() - 0.5) * 0.15;
     
     gos.push({
       id: `go-${i}`,
-      assetId: `asset-${assetIndex}`,
-      assetName: ASSET_NAMES[assetIndex],
+      assetId: `asset-${assetNameIndex}`,
+      assetName: assetName,
       type,
       productionTimestamp: getRandomDate(),
       volume,
@@ -87,10 +100,10 @@ const generateSimulatedGOs = (count: number): GuaranteeOfOrigin[] => {
       allocationScore,
       gsrn: `578999${Math.floor(Math.random() * 1000000)}`,
       gridArea: GRID_AREAS[gridAreaIndex],
-      trackingCode: `TRK-${Math.floor(Math.random() * 10000)}`,
+      trackingCode: `DK-TRK-${Math.floor(Math.random() * 10000)}`,
       coordinates: {
-        lat: DENMARK_COORDINATES[locationIndex].lat + latOffset,
-        lng: DENMARK_COORDINATES[locationIndex].lng + lngOffset
+        lat: location.lat + latOffset,
+        lng: location.lng + lngOffset
       }
     });
   }
@@ -119,11 +132,15 @@ const CorporateTracing = () => {
     }, 500);
   }, []);
   
+  // Calculate metrics
   const totalVolume = allocatedGOs.reduce((sum, go) => sum + go.volume, 0);
   const solarGOs = allocatedGOs.filter(go => go.type === "solar");
   const windGOs = allocatedGOs.filter(go => go.type === "wind");
   const solarVolume = solarGOs.reduce((sum, go) => sum + go.volume, 0);
   const windVolume = windGOs.reduce((sum, go) => sum + go.volume, 0);
+  
+  // Calculate unique production sites
+  const uniqueAssetCount = new Set(allocatedGOs.map(go => go.assetId)).size;
   
   return (
     <div className="space-y-6">
@@ -131,7 +148,7 @@ const CorporateTracing = () => {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Certificate Tracing</h2>
           <p className="text-muted-foreground">
-            Track your certificates and view production assets on a map
+            Track your certificates and view production assets across Denmark
           </p>
         </div>
         <Button variant="outline">
@@ -188,19 +205,15 @@ const CorporateTracing = () => {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Match Score</CardTitle>
+            <CardTitle className="text-sm font-medium">Production Sites</CardTitle>
             <Badge variant="outline" className="bg-purple-500/10 text-purple-500 border-purple-500/20">
-              %
+              Count
             </Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {allocatedGOs.length > 0 
-                ? Math.round(allocatedGOs.reduce((sum, go) => sum + (go.allocationScore || 0), 0) / allocatedGOs.length)
-                : 0}
-            </div>
+            <div className="text-2xl font-bold">{uniqueAssetCount}</div>
             <p className="text-xs text-muted-foreground">
-              Production-consumption matching
+              Across Denmark
             </p>
           </CardContent>
         </Card>
