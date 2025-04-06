@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -244,7 +243,7 @@ const CorporateTracing = () => {
           </CardContent>
         </Card>
       ) : (
-        <GOTrackingTable 
+        <GoTrackingTable 
           guaranteesOfOrigin={allocatedGOs} 
           title="Allocated Certificates" 
           showSearch={true}
