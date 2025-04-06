@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GoTrackingTable } from "@/components/go/go-tracking-table";
+import { GOTrackingTable } from "@/components/go/go-tracking-table";
 import { AssetMap } from "@/components/map/asset-map";
 import { Button } from "@/components/ui/button";
 import { Calendar, Download, Map, List } from "lucide-react";
@@ -243,7 +244,7 @@ const CorporateTracing = () => {
           </CardContent>
         </Card>
       ) : (
-        <GoTrackingTable 
+        <GOTrackingTable 
           guaranteesOfOrigin={allocatedGOs} 
           title="Allocated Certificates" 
           showSearch={true}
