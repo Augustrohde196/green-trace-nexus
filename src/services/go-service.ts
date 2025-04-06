@@ -36,7 +36,8 @@ const generateMockGOs = (): GuaranteeOfOrigin[] => {
         allocationScore: isAllocated ? Math.floor(Math.random() * 100) : null,
         gsrn: asset.gsrn || `GSRN-${asset.id}`,
         gridArea: asset.location,
-        trackingCode: `RENUW-GO-${asset.id.substring(0, 4)}-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
+        trackingCode: `RENUW-GO-${asset.id.substring(0, 4)}-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+        coordinates: asset.coordinates || { lat: 56.0 + (Math.random() - 0.5) * 2, lng: 10.0 + (Math.random() - 0.5) * 2 }
       });
     }
   });
