@@ -25,8 +25,9 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibHVjaWRjaGFydHMiLCJhIjoiY2luMjRzMnluMGRsdXdlbTQxdGVydmVrZSJ9.KQ8YQOSUBRGvIHXH2rGYAw';
 
 // Denmark boundaries for map centering
-const DENMARK_CENTER = [10.4, 56.0];
-const DENMARK_BOUNDS = [
+// Updated to use proper LngLatLike type (as tuples)
+const DENMARK_CENTER: [number, number] = [10.4, 56.0];
+const DENMARK_BOUNDS: [[number, number], [number, number]] = [
   [8.0, 54.5], // Southwest coordinates
   [13.0, 57.8]  // Northeast coordinates
 ];
@@ -99,7 +100,7 @@ export function AssetMap({ guaranteesOfOrigin }: AssetMapProps) {
     map.current.on('load', () => {
       // Add Denmark's borders for better visualization
       if (map.current) {
-        // Add Denmark's regions as a background layer
+        // Fixed GeoJSON structure by adding the required 'properties' field
         map.current.addSource('denmark-regions', {
           type: 'geojson',
           data: {
@@ -113,7 +114,8 @@ export function AssetMap({ guaranteesOfOrigin }: AssetMapProps) {
                 [13.0, 54.5], // Southeast
                 [8.0, 54.5]   // Back to start
               ]]
-            }
+            },
+            properties: {} // Added the required empty properties object
           }
         });
         
