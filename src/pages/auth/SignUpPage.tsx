@@ -1,7 +1,19 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Building2, Factory, ArrowRight, Mail, Lock, User, Check, Sparkles } from "lucide-react";
+import { 
+  Eye, 
+  EyeOff, 
+  Building2, 
+  Factory, 
+  ArrowRight, 
+  Mail, 
+  Lock, 
+  User, 
+  Check, 
+  Shield, 
+  Sparkles
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,18 +56,21 @@ const SignUpPage = () => {
 
   return (
     <AuthLayout>
-      <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
-        <CardHeader className="space-y-1">
+      <Card className="border-none shadow-2xl bg-card/80 backdrop-blur-sm overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-2xl transform translate-x-16 -translate-y-16"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/20 rounded-full blur-2xl transform -translate-x-16 translate-y-16"></div>
+        
+        <CardHeader className="space-y-1 relative z-10">
           <div className="flex items-center justify-center mb-2">
-            <Sparkles className="h-6 w-6 text-primary mr-2" />
+            <Shield className="h-6 w-6 text-primary mr-2" />
           </div>
-          <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Create your account</CardTitle>
           <CardDescription className="text-center">
-            Choose your account type to get started
+            Start your clean energy journey today
           </CardDescription>
         </CardHeader>
         
-        <CardContent>
+        <CardContent className="relative z-10">
           <Tabs defaultValue="corporate" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="corporate" className="flex items-center gap-2">
@@ -131,6 +146,28 @@ const SignUpPage = () => {
                         Password must be at least 8 characters long
                       </p>
                     </div>
+                    
+                    <div className="mt-2 rounded-lg bg-muted/50 p-3">
+                      <p className="text-sm font-medium mb-2 flex items-center">
+                        <Sparkles size={16} className="text-primary mr-1.5" />
+                        Corporate Benefits
+                      </p>
+                      <ul className="text-sm space-y-1">
+                        <li className="flex items-start">
+                          <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
+                          <span>24/7 clean energy matching</span>
+                        </li>
+                        <li className="flex items-start">
+                          <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
+                          <span>Sustainability reporting tools</span>
+                        </li>
+                        <li className="flex items-start">
+                          <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
+                          <span>Transparent tracking of certificates</span>
+                        </li>
+                      </ul>
+                    </div>
+                    
                     <div className="flex items-center space-x-2 mt-2">
                       <Checkbox id="terms-corporate" required />
                       <Label htmlFor="terms-corporate" className="text-sm">
@@ -243,6 +280,28 @@ const SignUpPage = () => {
                         Password must be at least 8 characters long
                       </p>
                     </div>
+                    
+                    <div className="mt-2 rounded-lg bg-muted/50 p-3">
+                      <p className="text-sm font-medium mb-2 flex items-center">
+                        <Sparkles size={16} className="text-primary mr-1.5" />
+                        Utility Benefits
+                      </p>
+                      <ul className="text-sm space-y-1">
+                        <li className="flex items-start">
+                          <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
+                          <span>Expanded market reach for your certificates</span>
+                        </li>
+                        <li className="flex items-start">
+                          <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
+                          <span>Simplified certificate management</span>
+                        </li>
+                        <li className="flex items-start">
+                          <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
+                          <span>Enhanced reporting and analytics</span>
+                        </li>
+                      </ul>
+                    </div>
+                    
                     <div className="flex items-center space-x-2 mt-2">
                       <Checkbox id="terms-utility" required />
                       <Label htmlFor="terms-utility" className="text-sm">

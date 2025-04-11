@@ -15,9 +15,9 @@ export function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="min-h-screen grid md:grid-cols-2 bg-background dark:bg-background">
       {/* Logo and theme toggle */}
-      <div className="absolute top-6 left-6 flex items-center justify-between z-10 w-[calc(100%-3rem)]">
+      <div className="absolute top-6 left-6 flex items-center justify-between z-20 w-[calc(100%-3rem)]">
         <Link to="/" className="flex items-center">
-          <span className="font-bold text-3xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary/80 drop-shadow-sm">
+          <span className="font-bold text-3xl tracking-tight text-white drop-shadow-md">
             Renuw
           </span>
         </Link>
@@ -33,42 +33,43 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       </div>
 
       {/* Left side - value proposition */}
-      <div className="hidden md:flex relative bg-gradient-to-br from-primary/90 to-primary/50 dark:from-primary/80 dark:to-primary/30 flex-col items-center justify-center p-12 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=2072')] bg-cover bg-center opacity-10"></div>
+      <div className="hidden md:flex relative bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 flex-col items-center justify-center p-12 text-white overflow-hidden">
+        <div className="absolute inset-0 bg-grid-white/10 mask-gradient-to-b pointer-events-none"></div>
         
         {/* Animated background shapes */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-          <div className="absolute top-20 left-10 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-white/5 animate-pulse [animation-duration:7s]"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-white/5 animate-pulse [animation-duration:10s]"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-white/5 animate-pulse [animation-duration:15s]"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col items-center text-center max-w-md">
-          <h1 className="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80">
+        <div className="relative z-10 flex flex-col items-center text-center max-w-lg">
+          <h1 className="text-5xl font-bold mb-6 text-white">
             Renewable Energy Simplified
           </h1>
           <p className="text-xl mb-12 text-white/90">
-            The future of clean energy certificates is here
+            Transparent, efficient, and verifiable clean energy certificates
           </p>
           
-          <div className="grid grid-cols-1 gap-5 w-full max-w-sm">
-            <div className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm p-6 rounded-xl text-left transition-all duration-300 border border-white/10 hover:border-white/20 hover:shadow-lg">
-              <div className="font-bold text-2xl mb-2 group-hover:translate-x-1 transition-transform">Traceability</div>
-              <div className="text-base text-white/80">Track the origin of your energy certificates with transparent blockchain technology</div>
+          <div className="grid grid-cols-2 gap-5 w-full">
+            <div className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-white/20 hover:shadow-lg transition-all duration-300">
+              <div className="font-bold text-2xl mb-3 text-white group-hover:translate-x-1 transition-transform">Traceability</div>
+              <div className="text-white/80">Full transparency with blockchain-verified energy certificates</div>
             </div>
             
-            <div className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm p-6 rounded-xl text-left transition-all duration-300 border border-white/10 hover:border-white/20 hover:shadow-lg">
-              <div className="font-bold text-2xl mb-2 group-hover:translate-x-1 transition-transform">Customization</div>
-              <div className="text-base text-white/80">Tailor your renewable energy portfolio to match your sustainability goals</div>
+            <div className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-white/20 hover:shadow-lg transition-all duration-300">
+              <div className="font-bold text-2xl mb-3 text-white group-hover:translate-x-1 transition-transform">Customization</div>
+              <div className="text-white/80">Tailor your energy portfolio to your specific sustainability goals</div>
             </div>
             
-            <div className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm p-6 rounded-xl text-left transition-all duration-300 border border-white/10 hover:border-white/20 hover:shadow-lg">
-              <div className="font-bold text-2xl mb-2 group-hover:translate-x-1 transition-transform">Optimization</div>
-              <div className="text-base text-white/80">Maximize impact and minimize costs with our AI-powered matching engine</div>
+            <div className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-white/20 hover:shadow-lg transition-all duration-300">
+              <div className="font-bold text-2xl mb-3 text-white group-hover:translate-x-1 transition-transform">Optimization</div>
+              <div className="text-white/80">AI-powered matching to maximize impact while minimizing costs</div>
             </div>
             
-            <div className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm p-6 rounded-xl text-left transition-all duration-300 border border-white/10 hover:border-white/20 hover:shadow-lg">
-              <div className="font-bold text-2xl mb-2 group-hover:translate-x-1 transition-transform">Time-Matching</div>
-              <div className="text-base text-white/80">Match your energy consumption with renewable production in real-time</div>
+            <div className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-white/20 hover:shadow-lg transition-all duration-300">
+              <div className="font-bold text-2xl mb-3 text-white group-hover:translate-x-1 transition-transform">Time-Matching</div>
+              <div className="text-white/80">Real-time matching between energy consumption and production</div>
             </div>
           </div>
         </div>
