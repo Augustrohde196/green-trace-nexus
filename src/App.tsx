@@ -20,6 +20,9 @@ import CorporateAnalytics from "./pages/corporate/CorporateAnalytics";
 import CorporatePortfolio from "./pages/corporate/CorporatePortfolio";
 import CorporateTracing from "./pages/corporate/CorporateTracing";
 import CorporateOnboarding from "./pages/corporate/CorporateOnboarding";
+import SignInPage from "./pages/auth/SignInPage";
+import SignUpPage from "./pages/auth/SignUpPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const queryClient = new QueryClient();
@@ -32,6 +35,11 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Auth Routes */}
+            <Route path="/auth/sign-in" element={<SignInPage />} />
+            <Route path="/auth/sign-up" element={<SignUpPage />} />
+            <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+            
             {/* Admin Portal Routes */}
             <Route
               path="/"

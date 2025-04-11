@@ -1,8 +1,9 @@
 
-import { Link } from "react-router-dom";
-import { Home, FileText, Activity, MapPin, BarChart3, Sliders, Bell, Moon, Sun, User } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Home, FileText, Activity, MapPin, BarChart3, Sliders, Bell, Moon, Sun, User, LogOut } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Sidebar,
   SidebarContent,
@@ -16,6 +17,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface CorporateLayoutProps {
   children: React.ReactNode;
@@ -56,6 +65,16 @@ const menuItems = [
 
 export function CorporateLayout({ children }: CorporateLayoutProps) {
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSignOut = () => {
+    toast({
+      title: "Signed out",
+      description: "You have been signed out successfully",
+    });
+    navigate("/auth/sign-in");
+  };
 
   return (
     <SidebarProvider>
@@ -107,10 +126,31 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
                 <Button variant="ghost" size="icon">
                   <Bell size={20} />
                 </Button>
-                <Button variant="outline" size="sm">
-                  <User size={16} className="mr-2" />
-                  My Account
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <User size={16} className="mr-2" />
+                      My Account
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <User size={16} className="mr-2" />
+                      Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Sliders size={16} className="mr-2" />
+                      Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOut size={16} className="mr-2" />
+                      Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </header>
