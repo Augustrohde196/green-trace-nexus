@@ -1,62 +1,99 @@
 
 import { Link } from "react-router-dom";
-import { BarChart3, Home, User, Activity, FileText, Sliders, MapPin } from "lucide-react";
+import { Home, FileText, Activity, MapPin, BarChart3, Sliders, Bell, Moon, Sun, User } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
-import { Bell, Moon, Sun } from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 interface CorporateLayoutProps {
   children: React.ReactNode;
 }
 
+const menuItems = [
+  {
+    title: "Dashboard",
+    icon: Home,
+    url: "/corporate",
+  },
+  {
+    title: "My Certificates",
+    icon: FileText,
+    url: "/corporate/certificates",
+  },
+  {
+    title: "Consumption",
+    icon: Activity,
+    url: "/corporate/consumption",
+  },
+  {
+    title: "Certificate Tracing",
+    icon: MapPin,
+    url: "/corporate/tracing",
+  },
+  {
+    title: "Analytics",
+    icon: BarChart3,
+    url: "/corporate/analytics",
+  },
+  {
+    title: "Portfolio Settings",
+    icon: Sliders,
+    url: "/corporate/portfolio",
+  },
+];
+
 export function CorporateLayout({ children }: CorporateLayoutProps) {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <div className="flex flex-1">
-        {/* Sidebar - with larger logo and fixed positioning */}
-        <aside className="w-64 bg-black text-white fixed h-full z-40">
-          <div className="p-6 border-b border-gray-800 flex justify-center">
-            <Link to="/corporate" className="flex items-center justify-center">
-              <span className="font-bold text-3xl text-white">Renuw</span>
-            </Link>
-          </div>
-          <nav className="p-4 space-y-2">
-            <Link to="/corporate" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
-              <Home size={20} />
-              <span>Dashboard</span>
-            </Link>
-            <Link to="/corporate/certificates" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
-              <FileText size={20} />
-              <span>My Certificates</span>
-            </Link>
-            <Link to="/corporate/consumption" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
-              <Activity size={20} />
-              <span>Consumption</span>
-            </Link>
-            <Link to="/corporate/tracing" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
-              <MapPin size={20} />
-              <span>Certificate Tracing</span>
-            </Link>
-            <Link to="/corporate/analytics" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
-              <BarChart3 size={20} />
-              <span>Analytics</span>
-            </Link>
-            <Link to="/corporate/portfolio" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
-              <Sliders size={20} />
-              <span>Portfolio Settings</span>
-            </Link>
-          </nav>
-        </aside>
-
-        {/* Main content - adjusted with left margin to account for fixed sidebar */}
-        <div className="flex-1 flex flex-col ml-64">
-          {/* Header - removed redundant dashboard title */}
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <Sidebar>
+          <SidebarHeader className="flex items-center justify-center p-6">
+            <span className="font-bold text-white text-2xl tracking-tight">Renuw</span>
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Corporate Portal</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {menuItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <Link to={item.url}>
+                          <item.icon size={20} />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+          <SidebarFooter className="px-6 py-4">
+            <div className="text-xs text-white/70">
+              Renuw Corporate Portal v1.0
+            </div>
+          </SidebarFooter>
+        </Sidebar>
+        <div className="flex-1 flex flex-col">
           <header className="sticky top-0 z-[51] border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-16 items-center gap-4 px-6">
               <div className="flex-1">
-                {/* Removed Corporate Dashboard heading */}
+                {/* Header space */}
               </div>
               <div className="flex items-center gap-4">
                 <Button 
@@ -77,13 +114,11 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
               </div>
             </div>
           </header>
-
-          {/* Main content */}
           <main className="flex-1 p-6">
             {children}
           </main>
         </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
