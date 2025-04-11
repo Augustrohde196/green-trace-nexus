@@ -1,8 +1,16 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Battery, Building2, FileCheck, Wind, SunMedium, AlertTriangle, TrendingUp, ArrowUp, Check } from "lucide-react";
+import { Battery, Building2, FileCheck, Wind, SunMedium, AlertTriangle, TrendingUp, ArrowUp, Check, Download } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Line, ComposedChart, AreaChart, Area, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Line, ComposedChart, AreaChart, Area, HorizontalBarChart } from "recharts";
+import { Button } from "@/components/ui/button";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
 
 // Sample data for time-matching scores by month
 const timeMatchingData = [
@@ -34,21 +42,75 @@ const portfolioPerformanceData = [
   { parameter: "Regional (<300km)", actual: 65, target: 60 },
 ];
 
-// Portfolio match score data
+// Portfolio match score data in different format for horizontal bar chart
 const portfolioMatchScores = [
-  { name: "Technology Mix", value: 92 },
-  { name: "Location Distance", value: 88 },
-  { name: "Time Matching", value: 78 },
-  { name: "Capacity Factor", value: 95 },
-  { name: "Additionality", value: 70 },
+  { name: "Technology Mix", value: 92, fill: "#8884d8" },
+  { name: "Location Distance", value: 88, fill: "#82ca9d" },
+  { name: "Time Matching", value: 78, fill: "#ffc658" },
+  { name: "Capacity Factor", value: 95, fill: "#0088fe" },
+  { name: "Additionality", value: 70, fill: "#ff8042" },
+];
+
+// Time period options for reports
+const timePeriods = [
+  { label: "Last Month", value: "1m" },
+  { label: "Last 3 Months", value: "3m" },
+  { label: "Last 6 Months", value: "6m" },
+  { label: "Last Year", value: "1y" },
 ];
 
 const CorporateDashboard = () => {
+  const [selectedPeriod, setSelectedPeriod] = useState("6m");
+
+  // Function to handle downloading the chart as an image
+  const downloadChart = (chartId: string, filename: string) => {
+    const chartElement = document.getElementById(chartId);
+    if (!chartElement) return;
+    
+    // This is a simplified example - in a real app you would use a library 
+    // like html2canvas or dom-to-image to create an actual image
+    console.log(`Downloading ${chartId} as ${filename}_${selectedPeriod}.png`);
+    
+    // Mock alert to show functionality
+    alert(`Chart "${filename}" for period ${selectedPeriod} would be downloaded in a production environment.`);
+  };
+
+  // Function to download a full report
+  const downloadFullReport = () => {
+    console.log(`Downloading full report for period: ${selectedPeriod}`);
+    alert(`Full report for period ${selectedPeriod} would be downloaded in a production environment.`);
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Corporate Dashboard</h2>
-        <p className="text-muted-foreground">Welcome back, Vestas Wind Systems A/S</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+          <p className="text-muted-foreground">Welcome back, Vestas Wind Systems A/S</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                {timePeriods.find(p => p.value === selectedPeriod)?.label || "Select Period"}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {timePeriods.map((period) => (
+                <DropdownMenuItem 
+                  key={period.value} 
+                  onClick={() => setSelectedPeriod(period.value)}
+                >
+                  {period.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button onClick={downloadFullReport} className="gap-2">
+            <Download size={16} />
+            Download Report
+          </Button>
+        </div>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -99,14 +161,22 @@ const CorporateDashboard = () => {
 
       <div className="grid gap-4 grid-cols-1">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
               Time-Matching Scores (Last 6 Months)
             </CardTitle>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => downloadChart('time-matching-chart', 'time_matching')}
+            >
+              <Download size={16} className="mr-2" />
+              Download
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px]">
+            <div className="h-[300px]" id="time-matching-chart">
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={timeMatchingData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -149,11 +219,19 @@ const CorporateDashboard = () => {
 
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Energy Certificates</CardTitle>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => downloadChart('certificates-chart', 'certificates')}
+            >
+              <Download size={16} className="mr-2" />
+              Download
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-4" id="certificates-chart">
               <div>
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-medium">Wind Certificates</div>
@@ -179,11 +257,19 @@ const CorporateDashboard = () => {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Consumption Profile</CardTitle>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => downloadChart('consumption-profile-chart', 'consumption')}
+            >
+              <Download size={16} className="mr-2" />
+              Download
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="h-[200px]">
+            <div className="h-[200px]" id="consumption-profile-chart">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={consumptionData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -204,11 +290,19 @@ const CorporateDashboard = () => {
 
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Portfolio Allocation vs Target</CardTitle>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => downloadChart('portfolio-allocation-chart', 'portfolio_allocation')}
+            >
+              <Download size={16} className="mr-2" />
+              Download
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px]">
+            <div className="h-[300px]" id="portfolio-allocation-chart">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={portfolioPerformanceData} layout="vertical" margin={{ top: 10, right: 30, left: 50, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} />
@@ -232,19 +326,41 @@ const CorporateDashboard = () => {
         </Card>
         
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Portfolio Match Scores</CardTitle>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => downloadChart('portfolio-match-chart', 'portfolio_match')}
+            >
+              <Download size={16} className="mr-2" />
+              Download
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px]">
+            <div className="h-[300px]" id="portfolio-match-chart">
               <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={portfolioMatchScores}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="name" />
-                  <PolarRadiusAxis domain={[0, 100]} />
-                  <Radar name="Portfolio Match" dataKey="value" stroke="#8884d8" fill="#8884d8" fillOpacity={0.5} />
+                <BarChart
+                  layout="vertical"
+                  data={portfolioMatchScores}
+                  margin={{ top: 20, right: 30, left: 100, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                  <XAxis type="number" domain={[0, 100]} />
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    width={100}
+                    tickLine={false}
+                  />
                   <Tooltip formatter={(value: number) => [`${value}%`, '']} />
-                </RadarChart>
+                  <Legend />
+                  <Bar dataKey="value" name="Match Score (%)" radius={[0, 4, 4, 0]}>
+                    {portfolioMatchScores.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
               </ResponsiveContainer>
             </div>
             <div className="mt-4 p-4 border rounded-lg">
