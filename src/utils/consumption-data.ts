@@ -1,5 +1,5 @@
 
-import { format, subDays, addHours } from "date-fns";
+import { format as dateFormat, subDays, addHours } from "date-fns";
 
 // Types for consumption data
 export interface ConsumptionDataPoint {
@@ -112,16 +112,16 @@ export const generateGOData = (consumptionData: ConsumptionDataPoint[]): Consump
 };
 
 // Format timestamp for display
-export const formatTimestamp = (timestamp: string, format: 'hourly' | 'daily' | 'monthly'): string => {
+export const formatTimestamp = (timestamp: string, formatType: 'hourly' | 'daily' | 'monthly'): string => {
   const date = new Date(timestamp);
   
-  switch (format) {
+  switch (formatType) {
     case 'hourly':
       return `${date.getHours()}:00`;
     case 'daily':
-      return format(date, 'MMM dd');
+      return dateFormat(date, 'MMM dd');
     case 'monthly':
-      return format(date, 'MMM yyyy');
+      return dateFormat(date, 'MMM yyyy');
     default:
       return timestamp;
   }
