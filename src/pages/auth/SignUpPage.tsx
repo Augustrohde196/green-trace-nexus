@@ -1,11 +1,12 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Building2, Factory, ArrowRight, Mail, Lock, User, Check } from "lucide-react";
+import { Eye, EyeOff, Building2, Factory, ArrowRight, Mail, Lock, User, Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuthLayout } from "@/components/layout/auth-layout";
 import { useToast } from "@/components/ui/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -43,224 +44,241 @@ const SignUpPage = () => {
 
   return (
     <AuthLayout>
-      <div className="mx-auto flex w-full flex-col space-y-6 sm:w-[350px] md:w-[450px]">
-        <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Create an account</h1>
-          <p className="text-sm text-muted-foreground">
+      <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
+        <CardHeader className="space-y-1">
+          <div className="flex items-center justify-center mb-2">
+            <Sparkles className="h-6 w-6 text-primary mr-2" />
+          </div>
+          <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
+          <CardDescription className="text-center">
             Choose your account type to get started
-          </p>
-        </div>
-
-        <Tabs defaultValue="corporate" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="corporate" className="flex items-center gap-2">
-              <Building2 size={16} />
-              <span>Corporate</span>
-            </TabsTrigger>
-            <TabsTrigger value="utility" className="flex items-center gap-2">
-              <Factory size={16} />
-              <span>Utility/Trader</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="corporate">
-            <div className="grid gap-4">
-              <form onSubmit={handleSignUp("corporate")}>
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name-corporate">Full Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="name-corporate"
-                        placeholder="John Doe"
-                        type="text"
-                        autoCapitalize="words"
-                        autoCorrect="off"
-                        className="pl-10"
-                        required
-                      />
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent>
+          <Tabs defaultValue="corporate" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="corporate" className="flex items-center gap-2">
+                <Building2 size={16} />
+                <span>Corporate</span>
+              </TabsTrigger>
+              <TabsTrigger value="utility" className="flex items-center gap-2">
+                <Factory size={16} />
+                <span>Utility/Trader</span>
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="corporate">
+              <div className="grid gap-4">
+                <form onSubmit={handleSignUp("corporate")}>
+                  <div className="grid gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="name-corporate">Full Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="name-corporate"
+                          placeholder="John Doe"
+                          type="text"
+                          autoCapitalize="words"
+                          autoCorrect="off"
+                          className="pl-10"
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="email-corporate">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="email-corporate"
-                        placeholder="name@company.com"
-                        type="email"
-                        autoCapitalize="none"
-                        autoComplete="email"
-                        autoCorrect="off"
-                        className="pl-10"
-                        required
-                      />
+                    <div className="grid gap-2">
+                      <Label htmlFor="email-corporate">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="email-corporate"
+                          placeholder="name@company.com"
+                          type="email"
+                          autoCapitalize="none"
+                          autoComplete="email"
+                          autoCorrect="off"
+                          className="pl-10"
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password-corporate">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="password-corporate"
-                        type={showPassword ? "text" : "password"}
-                        className="pl-10 pr-10"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-1 top-1.5 h-7 w-7"
-                        onClick={toggleShowPassword}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </Button>
+                    <div className="grid gap-2">
+                      <Label htmlFor="password-corporate">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="password-corporate"
+                          type={showPassword ? "text" : "password"}
+                          className="pl-10 pr-10"
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-1 top-1.5 h-7 w-7"
+                          onClick={toggleShowPassword}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Password must be at least 8 characters long
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Password must be at least 8 characters long
-                    </p>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <Checkbox id="terms-corporate" required />
+                      <Label htmlFor="terms-corporate" className="text-sm">
+                        I agree to the{" "}
+                        <Link to="/terms" className="text-primary hover:underline">
+                          Terms of Service
+                        </Link>{" "}
+                        and{" "}
+                        <Link to="/privacy" className="text-primary hover:underline">
+                          Privacy Policy
+                        </Link>
+                      </Label>
+                    </div>
+                    <Button disabled={loading} className="w-full mt-2 group">
+                      {loading ? (
+                        "Creating Account..."
+                      ) : (
+                        <>
+                          <span>Create Corporate Account</span>
+                          <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        </>
+                      )}
+                    </Button>
                   </div>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <Checkbox id="terms-corporate" required />
-                    <Label htmlFor="terms-corporate" className="text-sm">
-                      I agree to the{" "}
-                      <Link to="/terms" className="text-primary hover:underline">
-                        Terms of Service
-                      </Link>{" "}
-                      and{" "}
-                      <Link to="/privacy" className="text-primary hover:underline">
-                        Privacy Policy
-                      </Link>
-                    </Label>
-                  </div>
-                  <Button disabled={loading} className="w-full mt-2 group">
-                    <span>Create Corporate Account</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
+                </form>
+                <div className="mt-4 text-center text-sm">
+                  Already have an account?{" "}
+                  <Link to="/auth/sign-in" className="text-primary hover:underline font-medium">
+                    Sign in
+                  </Link>
                 </div>
-              </form>
-              <div className="mt-4 text-center text-sm">
-                Already have an account?{" "}
-                <Link to="/auth/sign-in" className="text-primary hover:underline">
-                  Sign in
-                </Link>
               </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="utility">
-            <div className="grid gap-4">
-              <form onSubmit={handleSignUp("utility")}>
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name-utility">Full Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="name-utility"
-                        placeholder="John Doe"
-                        type="text"
-                        autoCapitalize="words"
-                        autoCorrect="off"
-                        className="pl-10"
-                        required
-                      />
+            </TabsContent>
+            
+            <TabsContent value="utility">
+              <div className="grid gap-4">
+                <form onSubmit={handleSignUp("utility")}>
+                  <div className="grid gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="name-utility">Full Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="name-utility"
+                          placeholder="John Doe"
+                          type="text"
+                          autoCapitalize="words"
+                          autoCorrect="off"
+                          className="pl-10"
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="company-utility">Company Name</Label>
-                    <div className="relative">
-                      <Factory className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="company-utility"
-                        placeholder="Your Utility Company"
-                        type="text"
-                        autoCapitalize="words"
-                        autoCorrect="off"
-                        className="pl-10"
-                        required
-                      />
+                    <div className="grid gap-2">
+                      <Label htmlFor="company-utility">Company Name</Label>
+                      <div className="relative">
+                        <Factory className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="company-utility"
+                          placeholder="Your Utility Company"
+                          type="text"
+                          autoCapitalize="words"
+                          autoCorrect="off"
+                          className="pl-10"
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="email-utility">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="email-utility"
-                        placeholder="name@utility.com"
-                        type="email"
-                        autoCapitalize="none"
-                        autoComplete="email"
-                        autoCorrect="off"
-                        className="pl-10"
-                        required
-                      />
+                    <div className="grid gap-2">
+                      <Label htmlFor="email-utility">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="email-utility"
+                          placeholder="name@utility.com"
+                          type="email"
+                          autoCapitalize="none"
+                          autoComplete="email"
+                          autoCorrect="off"
+                          className="pl-10"
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password-utility">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="password-utility"
-                        type={showPassword ? "text" : "password"}
-                        className="pl-10 pr-10"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-1 top-1.5 h-7 w-7"
-                        onClick={toggleShowPassword}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </Button>
+                    <div className="grid gap-2">
+                      <Label htmlFor="password-utility">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="password-utility"
+                          type={showPassword ? "text" : "password"}
+                          className="pl-10 pr-10"
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-1 top-1.5 h-7 w-7"
+                          onClick={toggleShowPassword}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Password must be at least 8 characters long
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Password must be at least 8 characters long
-                    </p>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <Checkbox id="terms-utility" required />
+                      <Label htmlFor="terms-utility" className="text-sm">
+                        I agree to the{" "}
+                        <Link to="/terms" className="text-primary hover:underline">
+                          Terms of Service
+                        </Link>{" "}
+                        and{" "}
+                        <Link to="/privacy" className="text-primary hover:underline">
+                          Privacy Policy
+                        </Link>
+                      </Label>
+                    </div>
+                    <Button disabled={loading} className="w-full mt-2 group">
+                      {loading ? (
+                        "Creating Account..."
+                      ) : (
+                        <>
+                          <span>Create Utility Account</span>
+                          <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        </>
+                      )}
+                    </Button>
                   </div>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <Checkbox id="terms-utility" required />
-                    <Label htmlFor="terms-utility" className="text-sm">
-                      I agree to the{" "}
-                      <Link to="/terms" className="text-primary hover:underline">
-                        Terms of Service
-                      </Link>{" "}
-                      and{" "}
-                      <Link to="/privacy" className="text-primary hover:underline">
-                        Privacy Policy
-                      </Link>
-                    </Label>
-                  </div>
-                  <Button disabled={loading} className="w-full mt-2 group">
-                    <span>Create Utility Account</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
+                </form>
+                <div className="mt-4 text-center text-sm">
+                  Already have an account?{" "}
+                  <Link to="/auth/sign-in" className="text-primary hover:underline font-medium">
+                    Sign in
+                  </Link>
                 </div>
-              </form>
-              <div className="mt-4 text-center text-sm">
-                Already have an account?{" "}
-                <Link to="/auth/sign-in" className="text-primary hover:underline">
-                  Sign in
-                </Link>
               </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </AuthLayout>
   );
 };
