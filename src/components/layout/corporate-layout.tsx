@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { BarChart3, Home, User, Activity, FileText, Sliders, MapPin } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
-import { Bell, Moon, Sun, Download } from "lucide-react";
+import { Bell, Moon, Sun } from "lucide-react";
 
 interface CorporateLayoutProps {
   children: React.ReactNode;
@@ -19,7 +19,7 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
         <aside className="w-64 bg-black text-white fixed h-full z-40">
           <div className="p-6 border-b border-gray-800 flex justify-center">
             <Link to="/corporate" className="flex items-center justify-center">
-              <span className="font-bold text-2xl text-white">Renuw</span>
+              <span className="font-bold text-3xl text-white">Renuw</span>
             </Link>
           </div>
           <nav className="p-4 space-y-2">

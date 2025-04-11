@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Battery, Building2, FileCheck, Wind, SunMedium, AlertTriangle, TrendingUp, ArrowUp, Check, Download } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Line, ComposedChart, AreaChart, Area, HorizontalBarChart } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Line, ComposedChart, AreaChart, Area, Cell } from "recharts";
 import { Button } from "@/components/ui/button";
 import { 
   DropdownMenu,
@@ -42,7 +42,7 @@ const portfolioPerformanceData = [
   { parameter: "Regional (<300km)", actual: 65, target: 60 },
 ];
 
-// Portfolio match score data in different format for horizontal bar chart
+// Portfolio match score data for horizontal bar chart
 const portfolioMatchScores = [
   { name: "Technology Mix", value: 92, fill: "#8884d8" },
   { name: "Location Distance", value: 88, fill: "#82ca9d" },
