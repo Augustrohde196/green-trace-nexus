@@ -17,7 +17,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       {/* Logo and theme toggle */}
       <div className="absolute top-6 left-6 flex items-center justify-between z-10 w-[calc(100%-3rem)]">
         <Link to="/" className="flex items-center">
-          <span className="font-bold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-techPurple to-wind">
+          <span className="font-bold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-techPurple to-wind dark:text-white">
             Renuw
           </span>
         </Link>
@@ -32,29 +32,29 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         </Button>
       </div>
 
-      {/* Left side - branding/illustration side */}
+      {/* Left side - value proposition */}
       <div className="hidden md:flex relative bg-gradient-to-br from-techPurple/90 to-techPurple/50 dark:from-techPurple/80 dark:to-techDark flex-col items-center justify-center p-12 text-white">
         <div className="relative z-10 flex flex-col items-center text-center max-w-md">
           <h1 className="text-4xl font-bold mb-6">Renewable Energy Certificates</h1>
           <p className="text-lg mb-8">
             Connecting renewable energy producers with corporate consumers for a sustainable future
           </p>
-          <div className="grid grid-cols-2 gap-6 w-full max-w-sm">
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <div className="font-bold text-2xl mb-1">300+</div>
-              <div className="text-sm">Renewable Assets</div>
+          <div className="grid grid-cols-1 gap-4 w-full max-w-sm">
+            <div className="bg-white/10 backdrop-blur-sm p-5 rounded-lg text-left">
+              <div className="font-bold text-xl mb-1">Traceability</div>
+              <div className="text-sm">Trace the origin of your energy certificates with transparent blockchain technology</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <div className="font-bold text-2xl mb-1">250+</div>
-              <div className="text-sm">Corporate Clients</div>
+            <div className="bg-white/10 backdrop-blur-sm p-5 rounded-lg text-left">
+              <div className="font-bold text-xl mb-1">Customization</div>
+              <div className="text-sm">Tailor your renewable energy portfolio to match your company's sustainability goals</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <div className="font-bold text-2xl mb-1">1.5 GW</div>
-              <div className="text-sm">Energy Managed</div>
+            <div className="bg-white/10 backdrop-blur-sm p-5 rounded-lg text-left">
+              <div className="font-bold text-xl mb-1">Optimization</div>
+              <div className="text-sm">Maximize impact and minimize costs with our AI-powered matching engine</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <div className="font-bold text-2xl mb-1">12+</div>
-              <div className="text-sm">Countries</div>
+            <div className="bg-white/10 backdrop-blur-sm p-5 rounded-lg text-left">
+              <div className="font-bold text-xl mb-1">Time-Matching</div>
+              <div className="text-sm">Match your energy consumption patterns with renewable production in real-time</div>
             </div>
           </div>
         </div>
