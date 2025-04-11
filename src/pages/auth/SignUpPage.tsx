@@ -11,7 +11,8 @@ import {
   Lock, 
   User, 
   Check, 
-  Shield
+  Shield,
+  Briefcase
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -98,6 +99,23 @@ const SignUpPage = () => {
                         />
                       </div>
                     </div>
+                    
+                    <div className="grid gap-2">
+                      <Label htmlFor="company-name">Company Name</Label>
+                      <div className="relative">
+                        <Briefcase className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="company-name"
+                          placeholder="Your Company"
+                          type="text"
+                          autoCapitalize="words"
+                          autoCorrect="off"
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
                     <div className="grid gap-2">
                       <Label htmlFor="email-corporate">Email</Label>
                       <div className="relative">
