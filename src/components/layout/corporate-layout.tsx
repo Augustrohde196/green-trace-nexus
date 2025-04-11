@@ -14,37 +14,8 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-[51] border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center gap-4 px-6">
-          <div className="flex-1">
-            <Link to="/corporate" className="flex items-center gap-2">
-              <span className="font-bold text-xl text-primary">Renuw</span>
-            </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            >
-              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Bell size={20} />
-            </Button>
-            <Button variant="outline" size="sm">
-              <User size={16} className="mr-2" />
-              My Account
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main content with sidebar */}
       <div className="flex flex-1">
-        {/* Sidebar - now with black background */}
+        {/* Sidebar - now with black background from top to bottom */}
         <aside className="w-64 bg-black text-white">
           <div className="p-4 border-b border-gray-800">
             <Link to="/corporate" className="flex items-center gap-2">
@@ -79,10 +50,38 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
           </nav>
         </aside>
 
-        {/* Main content */}
-        <main className="flex-1 p-6">
-          {children}
-        </main>
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <header className="sticky top-0 z-[51] border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex h-16 items-center gap-4 px-6">
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold">Corporate Dashboard</h2>
+              </div>
+              <div className="flex items-center gap-4">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                >
+                  {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+                </Button>
+                <Button variant="ghost" size="icon">
+                  <Bell size={20} />
+                </Button>
+                <Button variant="outline" size="sm">
+                  <User size={16} className="mr-2" />
+                  My Account
+                </Button>
+              </div>
+            </div>
+          </header>
+
+          {/* Main content */}
+          <main className="flex-1 p-6">
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );

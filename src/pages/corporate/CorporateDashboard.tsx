@@ -1,8 +1,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Battery, Building2, FileCheck, Wind, SunMedium, AlertTriangle, TrendingUp, ArrowUp } from "lucide-react";
+import { Battery, Building2, FileCheck, Wind, SunMedium, AlertTriangle, TrendingUp, ArrowUp, Check } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Line, ComposedChart, AreaChart, Area } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Line, ComposedChart, AreaChart, Area, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 
 // Sample data for time-matching scores by month
 const timeMatchingData = [
@@ -24,14 +24,23 @@ const consumptionData = [
   { hour: "20:00", weekday: 25, weekend: 30 },
 ];
 
-// Sample data for portfolio performance
+// Updated portfolio performance data - now includes actual vs target allocation parameters
 const portfolioPerformanceData = [
-  { month: "Jan", actual: 72, benchmark: 68 },
-  { month: "Feb", actual: 68, benchmark: 70 },
-  { month: "Mar", actual: 85, benchmark: 75 },
-  { month: "Apr", actual: 76, benchmark: 72 },
-  { month: "May", actual: 82, benchmark: 78 },
-  { month: "Jun", actual: 89, benchmark: 82 },
+  { parameter: "Wind %", actual: 70, target: 65 },
+  { parameter: "Solar %", actual: 30, target: 35 },
+  { parameter: "BTM %", actual: 45, target: 50 },
+  { parameter: "FTM %", actual: 55, target: 50 },
+  { parameter: "Local (<100km)", actual: 35, target: 40 },
+  { parameter: "Regional (<300km)", actual: 65, target: 60 },
+];
+
+// Portfolio match score data
+const portfolioMatchScores = [
+  { name: "Technology Mix", value: 92 },
+  { name: "Location Distance", value: 88 },
+  { name: "Time Matching", value: 78 },
+  { name: "Capacity Factor", value: 95 },
+  { name: "Additionality", value: 70 },
 ];
 
 const CorporateDashboard = () => {
@@ -130,7 +139,7 @@ const CorporateDashboard = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xl font-bold text-green-500">89%</span>
-                  <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                  <Check className="h-5 w-5 text-green-500" />
                 </div>
               </div>
             </div>
@@ -193,31 +202,56 @@ const CorporateDashboard = () => {
         </Card>
       </div>
 
-      <div className="grid gap-4 grid-cols-1">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Portfolio Performance vs Benchmark</CardTitle>
+            <CardTitle>Portfolio Allocation vs Target</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[200px]">
+            <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={portfolioPerformanceData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="month" />
-                  <YAxis domain={[0, 100]} label={{ value: 'Score %', angle: -90, position: 'insideLeft' }} />
-                  <Tooltip />
+                <BarChart data={portfolioPerformanceData} layout="vertical" margin={{ top: 10, right: 30, left: 50, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                  <XAxis type="number" domain={[0, 100]} />
+                  <YAxis dataKey="parameter" type="category" width={100} />
+                  <Tooltip formatter={(value: number) => [`${value}%`, '']} />
                   <Legend />
-                  <Bar dataKey="actual" name="Your Portfolio" fill="#4DA167" />
-                  <Line type="monotone" dataKey="benchmark" name="Industry Benchmark" stroke="#ff7300" />
-                </ComposedChart>
+                  <Bar dataKey="target" name="Target Allocation" fill="#8884d8" />
+                  <Bar dataKey="actual" name="Actual Allocation" fill="#4DA167" />
+                </BarChart>
               </ResponsiveContainer>
             </div>
             <div className="mt-4 p-4 border rounded-lg">
-              <h3 className="font-medium">Portfolio Performance Summary</h3>
+              <h3 className="font-medium">Portfolio Allocation Match</h3>
               <p className="text-sm text-muted-foreground mt-2">
-                Your portfolio is outperforming the industry benchmark by 8.3% on average. 
-                The time-matching profile has significantly improved over the last quarter, 
-                with June showing the highest performance at 89% matching.
+                Your portfolio is achieving a 92% match to your desired allocation parameters.
+                The largest deviation is in BTM assets (5% below target) and Regional assets (5% above target).
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Portfolio Match Scores</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={portfolioMatchScores}>
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey="name" />
+                  <PolarRadiusAxis domain={[0, 100]} />
+                  <Radar name="Portfolio Match" dataKey="value" stroke="#8884d8" fill="#8884d8" fillOpacity={0.5} />
+                  <Tooltip formatter={(value: number) => [`${value}%`, '']} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4 p-4 border rounded-lg">
+              <h3 className="font-medium">Overall Portfolio Performance</h3>
+              <p className="text-sm text-muted-foreground mt-2">
+                Your portfolio is performing well across most dimensions, with high scores in Capacity Factor (95%)
+                and Technology Mix (92%). The area with the most room for improvement is Additionality (70%).
               </p>
             </div>
           </CardContent>
