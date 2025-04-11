@@ -36,13 +36,13 @@ export function ProductionChart({ data }: ProductionChartProps) {
     return dateA.getTime() - dateB.getTime();
   });
   
-  // Take the last 14 days
-  const displayData = sortedData.slice(-14);
+  // Take the last 30 days (changed from 14 days)
+  const displayData = sortedData.slice(-30);
 
   return (
     <Card className="col-span-4">
       <CardHeader>
-        <CardTitle>Production (MWh) - Last 14 Days</CardTitle>
+        <CardTitle>Production (MWh) - Last 30 Days</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <div className="h-[300px] w-full">
@@ -52,6 +52,8 @@ export function ProductionChart({ data }: ProductionChartProps) {
               <XAxis 
                 dataKey="date"
                 padding={{ left: 10, right: 10 }}
+                tick={{ fontSize: 10 }}
+                interval="preserveStartEnd"
               />
               <YAxis />
               <Tooltip 

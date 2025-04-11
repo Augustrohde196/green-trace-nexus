@@ -8,7 +8,7 @@ interface EnergyMixChartProps {
 }
 
 export function EnergyMixChart({ data }: EnergyMixChartProps) {
-  // Add a key to each data item for proper labeling
+  // Ensure the type is used as name for proper labeling
   const chartData = data.map(item => ({
     ...item,
     name: item.type // Ensure we have a name property for the chart
@@ -35,14 +35,14 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
                 fill="#8884d8"
                 dataKey="value"
                 nameKey="name"
-                label={(entry) => `${entry.name}: ${entry.value} GWh`}
+                label={({name, value}) => `${name}: ${value} GWh`}
               >
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip 
-                formatter={(value: number) => [`${value} GWh (${Math.round((value/totalProduction)*100)}%)`, 'Production']}
+                formatter={(value: number, name: string) => [`${value} GWh (${Math.round((value/totalProduction)*100)}%)`, name]}
               />
               <Legend />
             </PieChart>
