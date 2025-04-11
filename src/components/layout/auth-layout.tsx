@@ -35,15 +35,48 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       {/* Left side - value proposition with dynamic background */}
       <div className="hidden md:flex relative overflow-hidden">
         {/* Animated background with brand elements */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/80 to-primary/70">
-          {/* Animated background elements */}
-          <div className="absolute top-0 left-0 w-full h-full opacity-10">
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-white/20 mix-blend-overlay animate-pulse" style={{ animationDuration: '15s' }}></div>
-            <div className="absolute top-3/4 left-2/3 w-96 h-96 rounded-full bg-white/10 mix-blend-overlay animate-pulse" style={{ animationDuration: '20s' }}></div>
-            <div className="absolute top-1/2 left-1/6 w-48 h-48 rounded-full bg-white/15 mix-blend-overlay animate-pulse" style={{ animationDuration: '12s' }}></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/70 to-primary/60">
+          {/* Enhanced animated background elements */}
+          <div className="absolute top-0 left-0 w-full h-full">
+            {/* Animated circles */}
+            <div className="absolute top-1/6 left-1/6 w-72 h-72 rounded-full bg-white/10 mix-blend-overlay animate-pulse" 
+                 style={{ animationDuration: '17s' }}></div>
+            <div className="absolute bottom-1/4 right-1/5 w-80 h-80 rounded-full bg-white/15 mix-blend-overlay animate-pulse" 
+                 style={{ animationDuration: '13s' }}></div>
             
-            {/* Grid pattern overlay */}
-            <div className="absolute inset-0 bg-grid-white/10 pointer-events-none"></div>
+            {/* Energy wave patterns */}
+            <div className="absolute top-1/3 left-0 w-full h-1/6 opacity-20">
+              <svg width="100%" height="100%" viewBox="0 0 1200 200" preserveAspectRatio="none">
+                <path d="M0,100 C300,130 600,70 1200,100 L1200,200 L0,200 Z" fill="white">
+                  <animate attributeName="d" 
+                    values="M0,100 C300,130 600,70 1200,100 L1200,200 L0,200 Z;
+                            M0,100 C500,70 900,130 1200,100 L1200,200 L0,200 Z;
+                            M0,100 C300,130 600,70 1200,100 L1200,200 L0,200 Z" 
+                    dur="20s" 
+                    repeatCount="indefinite" />
+                </path>
+              </svg>
+            </div>
+            
+            <div className="absolute bottom-1/3 left-0 w-full h-1/6 opacity-15">
+              <svg width="100%" height="100%" viewBox="0 0 1200 200" preserveAspectRatio="none">
+                <path d="M0,100 C400,60 800,140 1200,100 L1200,200 L0,200 Z" fill="white">
+                  <animate attributeName="d" 
+                    values="M0,100 C400,60 800,140 1200,100 L1200,200 L0,200 Z;
+                            M0,100 C600,140 1000,60 1200,100 L1200,200 L0,200 Z;
+                            M0,100 C400,60 800,140 1200,100 L1200,200 L0,200 Z" 
+                    dur="25s" 
+                    repeatCount="indefinite" />
+                </path>
+              </svg>
+            </div>
+            
+            {/* Subtle grid pattern overlay */}
+            <div className="absolute inset-0 opacity-10" 
+                 style={{ 
+                   backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)`, 
+                   backgroundSize: '30px 30px' 
+                 }}></div>
           </div>
         </div>
         
@@ -60,7 +93,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             <div className="grid grid-cols-2 gap-6 w-full max-w-lg mx-auto">
               <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:shadow-lg transition-all duration-300">
                 <div className="font-bold text-2xl mb-3 text-white">Traceability</div>
-                <div className="text-white/90">Track your clean energy from source to consumption with blockchain-verified certificates</div>
+                <div className="text-white/90">Verify the source and journey of your clean energy with advanced certification technology</div>
               </div>
               
               <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:shadow-lg transition-all duration-300">
