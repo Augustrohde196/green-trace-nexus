@@ -1,15 +1,15 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GOTrackingTable } from "@/components/go/go-tracking-table";
 import { AssetMap } from "@/components/map/asset-map";
 import { Button } from "@/components/ui/button";
-import { Calendar, Download, Map, List } from "lucide-react";
+import { Calendar, Download, Map, List, FileDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { GuaranteeOfOrigin } from "@/data/go-models";
+import { useToast } from "@/components/ui/use-toast";
+import html2canvas from "html2canvas";
 
-// Real Denmark coordinates for simulating asset locations
 const DENMARK_COORDINATES = [
   { region: "Capital Region", name: "Copenhagen", lat: 55.676, lng: 12.568 },
   { region: "North Denmark", name: "Aalborg", lat: 57.048, lng: 9.921 },
@@ -33,7 +33,6 @@ const DENMARK_COORDINATES = [
   { region: "South Denmark", name: "Nyborg", lat: 55.312, lng: 10.789 }
 ];
 
-// Danish wind farm and solar park names
 const DENMARK_ASSET_NAMES = [
   "Anholt Offshore Wind Farm", "Kriegers Flak Wind Farm", "Horns Rev 3", 
   "Middelgrunden Wind Farm", "Rødsand Wind Farm", "Vesterhav Nord", 
@@ -44,14 +43,12 @@ const DENMARK_ASSET_NAMES = [
   "Lolland Community Energy", "Hirsholm Island Offshore"
 ];
 
-// Danish grid areas
 const GRID_AREAS = [
   "DK1 - West Jutland", "DK2 - East Denmark", "N1 - North Jutland", "FYN - Funen",
   "KBH - Copenhagen", "SJL - South Jutland", "MJL - Mid Jutland",
   "ZEA - Zealand", "BOR - Bornholm", "NOR - Northern Zealand"
 ];
 
-// Generate a random date in the last month
 const getRandomDate = () => {
   const now = new Date();
   const lastMonth = new Date();
@@ -64,7 +61,6 @@ const getRandomDate = () => {
   return randomDate.toISOString();
 };
 
-// Generate random simulated GO data
 const generateSimulatedGOs = (count: number): GuaranteeOfOrigin[] => {
   const gos: GuaranteeOfOrigin[] = [];
   
@@ -74,7 +70,6 @@ const generateSimulatedGOs = (count: number): GuaranteeOfOrigin[] => {
     const assetNameIndex = Math.floor(Math.random() * DENMARK_ASSET_NAMES.length);
     const gridAreaIndex = Math.floor(Math.random() * GRID_AREAS.length);
     
-    // Determine type based on asset name (for more realistic assignments)
     const assetName = DENMARK_ASSET_NAMES[assetNameIndex];
     const type = assetName.toLowerCase().includes("wind") || assetName.toLowerCase().includes("offshore") ? 
                 "wind" : "solar";
@@ -82,7 +77,6 @@ const generateSimulatedGOs = (count: number): GuaranteeOfOrigin[] => {
     const volume = Math.floor(Math.random() * 50) + 10;
     const allocationScore = Math.floor(Math.random() * 40) + 60;
     
-    // Add small random offset to prevent assets from stacking exactly
     const latOffset = (Math.random() - 0.5) * 0.1;
     const lngOffset = (Math.random() - 0.5) * 0.15;
     
@@ -112,19 +106,18 @@ const generateSimulatedGOs = (count: number): GuaranteeOfOrigin[] => {
 };
 
 const CorporateTracing = () => {
+  const { toast } = useToast();
   const [allocatedGOs, setAllocatedGOs] = useState<GuaranteeOfOrigin[]>([]);
   const [viewMode, setViewMode] = useState<"map" | "list">("map");
   const [loading, setLoading] = useState(true);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
   
-  // Get current month and year
   const currentDate = new Date();
   const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
   const currentYear = currentDate.getFullYear();
   
   useEffect(() => {
-    // Generate simulated data
     setLoading(true);
-    // Simulate API call delay
     setTimeout(() => {
       const simulatedGOs = generateSimulatedGOs(30);
       setAllocatedGOs(simulatedGOs);
@@ -132,15 +125,115 @@ const CorporateTracing = () => {
     }, 500);
   }, []);
   
-  // Calculate metrics
   const totalVolume = allocatedGOs.reduce((sum, go) => sum + go.volume, 0);
   const solarGOs = allocatedGOs.filter(go => go.type === "solar");
   const windGOs = allocatedGOs.filter(go => go.type === "wind");
   const solarVolume = solarGOs.reduce((sum, go) => sum + go.volume, 0);
   const windVolume = windGOs.reduce((sum, go) => sum + go.volume, 0);
   
-  // Calculate unique production sites
   const uniqueAssetCount = new Set(allocatedGOs.map(go => go.assetId)).size;
+  
+  const downloadMap = async () => {
+    try {
+      if (!mapContainerRef.current) {
+        toast({
+          title: "Error",
+          description: "Map not available for download",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setLoading(true);
+      toast({
+        title: "Preparing map",
+        description: "Please wait while we prepare your map for download..."
+      });
+      
+      setTimeout(async () => {
+        try {
+          const mapElement = mapContainerRef.current;
+          const canvas = await html2canvas(mapElement as HTMLElement, {
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: null
+          });
+          
+          const image = canvas.toDataURL("image/png");
+          const link = document.createElement("a");
+          link.href = image;
+          link.download = `certificate_tracing_map_${new Date().toISOString().split('T')[0]}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          setLoading(false);
+          toast({
+            title: "Download complete",
+            description: "Map has been downloaded successfully."
+          });
+        } catch (error) {
+          console.error("Error capturing map:", error);
+          setLoading(false);
+          toast({
+            title: "Download failed",
+            description: "There was a problem downloading the map.",
+            variant: "destructive"
+          });
+        }
+      }, 500);
+    } catch (error) {
+      console.error("Error in download process:", error);
+      setLoading(false);
+      toast({
+        title: "Download failed",
+        description: "There was a problem downloading the map.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const exportData = () => {
+    try {
+      const exportData = allocatedGOs.map(go => ({
+        assetName: go.assetName,
+        type: go.type,
+        volume: go.volume,
+        productionTimestamp: go.productionTimestamp,
+        allocationTimestamp: go.allocationTimestamp,
+        allocationScore: go.allocationScore,
+        gridArea: go.gridArea,
+        trackingCode: go.trackingCode,
+        latitude: go.coordinates.lat,
+        longitude: go.coordinates.lng
+      }));
+      
+      const headers = Object.keys(exportData[0]).join(',');
+      const rows = exportData.map(row => Object.values(row).join(',')).join('\n');
+      const csvContent = `${headers}\n${rows}`;
+      
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `certificate_data_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Data exported",
+        description: "Certificate data has been exported successfully."
+      });
+    } catch (error) {
+      console.error("Error exporting data:", error);
+      toast({
+        title: "Export failed",
+        description: "There was a problem exporting the data.",
+        variant: "destructive"
+      });
+    }
+  };
   
   return (
     <div className="space-y-6">
@@ -236,10 +329,17 @@ const CorporateTracing = () => {
           <List className="mr-2 h-4 w-4" />
           List View
         </Button>
-        <Button variant="outline" size="sm">
-          <Download className="mr-2 h-4 w-4" />
-          Export Data
-        </Button>
+        {viewMode === "map" ? (
+          <Button variant="outline" size="sm" onClick={downloadMap}>
+            <Download className="mr-2 h-4 w-4" />
+            Download Map
+          </Button>
+        ) : (
+          <Button variant="outline" size="sm" onClick={exportData}>
+            <FileDown className="mr-2 h-4 w-4" />
+            Export Data
+          </Button>
+        )}
       </div>
       
       {loading ? (
@@ -251,7 +351,7 @@ const CorporateTracing = () => {
       ) : viewMode === "map" ? (
         <Card className="overflow-hidden">
           <CardContent className="p-0">
-            <div className="h-[600px]">
+            <div className="h-[600px]" ref={mapContainerRef}>
               <AssetMap guaranteesOfOrigin={allocatedGOs} />
             </div>
           </CardContent>

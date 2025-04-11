@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   BarChart3, 
@@ -7,7 +6,8 @@ import {
   Search,
   SortAsc,
   SortDesc,
-  Info 
+  Info,
+  Download 
 } from "lucide-react";
 import { 
   Card, 
@@ -44,8 +44,8 @@ import { Badge } from "@/components/ui/badge";
 import { useMockCustomers } from "@/hooks/use-mock-customers";
 import { goService } from "@/services/go-service";
 import { formatDate } from "@/lib/utils";
+import { useToast } from "@/components/ui/use-toast";
 
-// Custom Chart component for portfolio mix
 const PortfolioMixChart = ({ actual, target }) => {
   return (
     <div className="space-y-2">
@@ -82,22 +82,18 @@ export default function Analytics() {
   const [selectedCustomer, setSelectedCustomer] = useState("all");
   const [sortField, setSortField] = useState("name");
   const [sortDirection, setSortDirection] = useState("asc");
+  const { toast } = useToast();
 
-  // Get the GO data from services
   const gos = goService.getGuaranteesOfOrigin();
   const metrics = goService.getMetrics();
   
-  // Calculate metrics for customers
   const customersWithMetrics = customers.map(customer => {
-    // Get customer's GOs
     const customerGOs = goService.getGOsByCustomer(customer.id);
     
-    // Calculate average matching score
     const avgScore = customerGOs.length > 0
       ? customerGOs.reduce((sum, go) => sum + (go.allocationScore || 0), 0) / customerGOs.length
       : 0;
 
-    // Generate actual portfolio mix (based on allocated GOs)
     const solarGOs = customerGOs.filter(go => go.type === "solar").length;
     const windGOs = customerGOs.filter(go => go.type === "wind").length;
     const total = solarGOs + windGOs;
@@ -107,7 +103,6 @@ export default function Analytics() {
       wind: total > 0 ? Math.round(windGOs / total * 100) : 0
     };
 
-    // Calculate portfolio accuracy (100 - deviation)
     const portfolioDeviation = Math.abs(customer.portfolioMix.solar - actualMix.solar);
     const portfolioAccuracy = 100 - portfolioDeviation;
 
@@ -121,13 +116,11 @@ export default function Analytics() {
     };
   });
 
-  // Filter customers based on search
   const filteredCustomers = customersWithMetrics.filter(customer => 
     customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     customer.industry.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
-  // Sort customers
   const sortedCustomers = [...filteredCustomers].sort((a, b) => {
     let comparison = 0;
     
@@ -154,12 +147,10 @@ export default function Analytics() {
     return sortDirection === "asc" ? comparison : -comparison;
   });
   
-  // Get customer data for detail view
   const customerDetail = selectedCustomer !== "all" 
     ? customersWithMetrics.find(c => c.id === selectedCustomer)
     : null;
   
-  // Calculate overall metrics
   const avgTimeMatching = customersWithMetrics.reduce(
     (sum, c) => sum + c.timeMatchingScore, 0
   ) / (customersWithMetrics.length || 1);
@@ -168,7 +159,6 @@ export default function Analytics() {
     (sum, c) => sum + c.portfolioAccuracy, 0
   ) / (customersWithMetrics.length || 1);
 
-  // Handle sorting
   const handleSort = (field) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -178,12 +168,54 @@ export default function Analytics() {
     }
   };
 
-  // Helper to render sort indicator
   const renderSortIndicator = (field) => {
     if (sortField !== field) return null;
     return sortDirection === "asc" ? 
       <SortAsc className="h-4 w-4 ml-1" /> : 
       <SortDesc className="h-4 w-4 ml-1" />;
+  };
+
+  const downloadReport = () => {
+    try {
+      const reportData = customersWithMetrics.map(customer => ({
+        name: customer.name,
+        industry: customer.industry,
+        consumption: customer.annualConsumption,
+        timeMatchingScore: customer.timeMatchingScore,
+        portfolioAccuracy: customer.portfolioAccuracy,
+        goCount: customer.goCount,
+        totalVolume: customer.totalVolume,
+        solarMix: customer.actualPortfolioMix.solar,
+        windMix: customer.actualPortfolioMix.wind,
+        targetSolar: customer.portfolioMix.solar,
+        targetWind: customer.portfolioMix.wind
+      }));
+      
+      const headers = Object.keys(reportData[0]).join(',');
+      const rows = reportData.map(row => Object.values(row).join(',')).join('\n');
+      const csvContent = `${headers}\n${rows}`;
+      
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `analytics_report_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Report downloaded",
+        description: "Analytics report has been exported successfully."
+      });
+    } catch (error) {
+      console.error("Error downloading report:", error);
+      toast({
+        title: "Download failed",
+        description: "There was a problem generating the report.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -197,7 +229,7 @@ export default function Analytics() {
         </div>
         <Button 
           className="gap-2 w-fit"
-          onClick={() => alert("Export functionality would be implemented here")}
+          onClick={downloadReport}
         >
           <FileDown size={16} />
           Export Report

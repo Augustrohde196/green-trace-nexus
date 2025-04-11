@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { 
@@ -37,6 +36,7 @@ import {
 } from "@/utils/consumption-data";
 import { format } from "date-fns";
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/components/ui/use-toast";
 
 const CorporateConsumption = () => {
   // State for data
@@ -46,58 +46,74 @@ const CorporateConsumption = () => {
   const [showGOs, setShowGOs] = useState(false);
   const [timeframe, setTimeframe] = useState("30");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { toast } = useToast();
   
   // Generate and prepare data
   const generateData = () => {
     setIsRefreshing(true);
-    // Generate consumption data
-    const rawConsumptionData = generateConsumptionData(parseInt(timeframe));
-    
-    // Generate GO data
-    const rawGOData = generateGOData(rawConsumptionData);
-    
-    // Prepare hourly data with GO values
-    const prepared = rawConsumptionData.map(point => {
-      const matchingGO = rawGOData.find(go => go.timestamp === point.timestamp);
-      return {
-        ...point,
-        goValue: matchingGO?.value || 0,
-        timestamp: new Date(point.timestamp).toISOString(),
-        hour: format(new Date(point.timestamp), 'HH:mm'),
-        date: format(new Date(point.timestamp), 'MMM dd'),
-        category: 'Consumption'
-      };
-    });
-    
-    setHourlyData(prepared);
-    
-    // Prepare daily data
-    const dailyConsumption = aggregateToDaily(rawConsumptionData);
-    const dailyGO = aggregateToDaily(rawGOData);
-    const preparedDaily = dailyConsumption.map(point => {
-      const matchingGO = dailyGO.find(go => go.timestamp === point.timestamp);
-      return {
-        ...point,
-        goValue: matchingGO?.value || 0,
-        date: format(new Date(point.timestamp), 'MMM dd')
-      };
-    });
-    
-    setDailyData(preparedDaily);
-    
-    // Prepare monthly data
-    const monthlyConsumption = aggregateToMonthly(rawConsumptionData);
-    const monthlyGO = aggregateToMonthly(rawGOData);
-    const preparedMonthly = monthlyConsumption.map(point => {
-      const matchingGO = monthlyGO.find(go => go.timestamp === point.timestamp);
-      return {
-        ...point,
-        goValue: matchingGO?.value || 0,
-        date: format(new Date(point.timestamp + "-01"), 'MMM yyyy')
-      };
-    });
-    
-    setMonthlyData(preparedMonthly);
+    try {
+      // Generate consumption data
+      const rawConsumptionData = generateConsumptionData(parseInt(timeframe));
+      
+      // Generate GO data
+      const rawGOData = generateGOData(rawConsumptionData);
+      
+      // Prepare hourly data with GO values
+      const prepared = rawConsumptionData.map(point => {
+        const matchingGO = rawGOData.find(go => go.timestamp === point.timestamp);
+        return {
+          ...point,
+          goValue: matchingGO?.value || 0,
+          timestamp: new Date(point.timestamp).toISOString(),
+          hour: format(new Date(point.timestamp), 'HH:mm'),
+          date: format(new Date(point.timestamp), 'MMM dd'),
+          category: 'Consumption'
+        };
+      });
+      
+      setHourlyData(prepared);
+      
+      // Prepare daily data
+      const dailyConsumption = aggregateToDaily(rawConsumptionData);
+      const dailyGO = aggregateToDaily(rawGOData);
+      const preparedDaily = dailyConsumption.map(point => {
+        const matchingGO = dailyGO.find(go => go.timestamp === point.timestamp);
+        return {
+          ...point,
+          goValue: matchingGO?.value || 0,
+          date: format(new Date(point.timestamp), 'MMM dd')
+        };
+      });
+      
+      setDailyData(preparedDaily);
+      
+      // Prepare monthly data
+      const monthlyConsumption = aggregateToMonthly(rawConsumptionData);
+      const monthlyGO = aggregateToMonthly(rawGOData);
+      const preparedMonthly = monthlyConsumption.map(point => {
+        const matchingGO = monthlyGO.find(go => go.timestamp === point.timestamp);
+        return {
+          ...point,
+          goValue: matchingGO?.value || 0,
+          date: format(new Date(point.timestamp + "-01"), 'MMM yyyy')
+        };
+      });
+      
+      setMonthlyData(preparedMonthly);
+      
+      console.log("Data generated successfully:", {
+        hourly: prepared.length,
+        daily: preparedDaily.length,
+        monthly: preparedMonthly.length
+      });
+    } catch (error) {
+      console.error("Error generating data:", error);
+      toast({
+        title: "Error",
+        description: "There was a problem loading consumption data",
+        variant: "destructive"
+      });
+    }
     
     setTimeout(() => setIsRefreshing(false), 600);
   };
@@ -114,20 +130,34 @@ const CorporateConsumption = () => {
   
   // Handle download
   const downloadCSV = (data: any[], prefix: string) => {
-    // Create CSV content
-    const headers = Object.keys(data[0]).join(',');
-    const rows = data.map(row => Object.values(row).join(',')).join('\n');
-    const csvContent = `${headers}\n${rows}`;
-    
-    // Create download link
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${prefix}_${timeframe}_days_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      // Create CSV content
+      const headers = Object.keys(data[0]).join(',');
+      const rows = data.map(row => Object.values(row).join(',')).join('\n');
+      const csvContent = `${headers}\n${rows}`;
+      
+      // Create download link
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${prefix}_${timeframe}_days_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Download complete",
+        description: `${prefix} data has been downloaded successfully.`
+      });
+    } catch (error) {
+      console.error("Error downloading data:", error);
+      toast({
+        title: "Download failed",
+        description: "There was a problem downloading the data",
+        variant: "destructive"
+      });
+    }
   };
   
   return (

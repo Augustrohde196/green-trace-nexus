@@ -1,16 +1,32 @@
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Battery, Building2, FileCheck, Wind, SunMedium, AlertTriangle, TrendingUp, ArrowUp, Check, Download } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Line, ComposedChart, AreaChart, Area, Cell } from "recharts";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { 
+  LineChart, 
+  Line, 
+  AreaChart, 
+  Area, 
+  BarChart,
+  Bar,
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from "recharts";
+import { ExternalLink, BarChart3, BarChartHorizontal, Wind, Activity, Leaf, Power, FileText, Download, TrendingUp } from "lucide-react";
 
 // Sample data for time-matching scores by month
 const timeMatchingData = [
@@ -59,7 +75,7 @@ const timePeriods = [
   { label: "Last Year", value: "1y" },
 ];
 
-const CorporateDashboard = () => {
+const DashboardPage = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("6m");
 
   // Function to handle downloading the chart as an image
@@ -83,33 +99,26 @@ const CorporateDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-          <p className="text-muted-foreground">Welcome back, Vestas Wind Systems A/S</p>
+          <p className="text-muted-foreground">
+            Your renewable energy portfolio overview
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                {timePeriods.find(p => p.value === selectedPeriod)?.label || "Select Period"}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {timePeriods.map((period) => (
-                <DropdownMenuItem 
-                  key={period.value} 
-                  onClick={() => setSelectedPeriod(period.value)}
-                >
-                  {period.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button onClick={downloadFullReport} className="gap-2">
-            <Download size={16} />
-            Download Report
-          </Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Link to="/corporate/consumption">
+            <Button variant="outline" size="sm" className="gap-2">
+              <Activity size={16} />
+              View Consumption
+            </Button>
+          </Link>
+          <Link to="/">
+            <Button size="sm" className="gap-2">
+              <ExternalLink size={16} />
+              Utility Portal
+            </Button>
+          </Link>
         </div>
       </div>
       
@@ -377,4 +386,4 @@ const CorporateDashboard = () => {
   );
 };
 
-export default CorporateDashboard;
+export default DashboardPage;
