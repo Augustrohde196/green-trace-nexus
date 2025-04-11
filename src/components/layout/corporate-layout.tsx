@@ -15,7 +15,7 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
   return (
     <div className="flex min-h-screen w-full flex-col">
       <div className="flex flex-1">
-        {/* Sidebar - now with larger logo and fixed positioning */}
+        {/* Sidebar - with larger logo and fixed positioning */}
         <aside className="w-64 bg-black text-white fixed h-full z-40">
           <div className="p-6 border-b border-gray-800 flex justify-center">
             <Link to="/corporate" className="flex items-center justify-center">
