@@ -11,8 +11,7 @@ import {
   Lock, 
   User, 
   Check, 
-  Shield, 
-  Sparkles
+  Shield
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,21 +55,18 @@ const SignUpPage = () => {
 
   return (
     <AuthLayout>
-      <Card className="border-none shadow-2xl bg-card/80 backdrop-blur-sm overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-2xl transform translate-x-16 -translate-y-16"></div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/20 rounded-full blur-2xl transform -translate-x-16 translate-y-16"></div>
-        
-        <CardHeader className="space-y-1 relative z-10">
+      <Card className="border shadow-sm">
+        <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-2">
             <Shield className="h-6 w-6 text-primary mr-2" />
           </div>
           <CardTitle className="text-2xl font-bold text-center">Create your account</CardTitle>
           <CardDescription className="text-center">
-            Start your clean energy journey today
+            Start your clean energy journey with granular guarantees
           </CardDescription>
         </CardHeader>
         
-        <CardContent className="relative z-10">
+        <CardContent>
           <Tabs defaultValue="corporate" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="corporate" className="flex items-center gap-2">
@@ -147,26 +143,20 @@ const SignUpPage = () => {
                       </p>
                     </div>
                     
-                    <div className="mt-2 rounded-lg bg-muted/50 p-3">
-                      <p className="text-sm font-medium mb-2 flex items-center">
-                        <Sparkles size={16} className="text-primary mr-1.5" />
-                        Corporate Benefits
-                      </p>
-                      <ul className="text-sm space-y-1">
-                        <li className="flex items-start">
-                          <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
-                          <span>24/7 clean energy matching</span>
-                        </li>
-                        <li className="flex items-start">
-                          <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
-                          <span>Sustainability reporting tools</span>
-                        </li>
-                        <li className="flex items-start">
-                          <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
-                          <span>Transparent tracking of certificates</span>
-                        </li>
-                      </ul>
-                    </div>
+                    <ul className="mt-2 space-y-1 text-sm">
+                      <li className="flex items-start">
+                        <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
+                        <span>24/7 clean energy matching</span>
+                      </li>
+                      <li className="flex items-start">
+                        <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
+                        <span>Hourly energy consumption tracking</span>
+                      </li>
+                      <li className="flex items-start">
+                        <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
+                        <span>ESG reporting and sustainability metrics</span>
+                      </li>
+                    </ul>
                     
                     <div className="flex items-center space-x-2 mt-2">
                       <Checkbox id="terms-corporate" required />
@@ -281,26 +271,20 @@ const SignUpPage = () => {
                       </p>
                     </div>
                     
-                    <div className="mt-2 rounded-lg bg-muted/50 p-3">
-                      <p className="text-sm font-medium mb-2 flex items-center">
-                        <Sparkles size={16} className="text-primary mr-1.5" />
-                        Utility Benefits
-                      </p>
-                      <ul className="text-sm space-y-1">
-                        <li className="flex items-start">
-                          <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
-                          <span>Expanded market reach for your certificates</span>
-                        </li>
-                        <li className="flex items-start">
-                          <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
-                          <span>Simplified certificate management</span>
-                        </li>
-                        <li className="flex items-start">
-                          <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
-                          <span>Enhanced reporting and analytics</span>
-                        </li>
-                      </ul>
-                    </div>
+                    <ul className="mt-2 space-y-1 text-sm">
+                      <li className="flex items-start">
+                        <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
+                        <span>Simplified certificate management</span>
+                      </li>
+                      <li className="flex items-start">
+                        <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
+                        <span>Broader market reach for your certificates</span>
+                      </li>
+                      <li className="flex items-start">
+                        <Check size={16} className="text-primary mt-0.5 mr-2 flex-shrink-0" />
+                        <span>Enhanced revenue from granular certificates</span>
+                      </li>
+                    </ul>
                     
                     <div className="flex items-center space-x-2 mt-2">
                       <Checkbox id="terms-utility" required />
