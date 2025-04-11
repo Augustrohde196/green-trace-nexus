@@ -1,5 +1,5 @@
 
-import { Home, PieChart, Users, BarChart3, Activity, Receipt, Zap } from "lucide-react";
+import { Home, PieChart, Users, BarChart3, Receipt, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   Sidebar,

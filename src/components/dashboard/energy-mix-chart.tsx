@@ -8,10 +8,11 @@ interface EnergyMixChartProps {
 }
 
 export function EnergyMixChart({ data }: EnergyMixChartProps) {
-  // Ensure the type is used as name for proper labeling
+  // Make sure we use the correct names for Wind and Solar
   const chartData = data.map(item => ({
-    ...item,
-    name: item.type // Ensure we have a name property for the chart
+    name: item.type === 'wind' ? 'Wind' : 'Solar', // Ensure proper capitalization
+    value: item.value,
+    type: item.type
   }));
   
   const COLORS = ["#3B82F6", "#F59E0B"]; // Wind: blue, Solar: amber

@@ -45,7 +45,12 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
       {/* Main content with sidebar */}
       <div className="flex flex-1">
         {/* Sidebar - now with black background */}
-        <aside className="w-64 border-r bg-black text-white">
+        <aside className="w-64 bg-black text-white">
+          <div className="p-4 border-b border-gray-800">
+            <Link to="/corporate" className="flex items-center gap-2">
+              <span className="font-bold text-xl text-white">Renuw</span>
+            </Link>
+          </div>
           <nav className="p-4 space-y-2">
             <Link to="/corporate" className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-800">
               <Home size={20} />
