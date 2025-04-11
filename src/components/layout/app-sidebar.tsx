@@ -39,7 +39,6 @@ const menuItems = [
     title: "Matching Engine",
     icon: Zap,
     url: "/matching",
-    highlight: true,
   },
   {
     title: "Billing",
@@ -61,7 +60,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className={item.highlight ? "bg-primary/20" : ""}>
+                  <SidebarMenuButton asChild>
                     <Link to={item.url}>
                       <item.icon size={20} />
                       <span>{item.title}</span>

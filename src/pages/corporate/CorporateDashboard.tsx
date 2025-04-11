@@ -1,7 +1,18 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Battery, Building2, FileCheck, Wind, SunMedium } from "lucide-react";
+import { Battery, Building2, FileCheck, Wind, SunMedium, AlertTriangle, TrendingUp, ArrowUp, ArrowDown } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Line, ComposedChart } from "recharts";
+
+// Sample data for GO commitments and production projections
+const projectedData = [
+  { month: "Jan", commitments: 18, production: 15, shortfall: 3 },
+  { month: "Feb", commitments: 20, production: 18, shortfall: 2 },
+  { month: "Mar", commitments: 22, production: 25, surplus: 3 },
+  { month: "Apr", commitments: 24, production: 22, shortfall: 2 },
+  { month: "May", commitments: 25, production: 28, surplus: 3 },
+  { month: "Jun", commitments: 28, production: 30, surplus: 2 },
+];
 
 const CorporateDashboard = () => {
   return (
@@ -53,6 +64,56 @@ const CorporateDashboard = () => {
           <CardContent>
             <div className="text-2xl font-bold">70% / 30%</div>
             <p className="text-xs text-muted-foreground">Wind / Solar split</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 grid-cols-1">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Projected GO Commitments & Production
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={projectedData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="month" />
+                  <YAxis label={{ value: 'GWh', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="commitments" fill="#8884d8" name="GO Commitments" />
+                  <Bar dataKey="production" fill="#4DA167" name="Projected Production" />
+                  <Bar dataKey="shortfall" fill="#FF6B6B" name="Shortfall" stackId="stack" />
+                  <Bar dataKey="surplus" fill="#4CAF50" name="Surplus" stackId="stack" />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <h3 className="font-medium">Upcoming Shortfall</h3>
+                  <p className="text-muted-foreground text-sm">Next 3 months</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl font-bold text-red-500">7 GWh</span>
+                  <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <h3 className="font-medium">Projected Surplus</h3>
+                  <p className="text-muted-foreground text-sm">Next 6 months</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl font-bold text-green-500">8 GWh</span>
+                  <ArrowUp className="h-5 w-5 text-green-500" />
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

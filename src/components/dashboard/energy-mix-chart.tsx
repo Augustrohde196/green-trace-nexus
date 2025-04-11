@@ -8,8 +8,14 @@ interface EnergyMixChartProps {
 }
 
 export function EnergyMixChart({ data }: EnergyMixChartProps) {
+  // Add a key to each data item for proper labeling
+  const chartData = data.map(item => ({
+    ...item,
+    name: item.type // Ensure we have a name property for the chart
+  }));
+  
   const COLORS = ["#3B82F6", "#F59E0B"]; // Wind: blue, Solar: amber
-  const totalProduction = data.reduce((sum, item) => sum + item.value, 0);
+  const totalProduction = chartData.reduce((sum, item) => sum + item.value, 0);
 
   return (
     <Card className="col-span-2">
@@ -21,16 +27,17 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={data}
+                data={chartData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
-                label={(entry) => `${entry.type}: ${entry.value} GWh`}
+                nameKey="name"
+                label={(entry) => `${entry.name}: ${entry.value} GWh`}
               >
-                {data.map((entry, index) => (
+                {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
