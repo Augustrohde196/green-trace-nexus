@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,9 +25,28 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  Legend,
+  ComposedChart
 } from "recharts";
-import { ExternalLink, BarChart3, BarChartHorizontal, Wind, Activity, Leaf, Power, FileText, Download, TrendingUp } from "lucide-react";
+import { 
+  ExternalLink, 
+  BarChart3, 
+  BarChartHorizontal, 
+  Wind, 
+  Activity, 
+  Leaf, 
+  Power, 
+  FileText, 
+  Download, 
+  TrendingUp, 
+  Building, 
+  Check, 
+  ArrowUp,
+  FileCheck2 as FileCheck,
+  Battery as BatteryIcon,
+  Sun as SunMedium
+} from "lucide-react";
 
 // Sample data for time-matching scores by month
 const timeMatchingData = [
@@ -126,7 +146,7 @@ const DashboardPage = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Annual Consumption</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <Building className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">245 GWh</div>
@@ -146,7 +166,7 @@ const DashboardPage = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Matching Score</CardTitle>
-            <Battery className="h-4 w-4 text-muted-foreground" />
+            <BatteryIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">78%</div>
