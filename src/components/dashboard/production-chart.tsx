@@ -148,7 +148,6 @@ export function ProductionChart({ data, timeRange, setTimeRange }: ProductionCha
                     position: 'insideLeft',
                     style: { textAnchor: 'middle' }
                   }} 
-                  width={40}
                 />
                 <Tooltip 
                   labelFormatter={(value) => `Date: ${value}`}
@@ -180,14 +179,14 @@ export function ProductionChart({ data, timeRange, setTimeRange }: ProductionCha
             </ResponsiveContainer>
           </motion.div>
         </AnimatePresence>
-        <div className="flex justify-center items-center gap-4 py-4 px-6">
+        <div className="flex justify-center items-center gap-6 py-2">
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-[#3B82F6]"></div>
-            <span className="text-sm">Wind</span>
+            <span className="text-sm">wind</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-[#4DA167]"></div>
-            <span className="text-sm">Solar</span>
+            <span className="text-sm">solar</span>
           </div>
         </div>
       </CardContent>

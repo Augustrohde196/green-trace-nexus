@@ -16,7 +16,7 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
     type: item.type
   }));
   
-  const COLORS = ["#3B82F6", "#4DA167"]; // Wind: blue, Solar: green (matching production timeline)
+  const COLORS = ["#3B82F6", "#F59E0B"]; // Wind: blue, Solar: amber
   const totalProduction = chartData.reduce((sum, item) => sum + item.value, 0);
 
   return (
