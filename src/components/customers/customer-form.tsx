@@ -2,9 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { NewCustomer } from "@/hooks/use-mock-customers";
 import { 
   Form, 
   FormControl, 
@@ -18,8 +16,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+export interface CustomerFormData {
+  name: string;
+  industry: string;
+  location: string;
+  annualConsumption: number;
+  solarPercentage: number;
+}
+
 interface CustomerFormProps {
-  onSubmit: (customer: NewCustomer) => void;
+  onSubmit: (customer: CustomerFormData) => void;
   onCancel: () => void;
 }
 
@@ -46,18 +52,7 @@ export function CustomerForm({ onSubmit, onCancel }: CustomerFormProps) {
   });
 
   function handleSubmit(values: z.infer<typeof formSchema>) {
-    const customer: NewCustomer = {
-      name: values.name,
-      industry: values.industry,
-      location: values.location,
-      annualConsumption: values.annualConsumption,
-      portfolioMix: {
-        solar: values.solarPercentage,
-        wind: 100 - values.solarPercentage
-      }
-    };
-    
-    onSubmit(customer);
+    onSubmit(values);
   }
 
   return (

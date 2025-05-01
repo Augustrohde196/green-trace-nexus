@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Plus, Search, Users, Activity, BarChart3, Check, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -136,45 +137,47 @@ export default function Customers() {
 
       <div className="flex justify-between items-center">
         <Tabs defaultValue="all" value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-          <TabsList className="w-full md:w-auto">
-            <TabsTrigger value="all" className="animate-in fade-in-0 duration-300">
-              All Customers
-            </TabsTrigger>
-            <TabsTrigger value="high" className="animate-in fade-in-25 duration-300">
-              High Match <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">{customers.filter(c => c.matchingScore >= 80).length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="medium" className="animate-in fade-in-50 duration-300">
-              Medium Match <Badge variant="outline" className="ml-2 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">{customers.filter(c => c.matchingScore >= 50 && c.matchingScore < 80).length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="low" className="animate-in fade-in-75 duration-300">
-              Low Match <Badge variant="outline" className="ml-2 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">{customers.filter(c => c.matchingScore < 50).length}</Badge>
-            </TabsTrigger>
-          </TabsList>
-          
-          <div className="relative ml-auto w-full md:w-64 mt-2 md:mt-0">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search customers..."
-              className="pl-9"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center w-full gap-4">
+            <TabsList className="w-full md:w-auto">
+              <TabsTrigger value="all" className="animate-in fade-in-0 duration-300">
+                All Customers
+              </TabsTrigger>
+              <TabsTrigger value="high" className="animate-in fade-in-25 duration-300">
+                High Match <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">{customers.filter(c => c.matchingScore >= 80).length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="medium" className="animate-in fade-in-50 duration-300">
+                Medium Match <Badge variant="outline" className="ml-2 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">{customers.filter(c => c.matchingScore >= 50 && c.matchingScore < 80).length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="low" className="animate-in fade-in-75 duration-300">
+                Low Match <Badge variant="outline" className="ml-2 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">{customers.filter(c => c.matchingScore < 50).length}</Badge>
+              </TabsTrigger>
+            </TabsList>
+            
+            <div className="relative w-full md:w-64">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search customers..."
+                className="pl-9"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
+
+          <TabsContent value="all" className="mt-6">
+            <CustomersList customers={filteredCustomers} />
+          </TabsContent>
+          <TabsContent value="high" className="mt-6">
+            <CustomersList customers={filteredCustomers} />
+          </TabsContent>
+          <TabsContent value="medium" className="mt-6">
+            <CustomersList customers={filteredCustomers} />
+          </TabsContent>
+          <TabsContent value="low" className="mt-6">
+            <CustomersList customers={filteredCustomers} />
+          </TabsContent>
         </Tabs>
       </div>
-
-      <TabsContent value="all" className="mt-0">
-        <CustomersList customers={filteredCustomers} />
-      </TabsContent>
-      <TabsContent value="high" className="mt-0">
-        <CustomersList customers={filteredCustomers} />
-      </TabsContent>
-      <TabsContent value="medium" className="mt-0">
-        <CustomersList customers={filteredCustomers} />
-      </TabsContent>
-      <TabsContent value="low" className="mt-0">
-        <CustomersList customers={filteredCustomers} />
-      </TabsContent>
 
       {/* Add Customer Sheet */}
       <Sheet open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
@@ -182,46 +185,33 @@ export default function Customers() {
           <SheetHeader>
             <SheetTitle>Add Corporate Customer</SheetTitle>
           </SheetHeader>
-          <div className="py-4 space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="companyName" className="text-sm font-medium">Company Name</label>
-              <Input id="companyName" placeholder="Enter company name" />
-            </div>
-            
-            <div className="space-y-2">
-              <label htmlFor="contactName" className="text-sm font-medium">Contact Person Name (Optional)</label>
-              <Input id="contactName" placeholder="Enter contact name" />
-            </div>
-            
-            <div className="space-y-2">
-              <label htmlFor="contactEmail" className="text-sm font-medium">Contact Email</label>
-              <Input id="contactEmail" type="email" placeholder="Enter contact email" />
-              <p className="text-xs text-muted-foreground">
-                An invite will be sent to this email for Corporate Portal access
-              </p>
-            </div>
-            
-            <div className="pt-4 flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsAddCustomerOpen(false)}>Cancel</Button>
-              <Button onClick={() => {
+          <div className="py-4">
+            <CustomerForm 
+              onSubmit={(formData) => {
                 const newCustomer: NewCustomer = {
-                  name: "New Customer", // This would be from form values in a real app
-                  location: "Copenhagen, Denmark",
-                  industry: "Technology",
-                  annualConsumption: 45.0,
-                  preferredMix: { wind: 70, solar: 30 },
+                  name: formData.name,
+                  location: formData.location,
+                  industry: formData.industry,
+                  annualConsumption: formData.annualConsumption,
+                  portfolioMix: {
+                    solar: formData.solarPercentage,
+                    wind: 100 - formData.solarPercentage
+                  },
+                  preferredMix: { 
+                    wind: 100 - formData.solarPercentage,
+                    solar: formData.solarPercentage 
+                  },
                   portfolioStatus: "Partially Allocated",
-                  matchingScore: 75,
+                  matchingScore: Math.floor(Math.random() * (85 - 60) + 60), // Random score between 60-85
                   localOnly: true,
                   status: "pending"
                 };
                 
                 addCustomer(newCustomer);
                 setIsAddCustomerOpen(false);
-              }}>
-                Add Customer
-              </Button>
-            </div>
+              }} 
+              onCancel={() => setIsAddCustomerOpen(false)}
+            />
           </div>
         </SheetContent>
       </Sheet>

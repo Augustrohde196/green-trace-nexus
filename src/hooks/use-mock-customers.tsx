@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Customer } from "@/data/models";
+import { Customer, NewCustomer } from "@/data/models";
 import { toast } from "@/components/ui/use-toast";
 
 // Import initial mock data
@@ -29,7 +29,9 @@ const initialCustomers: Customer[] = [
         allocatedCapacity: 15
       }
     ],
-    matchingScore: 87
+    matchingScore: 87,
+    status: "active",
+    portfolioStatus: "Fully Allocated"
   },
   {
     id: "cust-002",
@@ -55,7 +57,9 @@ const initialCustomers: Customer[] = [
         allocatedCapacity: 25
       }
     ],
-    matchingScore: 76
+    matchingScore: 76,
+    status: "active",
+    portfolioStatus: "Fully Allocated"
   },
   {
     id: "cust-003",
@@ -81,7 +85,9 @@ const initialCustomers: Customer[] = [
         allocatedCapacity: 30
       }
     ],
-    matchingScore: 92
+    matchingScore: 92,
+    status: "active",
+    portfolioStatus: "Fully Allocated"
   },
   {
     id: "cust-004",
@@ -101,7 +107,9 @@ const initialCustomers: Customer[] = [
         allocatedCapacity: 55
       }
     ],
-    matchingScore: 68
+    matchingScore: 68,
+    status: "active",
+    portfolioStatus: "Partially Allocated"
   },
   {
     id: "cust-005",
@@ -121,7 +129,9 @@ const initialCustomers: Customer[] = [
         allocatedCapacity: 25
       }
     ],
-    matchingScore: 89
+    matchingScore: 89,
+    status: "active",
+    portfolioStatus: "Partially Allocated"
   },
   {
     id: "cust-006",
@@ -134,20 +144,11 @@ const initialCustomers: Customer[] = [
       wind: 50
     },
     assets: [],
-    matchingScore: 42
+    matchingScore: 42,
+    status: "pending",
+    portfolioStatus: "Not Allocated"
   }
 ];
-
-export interface NewCustomer {
-  name: string;
-  industry: string;
-  location: string;
-  annualConsumption: number;
-  portfolioMix: {
-    solar: number;
-    wind: number;
-  }
-}
 
 export function useMockCustomers() {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
@@ -162,7 +163,11 @@ export function useMockCustomers() {
       annualConsumption: newCustomer.annualConsumption,
       portfolioMix: newCustomer.portfolioMix,
       assets: [],
-      matchingScore: Math.floor(Math.random() * 101) // Random score between 0-100
+      matchingScore: newCustomer.matchingScore || Math.floor(Math.random() * 101), // Random score between 0-100
+      status: newCustomer.status || "pending",
+      portfolioStatus: newCustomer.portfolioStatus || "Not Allocated",
+      preferredMix: newCustomer.preferredMix,
+      localOnly: newCustomer.localOnly
     };
 
     setCustomers([...customers, customer]);

@@ -1,3 +1,4 @@
+
 export interface Asset {
   id: string;
   name: string;
@@ -51,6 +52,10 @@ export interface NewCustomer {
   location: string;
   industry: string;
   annualConsumption: number;
+  portfolioMix: {
+    solar: number;
+    wind: number;
+  };
   preferredMix?: {
     wind: number;
     solar: number;
