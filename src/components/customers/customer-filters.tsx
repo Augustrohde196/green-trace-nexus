@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { Search } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -27,9 +26,9 @@ export function CustomerFilters({
   onCustomerClick
 }: CustomerFiltersProps) {
   return (
-    <div className="flex justify-between items-center">
+    <div className="w-full">
       <Tabs defaultValue="all" value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center w-full gap-4">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center w-full gap-4 relative">
           <TabsList className="w-full md:w-auto">
             <TabsTrigger value="all" className="animate-in fade-in-0 duration-300">
               All Customers

@@ -33,7 +33,7 @@ export default function Customers() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative z-0">
       {/* Page Header */}
       <CustomerPageHeader onAddCustomerClick={() => setIsAddCustomerOpen(true)} />
 
@@ -44,15 +44,17 @@ export default function Customers() {
       />
 
       {/* Customer Filters and List */}
-      <CustomerFilters
-        customers={customers}
-        filteredCustomers={filteredCustomers}
-        selectedTab={selectedTab}
-        setSelectedTab={setSelectedTab}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        onCustomerClick={handleCustomerClick}
-      />
+      <div className="relative z-0">
+        <CustomerFilters
+          customers={customers}
+          filteredCustomers={filteredCustomers}
+          selectedTab={selectedTab}
+          setSelectedTab={setSelectedTab}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onCustomerClick={handleCustomerClick}
+        />
+      </div>
 
       {/* Customer Details Dialog */}
       <CustomerDetailsDialog
