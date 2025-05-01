@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Calendar, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { matchingEngineService } from "@/services/matching-engine-service";
 import { goService } from "@/services/go-service";
 import { mockCustomers } from "@/data/mock-data";
@@ -24,7 +23,7 @@ export default function GOAllocation() {
   const [timeRange, setTimeRange] = useState<TimeRangeType>("month");
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   
-  // Chart colors for better visual distinction
+  // Enhanced chart colors for better visual distinction
   const CHART_COLORS = [
     "#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#0088fe", 
     "#00C49F", "#FFBB28", "#FF8042", "#a4de6c", "#d0ed57"
@@ -101,10 +100,25 @@ export default function GOAllocation() {
       />
 
       <div className="flex justify-between items-center">
-        <Tabs defaultValue={view} value={view} onValueChange={(value) => setView(value as "overview" | "customers")} className="w-full">
-          <TabsList className="grid w-64 grid-cols-2">
-            <TabsTrigger value="overview">Allocation Overview</TabsTrigger>
-            <TabsTrigger value="customers">Customer Breakdown</TabsTrigger>
+        <Tabs 
+          defaultValue={view} 
+          value={view} 
+          onValueChange={(value) => setView(value as "overview" | "customers")} 
+          className="w-full"
+        >
+          <TabsList className="w-[400px] rounded-lg bg-slate-100 dark:bg-slate-800 p-1">
+            <TabsTrigger 
+              value="overview"
+              className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow transition-all"
+            >
+              Allocation Overview
+            </TabsTrigger>
+            <TabsTrigger 
+              value="customers"
+              className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow transition-all"
+            >
+              Customer Breakdown
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
