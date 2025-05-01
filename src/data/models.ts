@@ -1,4 +1,3 @@
-
 export interface Asset {
   id: string;
   name: string;
@@ -20,6 +19,8 @@ export interface Asset {
   owner: string; // Asset owner information
   matchingScore?: number; // How well the asset's production profile matches consumption
   carbonIntensity?: number; // Carbon intensity in gCO2eq/kWh
+  status?: "online" | "offline" | "maintenance"; // Asset operational status
+  dataIntegrated?: boolean; // Whether data is automatically integrated via API
 }
 
 export interface Customer {
@@ -35,6 +36,29 @@ export interface Customer {
   assets: AssetAllocation[];
   matchingScore: number; // 0-100%, how well their consumption matches production
   utilityProvider?: string; // The utility or energy trader servicing this customer
+  status?: "active" | "pending"; // Customer status
+  preferredMix?: {
+    wind: number;
+    solar: number;
+  };
+  localOnly?: boolean;
+  portfolioStatus?: string;
+}
+
+// For the customer form data
+export interface NewCustomer {
+  name: string;
+  location: string;
+  industry: string;
+  annualConsumption: number;
+  preferredMix?: {
+    wind: number;
+    solar: number;
+  };
+  portfolioStatus?: string;
+  matchingScore?: number;
+  localOnly?: boolean;
+  status?: "active" | "pending";
 }
 
 export interface CustomerAllocation {

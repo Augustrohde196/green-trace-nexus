@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Plus, Search, Users, Activity, BarChart3, Check, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { CustomerForm } from "@/components/customers/customer-form";
 import { useMockCustomers } from "@/hooks/use-mock-customers";
+import { Customer, NewCustomer } from "@/data/models";
 
 export default function Customers() {
   const { customers, addCustomer } = useMockCustomers();
@@ -27,6 +27,11 @@ export default function Customers() {
     if (selectedTab === "medium") return matchesSearch && customer.matchingScore >= 50 && customer.matchingScore < 80;
     return matchesSearch && customer.matchingScore < 50;
   });
+
+  // Function to count customers by status
+  const countCustomersByStatus = (status: string) => {
+    return customers.filter(c => c.status === status).length || 0;
+  };
 
   return (
     <div className="space-y-6">
@@ -70,7 +75,7 @@ export default function Customers() {
             <CardContent className="relative">
               <div className="text-3xl font-bold">{customers.length}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                {customers.filter(c => c.status === 'active').length} active, {customers.filter(c => c.status === 'pending').length || 0} pending
+                {countCustomersByStatus('active')} active, {countCustomersByStatus('pending')} pending
               </p>
             </CardContent>
           </Card>
@@ -199,8 +204,7 @@ export default function Customers() {
             <div className="pt-4 flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setIsAddCustomerOpen(false)}>Cancel</Button>
               <Button onClick={() => {
-                addCustomer({
-                  id: `c${customers.length + 1}`,
+                const newCustomer: NewCustomer = {
                   name: "New Customer", // This would be from form values in a real app
                   location: "Copenhagen, Denmark",
                   industry: "Technology",
@@ -210,7 +214,9 @@ export default function Customers() {
                   matchingScore: 75,
                   localOnly: true,
                   status: "pending"
-                });
+                };
+                
+                addCustomer(newCustomer);
                 setIsAddCustomerOpen(false);
               }}>
                 Add Customer
@@ -224,7 +230,7 @@ export default function Customers() {
 }
 
 // CustomersList component
-function CustomersList({ customers }: { customers: any[] }) {
+function CustomersList({ customers }: { customers: Customer[] }) {
   return (
     <motion.div
       className="space-y-4"
@@ -261,16 +267,16 @@ function CustomersList({ customers }: { customers: any[] }) {
                   <div className="flex h-2 w-full overflow-hidden rounded-full bg-muted">
                     <div 
                       className="bg-blue-500 h-full" 
-                      style={{ width: `${customer.preferredMix.wind}%` }}
+                      style={{ width: `${customer.preferredMix?.wind || customer.portfolioMix.wind}%` }}
                     />
                     <div 
                       className="bg-green-500 h-full" 
-                      style={{ width: `${customer.preferredMix.solar}%` }}
+                      style={{ width: `${customer.preferredMix?.solar || customer.portfolioMix.solar}%` }}
                     />
                   </div>
                   <div className="flex justify-between text-xs mt-1">
-                    <span>Wind: {customer.preferredMix.wind}%</span>
-                    <span>Solar: {customer.preferredMix.solar}%</span>
+                    <span>Wind: {customer.preferredMix?.wind || customer.portfolioMix.wind}%</span>
+                    <span>Solar: {customer.preferredMix?.solar || customer.portfolioMix.solar}%</span>
                   </div>
                 </div>
                 <div className="col-span-1 text-center">

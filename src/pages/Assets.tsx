@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { 
   Card, 
@@ -87,7 +86,7 @@ export default function Assets() {
   }, []);
 
   // Define status badge variant
-  const getStatusBadgeVariant = (status: string) => {
+  const getStatusBadgeVariant = (status?: string) => {
     switch(status) {
       case "online":
         return "success";
@@ -211,7 +210,7 @@ export default function Assets() {
                       <TableCell>{asset.installationType || "FTM"}</TableCell>
                       <TableCell>
                         <Badge 
-                          variant={getStatusBadgeVariant(asset.status || "online")}
+                          variant={getStatusBadgeVariant(asset.status)}
                           className="capitalize"
                         >
                           {asset.status || "online"}
@@ -285,7 +284,7 @@ export default function Assets() {
                         <div className="flex justify-between items-center text-sm">
                           <span>Status:</span>
                           <Badge 
-                            variant={getStatusBadgeVariant(asset.status || "online")}
+                            variant={getStatusBadgeVariant(asset.status)}
                             className="capitalize"
                           >
                             {asset.status || "online"}

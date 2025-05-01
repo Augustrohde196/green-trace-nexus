@@ -38,6 +38,8 @@ import {
   YAxis,
   CartesianGrid,
   Legend,
+  PieChart as RechartsPieChart,
+  Pie,
   ResponsiveContainer,
   Tooltip as RechartsTooltip,
 } from "recharts";
@@ -325,18 +327,19 @@ export default function GOAllocation() {
               <CardContent>
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <pie 
+                    <RechartsPieChart>
+                      <Pie 
                         data={customerAllocations.map(c => ({name: c.name, value: c.allocation}))} 
+                        dataKey="value"
                         cx="50%" 
                         cy="50%" 
                         outerRadius={80} 
                         fill="#8884d8" 
-                        dataKey="value"
+                        label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
                       />
                       <RechartsTooltip />
                       <Legend />
-                    </PieChart>
+                    </RechartsPieChart>
                   </ResponsiveContainer>
                 </div>
               </CardContent>
