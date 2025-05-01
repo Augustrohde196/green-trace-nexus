@@ -63,6 +63,9 @@ const Dashboard = () => {
     visible: { opacity: 1, y: 0 }
   };
   
+  // Check if there is a shortfall in the projected data
+  const hasShortfall = projectedData.some(item => item.shortfall);
+  
   return (
     <motion.div 
       className="space-y-6"
@@ -184,14 +187,14 @@ const Dashboard = () => {
             >
               <motion.div 
                 variants={fadeInUp}
-                className="flex items-center justify-between p-4 border rounded-lg transition-all duration-300 hover:bg-accent/20"
+                className={`flex items-center justify-between p-4 border rounded-lg transition-all duration-300 hover:bg-accent/20 ${hasShortfall ? 'bg-red-50 border-red-100 text-red-800' : ''}`}
               >
                 <div>
                   <h3 className="font-medium">Projected Shortfall</h3>
                   <p className="text-muted-foreground text-sm">Next 6 months</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-red-500">7 GWh</span>
+                  <span className={`text-xl font-bold ${hasShortfall ? 'text-red-500' : 'text-red-500'}`}>7 GWh</span>
                 </div>
               </motion.div>
               <motion.div 

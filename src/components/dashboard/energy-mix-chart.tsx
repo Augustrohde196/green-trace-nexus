@@ -44,7 +44,7 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
                 fill="#8884d8"
                 dataKey="value"
                 nameKey="name"
-                label={({name, value}) => `${name}: ${value} GWh`}
+                label={({value}) => `${value} GWh`} // Only show value by default
                 animationDuration={1500}
                 animationBegin={300}
               >
