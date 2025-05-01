@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Customer, NewCustomer } from "@/data/models";
+import { Customer } from "@/data/models";
 import { toast } from "@/components/ui/use-toast";
 
 // Import initial mock data
@@ -149,6 +149,25 @@ const initialCustomers: Customer[] = [
     portfolioStatus: "Not Allocated"
   }
 ];
+
+export interface NewCustomer {
+  name: string;
+  location: string;
+  industry: string;
+  annualConsumption: number;
+  portfolioMix: {
+    solar: number;
+    wind: number;
+  };
+  preferredMix?: {
+    wind: number;
+    solar: number;
+  };
+  portfolioStatus?: string;
+  matchingScore?: number;
+  localOnly?: boolean;
+  status?: "active" | "pending";
+}
 
 export function useMockCustomers() {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);

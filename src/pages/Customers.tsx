@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Plus, Search, Users, Activity, BarChart3, Check, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,9 +8,9 @@ import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-import { CustomerForm } from "@/components/customers/customer-form";
-import { useMockCustomers } from "@/hooks/use-mock-customers";
-import { Customer, NewCustomer } from "@/data/models";
+import { CustomerForm, CustomerFormData } from "@/components/customers/customer-form";
+import { useMockCustomers, NewCustomer } from "@/hooks/use-mock-customers";
+import { Customer } from "@/data/models";
 
 export default function Customers() {
   const { customers, addCustomer } = useMockCustomers();
@@ -187,7 +186,7 @@ export default function Customers() {
           </SheetHeader>
           <div className="py-4">
             <CustomerForm 
-              onSubmit={(formData) => {
+              onSubmit={(formData: CustomerFormData) => {
                 const newCustomer: NewCustomer = {
                   name: formData.name,
                   location: formData.location,
@@ -201,7 +200,7 @@ export default function Customers() {
                     wind: 100 - formData.solarPercentage,
                     solar: formData.solarPercentage 
                   },
-                  portfolioStatus: "Partially Allocated",
+                  portfolioStatus: "Not Allocated",
                   matchingScore: Math.floor(Math.random() * (85 - 60) + 60), // Random score between 60-85
                   localOnly: true,
                   status: "pending"

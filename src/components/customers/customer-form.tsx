@@ -16,6 +16,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+// Define the form schema with zod
+const formSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters.").max(100),
+  industry: z.string().min(2, "Industry must be at least 2 characters."),
+  location: z.string().min(2, "Location must be at least 2 characters."),
+  annualConsumption: z.coerce.number().positive("Must be a positive number."),
+  solarPercentage: z.number().min(0).max(100)
+});
+
+// This should match the form schema structure
 export interface CustomerFormData {
   name: string;
   industry: string;
@@ -28,14 +38,6 @@ interface CustomerFormProps {
   onSubmit: (customer: CustomerFormData) => void;
   onCancel: () => void;
 }
-
-const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters.").max(100),
-  industry: z.string().min(2, "Industry must be at least 2 characters."),
-  location: z.string().min(2, "Location must be at least 2 characters."),
-  annualConsumption: z.coerce.number().positive("Must be a positive number."),
-  solarPercentage: z.number().min(0).max(100)
-});
 
 export function CustomerForm({ onSubmit, onCancel }: CustomerFormProps) {
   const [solarPercentage, setSolarPercentage] = useState(50);
@@ -52,7 +54,9 @@ export function CustomerForm({ onSubmit, onCancel }: CustomerFormProps) {
   });
 
   function handleSubmit(values: z.infer<typeof formSchema>) {
-    onSubmit(values);
+    // Since the form validation has passed, we can safely cast values to CustomerFormData
+    // as all required fields are guaranteed to be present
+    onSubmit(values as CustomerFormData);
   }
 
   return (
