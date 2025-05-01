@@ -80,20 +80,23 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar>
-          <SidebarHeader className="flex items-center justify-center p-6">
-            <span className="font-bold text-white text-2xl tracking-tight">Renuw</span>
+          <SidebarHeader className="flex items-center justify-center px-6 py-5">
+            <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">Renuw</span>
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel>Corporate Portal</SidebarGroupLabel>
+              <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground/60 px-3 py-2">Corporate Portal</SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className="px-2">
                   {menuItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <Link to={item.url}>
-                          <item.icon size={20} />
-                          <span>{item.title}</span>
+                      <SidebarMenuButton 
+                        className="transition-all duration-200 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground/90"
+                        asChild
+                      >
+                        <Link to={item.url} className="flex items-center gap-3">
+                          <item.icon size={18} className="text-sidebar-foreground/70" />
+                          <span className="text-sm text-sidebar-foreground/90">{item.title}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -102,8 +105,8 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
-          <SidebarFooter className="px-6 py-4">
-            <div className="text-xs text-white/70">
+          <SidebarFooter className="px-4 py-3">
+            <div className="text-xs text-sidebar-foreground/50 font-medium">
               Renuw Corporate Portal v1.0
             </div>
           </SidebarFooter>
@@ -116,19 +119,29 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
               </div>
               <div className="flex items-center gap-4">
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
                   size="icon" 
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                   title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                  className="rounded-full hover:bg-muted transition-colors border-none"
                 >
-                  {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+                  {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
                 </Button>
-                <Button variant="ghost" size="icon">
-                  <Bell size={20} />
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  className="rounded-full hover:bg-muted transition-colors border-none relative"
+                >
+                  <Bell size={18} />
+                  <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-red-500"></span>
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="rounded-full hover:bg-muted transition-colors border-none bg-primary/10"
+                    >
                       <User size={16} className="mr-2" />
                       My Account
                     </Button>
@@ -136,16 +149,16 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer">
                       <User size={16} className="mr-2" />
                       Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer">
                       <Sliders size={16} className="mr-2" />
                       Settings
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut}>
+                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 focus:bg-red-50 dark:focus:text-red-400">
                       <LogOut size={16} className="mr-2" />
                       Sign out
                     </DropdownMenuItem>

@@ -16,7 +16,7 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
     type: item.type
   }));
   
-  const COLORS = ["#3B82F6", "#4DA167"]; // Wind: blue, Solar: green - matching Production Timeline
+  const COLORS = ["#3B82F6", "#4DA167"]; // Blue = Wind, Green = Solar - matching Production Timeline
   const totalProduction = chartData.reduce((sum, item) => sum + item.value, 0);
 
   // Custom tooltip to show detailed information on hover
@@ -33,7 +33,7 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
     return null;
   };
 
-  // Custom legend that only shows the energy type name
+  // Custom legend that shows the energy type name
   const renderLegend = (props: any) => {
     const { payload } = props;
     return (
@@ -51,30 +51,8 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
     );
   };
 
-  // Custom label that shows only the value, not the full text
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value, index }: any) => {
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-    
-    return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="#ffffff" 
-        textAnchor="middle" 
-        dominantBaseline="central"
-        fontSize="14"
-        fontWeight="medium"
-      >
-        {`${value} GWh`}
-      </text>
-    );
-  };
-
   return (
-    <Card className="flex-none w-full md:w-[30%]">
+    <Card className="flex-none w-full md:w-[30%] group hover:border-primary/50 transition-colors">
       <CardHeader>
         <CardTitle>Energy Mix</CardTitle>
       </CardHeader>
@@ -98,7 +76,7 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
                 fill="#8884d8"
                 dataKey="value"
                 nameKey="name"
-                label={renderCustomizedLabel}
+                label={false} // Remove labels inside the chart
                 animationDuration={1500}
                 animationBegin={300}
               >

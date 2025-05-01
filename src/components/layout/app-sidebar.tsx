@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { motion } from "framer-motion";
 
 const menuItems = [
   {
@@ -54,15 +55,11 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="flex items-center justify-center p-6">
-        <img 
-          src="/lovable-uploads/419093cd-a308-42b6-b46a-779e847ce4f1.png" 
-          alt="Renuw" 
-          className="h-10" 
-        />
+      <SidebarHeader className="flex items-center justify-center px-6 py-5">
+        <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">Renuw</span>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarMenu>
+        <SidebarMenu className="px-2">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.url || 
                             (item.url !== '/' && location.pathname.startsWith(item.url));
@@ -70,12 +67,12 @@ export function AppSidebar() {
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton 
-                  className={isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""}
+                  className={`transition-all duration-200 ${isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground/90"}`}
                   asChild
                 >
-                  <Link to={item.url}>
-                    <item.icon size={20} />
-                    <span>{item.title}</span>
+                  <Link to={item.url} className="flex items-center gap-3">
+                    <item.icon size={18} className={`${isActive ? "text-primary" : "text-sidebar-foreground/70"}`} />
+                    <span className={`text-sm ${isActive ? "text-sidebar-accent-foreground" : "text-sidebar-foreground/90"}`}>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -83,6 +80,11 @@ export function AppSidebar() {
           })}
         </SidebarMenu>
       </SidebarContent>
+      <SidebarFooter className="px-4 py-3">
+        <div className="text-xs text-sidebar-foreground/50 font-medium">
+          Renuw Utility Portal v1.0
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }
