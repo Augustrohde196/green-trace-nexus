@@ -21,13 +21,17 @@ export function DashboardCard({
 }: DashboardCardProps) {
   return (
     <motion.div
-      whileHover={{ y: -4, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
       transition={{ duration: 0.2 }}
     >
       <Card className={className}>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
-          {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+          {Icon && (
+            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
+              <Icon className="h-4 w-4 text-primary" />
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{value}</div>

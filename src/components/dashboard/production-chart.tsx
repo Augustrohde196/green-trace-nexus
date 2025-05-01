@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProductionData } from "@/data/models";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Dispatch, SetStateAction } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,8 +16,7 @@ export function ProductionChart({ data, timeRange, setTimeRange }: ProductionCha
   // Generate data based on selected timeRange
   const generateChartData = () => {
     const today = new Date();
-    let dataPoints: { date: string; formattedDate: string; output: number }[] = [];
-    let format: string;
+    let dataPoints: { date: string; formattedDate: string; wind: number; solar: number; total: number }[] = [];
     
     switch(timeRange) {
       case "week":
@@ -26,10 +25,14 @@ export function ProductionChart({ data, timeRange, setTimeRange }: ProductionCha
           const date = new Date(today);
           date.setDate(today.getDate() - i);
           const dateStr = date.toLocaleDateString([], { weekday: 'short' });
+          const windOutput = Math.floor(Math.random() * 100) + 40;
+          const solarOutput = Math.floor(Math.random() * 50) + 20;
           dataPoints.push({
             date: dateStr,
             formattedDate: dateStr,
-            output: Math.floor(Math.random() * 150) + 50
+            wind: windOutput,
+            solar: solarOutput,
+            total: windOutput + solarOutput
           });
         }
         break;
@@ -39,10 +42,14 @@ export function ProductionChart({ data, timeRange, setTimeRange }: ProductionCha
           const date = new Date(today);
           date.setDate(today.getDate() - i);
           const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+          const windOutput = Math.floor(Math.random() * 100) + 40;
+          const solarOutput = Math.floor(Math.random() * 50) + 20;
           dataPoints.push({
             date: dateStr,
             formattedDate: dateStr,
-            output: Math.floor(Math.random() * 150) + 50
+            wind: windOutput,
+            solar: solarOutput,
+            total: windOutput + solarOutput
           });
         }
         break;
@@ -52,10 +59,14 @@ export function ProductionChart({ data, timeRange, setTimeRange }: ProductionCha
           const date = new Date(today);
           date.setMonth(today.getMonth() - i);
           const dateStr = date.toLocaleDateString([], { month: 'short' });
+          const windOutput = Math.floor(Math.random() * 800) + 300;
+          const solarOutput = Math.floor(Math.random() * 400) + 200;
           dataPoints.push({
             date: dateStr,
             formattedDate: dateStr,
-            output: Math.floor(Math.random() * 1200) + 500
+            wind: windOutput,
+            solar: solarOutput,
+            total: windOutput + solarOutput
           });
         }
         break;
@@ -70,7 +81,9 @@ export function ProductionChart({ data, timeRange, setTimeRange }: ProductionCha
     <Card>
       <CardHeader>
         <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 justify-between items-start">
-          <CardTitle>Production Timeline Chart</CardTitle>
+          <div>
+            <CardTitle>Production Timeline</CardTitle>
+          </div>
           <div className="flex gap-2">
             <Button 
               size="sm" 
@@ -110,31 +123,72 @@ export function ProductionChart({ data, timeRange, setTimeRange }: ProductionCha
             transition={{ duration: 0.3 }}
           >
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 30 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 30 }}>
+                <defs>
+                  <linearGradient id="colorWind" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorSolar" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#4DA167" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#4DA167" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
                 <XAxis 
                   dataKey="date"
                   padding={{ left: 10, right: 10 }}
                   tick={{ fontSize: 10 }}
                   interval="preserveStartEnd"
                 />
-                <YAxis />
+                <YAxis 
+                  label={{ 
+                    value: timeRange === "year" ? "GWh" : "MWh", 
+                    angle: -90, 
+                    position: 'insideLeft',
+                    style: { textAnchor: 'middle' }
+                  }} 
+                />
                 <Tooltip 
-                  labelFormatter={(value) => {
-                    return value;
+                  labelFormatter={(value) => `Date: ${value}`}
+                  formatter={(value: number, name: string) => {
+                    const unit = timeRange === "year" ? "GWh" : "MWh";
+                    const displayName = name === "wind" ? "Wind" : name === "solar" ? "Solar" : "Total";
+                    return [`${value} ${unit}`, displayName];
                   }}
-                  formatter={(value: number) => [`${value.toFixed(1)} GWh`, 'Production']}
                 />
-                <Bar 
-                  dataKey="output" 
-                  fill="#4DA167"
-                  name="Production"
-                  animationDuration={1500}
+                <Area 
+                  type="monotone" 
+                  dataKey="wind" 
+                  stackId="1"
+                  stroke="#3B82F6" 
+                  fillOpacity={1}
+                  fill="url(#colorWind)" 
+                  name="wind"
                 />
-              </BarChart>
+                <Area 
+                  type="monotone" 
+                  dataKey="solar" 
+                  stackId="1"
+                  stroke="#4DA167" 
+                  fillOpacity={1}
+                  fill="url(#colorSolar)" 
+                  name="solar"
+                />
+              </AreaChart>
             </ResponsiveContainer>
           </motion.div>
         </AnimatePresence>
+        <div className="flex justify-center items-center gap-6 py-2">
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded-full bg-[#3B82F6]"></div>
+            <span className="text-sm">wind</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded-full bg-[#4DA167]"></div>
+            <span className="text-sm">solar</span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

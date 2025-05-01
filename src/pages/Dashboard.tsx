@@ -6,7 +6,7 @@ import { EnergyMixChart } from "@/components/dashboard/energy-mix-chart";
 import { calculateDashboardMetrics } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ComposedChart } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ComposedChart, TooltipProps } from "recharts";
 import { DashboardTooltip } from "@/components/dashboard/dashboard-tooltip";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -20,6 +20,36 @@ const projectedData = [
   { month: "Oct", commitments: 25, production: 28, surplus: 3 },
   { month: "Nov", commitments: 22, production: 20, shortfall: 2 },
 ];
+
+// Custom tooltip for the Commitments vs Production chart
+const CustomTooltip = ({ active, payload, label }: TooltipProps<any, any>) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background/95 backdrop-blur-sm p-3 border border-border/50 shadow-lg rounded">
+        <p className="font-medium mb-1">{`${label}`}</p>
+        {payload.map((entry: any, index: number) => {
+          if (entry.value !== undefined && entry.name) {
+            const name = entry.name === "commitments" ? "Customer GO Commitments" :
+                        entry.name === "production" ? "Projected Production" : 
+                        entry.name === "shortfall" ? "Shortfall" : "Surplus";
+            return (
+              <div key={`item-${index}`} className="flex items-center gap-2 text-sm">
+                <div 
+                  className="h-3 w-3 rounded" 
+                  style={{ backgroundColor: entry.fill || entry.color }}
+                />
+                <span className="text-muted-foreground">{name}:</span>
+                <span className="font-medium">{`${entry.value} GWh`}</span>
+              </div>
+            );
+          }
+          return null;
+        })}
+      </div>
+    );
+  }
+  return null;
+};
 
 const Dashboard = () => {
   // In a real app, we would fetch this data from a server
@@ -132,16 +162,14 @@ const Dashboard = () => {
             >
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={projectedData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
                   <XAxis dataKey="month" />
                   <YAxis label={{ value: 'GWh', angle: -90, position: 'insideLeft' }} />
-                  <Tooltip 
-                    formatter={(value: any) => [`${value} GWh`, null]}
-                  />
-                  <Bar dataKey="commitments" fill="#8884d8" name="Customer GO Commitments" />
-                  <Bar dataKey="production" fill="#4DA167" name="Projected Production" />
-                  <Bar dataKey="shortfall" fill="#FF6B6B" name="Shortfall" stackId="stack" />
-                  <Bar dataKey="surplus" fill="#4CAF50" name="Surplus" stackId="stack" />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="commitments" fill="#8884d8" name="commitments" />
+                  <Bar dataKey="production" fill="#4DA167" name="production" />
+                  <Bar dataKey="shortfall" fill="#FF6B6B" name="shortfall" stackId="stack" />
+                  <Bar dataKey="surplus" fill="#4CAF50" name="surplus" stackId="stack" />
                 </ComposedChart>
               </ResponsiveContainer>
             </motion.div>
