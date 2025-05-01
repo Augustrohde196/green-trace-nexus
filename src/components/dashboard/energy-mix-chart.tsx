@@ -19,6 +19,60 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
   const COLORS = ["#3B82F6", "#4DA167"]; // Wind: blue, Solar: green - matching Production Timeline
   const totalProduction = chartData.reduce((sum, item) => sum + item.value, 0);
 
+  // Custom tooltip to show detailed information on hover
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const { name, value } = payload[0].payload;
+      const percentage = Math.round((value/totalProduction)*100);
+      return (
+        <div className="bg-background/90 backdrop-blur-sm p-2 border border-border/50 rounded shadow text-sm">
+          <p>{name}: {value} GWh ({percentage}%)</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom legend that only shows the energy type name
+  const renderLegend = (props: any) => {
+    const { payload } = props;
+    return (
+      <div className="flex justify-center items-center gap-6 py-3">
+        {payload.map((entry: any, index: number) => (
+          <div key={`legend-${index}`} className="flex items-center gap-2">
+            <div 
+              className="h-3 w-3 rounded-full" 
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-sm">{entry.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // Custom label that only shows the value, not the name
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value, index }: any) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        fill="#ffffff" 
+        textAnchor="middle" 
+        dominantBaseline="central"
+        fontSize="14"
+        fontWeight="medium"
+      >
+        {`${value} GWh`}
+      </text>
+    );
+  };
+
   return (
     <Card className="flex-none w-full md:w-[30%]">
       <CardHeader>
@@ -40,11 +94,11 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
                 cy="50%"
                 labelLine={false}
                 outerRadius={80}
-                innerRadius={50} // Add inner radius for donut chart
+                innerRadius={50} 
                 fill="#8884d8"
                 dataKey="value"
                 nameKey="name"
-                label={({value}) => `${value} GWh`} // Only show value by default
+                label={renderCustomizedLabel}
                 animationDuration={1500}
                 animationBegin={300}
               >
@@ -56,14 +110,9 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
                   />
                 ))}
               </Pie>
-              <Tooltip 
-                formatter={(value: number, name: string) => [`${value} GWh (${Math.round((value/totalProduction)*100)}%)`, name]}
-              />
+              <Tooltip content={<CustomTooltip />} />
               <Legend 
-                layout="horizontal" 
-                verticalAlign="bottom" 
-                align="center" 
-                iconSize={10}
+                content={renderLegend}
                 iconType="circle"
               />
             </PieChart>
