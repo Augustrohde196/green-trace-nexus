@@ -34,7 +34,7 @@ export function AppHeader() {
             size="icon" 
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            className="rounded-full hover:bg-muted/50 transition-colors"
+            className="rounded-full transition-colors hover:bg-muted"
           >
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </Button>
@@ -42,7 +42,7 @@ export function AppHeader() {
           <Button 
             variant="ghost" 
             size="icon"
-            className="rounded-full hover:bg-muted/50 transition-colors relative"
+            className="rounded-full transition-colors hover:bg-muted relative"
           >
             <Bell size={18} />
             <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-red-500"></span>

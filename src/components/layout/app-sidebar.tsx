@@ -4,7 +4,6 @@ import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -54,12 +53,8 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="flex items-center justify-center p-6">
-        <img 
-          src="/lovable-uploads/419093cd-a308-42b6-b46a-779e847ce4f1.png" 
-          alt="Renuw" 
-          className="h-10" 
-        />
+      <SidebarHeader className="flex items-center justify-center p-5">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">RENUW</h1>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
@@ -70,11 +65,11 @@ export function AppSidebar() {
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton 
-                  className={isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""}
+                  className={`${isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""} my-1 transition-all duration-200`}
                   asChild
                 >
                   <Link to={item.url}>
-                    <item.icon size={20} />
+                    <item.icon size={20} className={isActive ? "text-primary" : ""} />
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
