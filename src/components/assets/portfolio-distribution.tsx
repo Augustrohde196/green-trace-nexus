@@ -36,14 +36,16 @@ export function PortfolioDistribution({ assets }: PortfolioDistributionProps) {
     { btm: 0, ftm: 0 }
   );
 
+  // Updated colors to match dashboard - Wind blue, Solar green
   const typeChartData = [
-    { name: "Wind", value: typeDistribution.wind, color: "#3B82F6" },
-    { name: "Solar", value: typeDistribution.solar, color: "#F59E0B" },
+    { name: "Wind", value: typeDistribution.wind, color: "#735DFF" }, // Using the techPurple color
+    { name: "Solar", value: typeDistribution.solar, color: "#D9F0C2" }, // Using the techGreen color
   ];
 
+  // Different colors for installation types (not blue/green)
   const installationChartData = [
-    { name: "Behind-the-Meter", value: installationDistribution.btm, color: "#6366F1" },
-    { name: "Front-of-the-Meter", value: installationDistribution.ftm, color: "#10B981" },
+    { name: "Behind-the-Meter", value: installationDistribution.btm, color: "#F59E0B" }, // Amber color
+    { name: "Front-of-the-Meter", value: installationDistribution.ftm, color: "#8B5CF6" }, // Violet color
   ];
 
   return (
@@ -80,7 +82,7 @@ export function PortfolioDistribution({ assets }: PortfolioDistributionProps) {
               <div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-blue-500" />
+                    <div className="h-3 w-3 rounded-full bg-wind" />
                     <span className="text-sm">Wind</span>
                   </div>
                   <span className="text-sm text-muted-foreground">
@@ -92,14 +94,14 @@ export function PortfolioDistribution({ assets }: PortfolioDistributionProps) {
               <div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-amber-500" />
+                    <div className="h-3 w-3 rounded-full bg-solar" />
                     <span className="text-sm">Solar</span>
                   </div>
                   <span className="text-sm text-muted-foreground">
                     {Math.round((typeDistribution.solar / typeDistribution.total) * 100)}% ({typeDistribution.solar} MW)
                   </span>
                 </div>
-                <Progress value={(typeDistribution.solar / typeDistribution.total) * 100} className="mt-1" />
+                <Progress value={(typeDistribution.solar / typeDistribution.total) * 100} className="mt-1 bg-muted" />
               </div>
             </div>
           </div>
@@ -131,26 +133,26 @@ export function PortfolioDistribution({ assets }: PortfolioDistributionProps) {
               <div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-indigo-500" />
+                    <div className="h-3 w-3 rounded-full bg-amber-500" />
                     <span className="text-sm">Behind-the-Meter (BTM)</span>
                   </div>
                   <span className="text-sm text-muted-foreground">
                     {Math.round((installationDistribution.btm / typeDistribution.total) * 100)}% ({installationDistribution.btm} MW)
                   </span>
                 </div>
-                <Progress value={(installationDistribution.btm / typeDistribution.total) * 100} className="mt-1" />
+                <Progress value={(installationDistribution.btm / typeDistribution.total) * 100} className="mt-1 bg-muted" />
               </div>
               <div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-emerald-500" />
+                    <div className="h-3 w-3 rounded-full bg-violet-500" />
                     <span className="text-sm">Front-of-the-Meter (FTM)</span>
                   </div>
                   <span className="text-sm text-muted-foreground">
                     {Math.round((installationDistribution.ftm / typeDistribution.total) * 100)}% ({installationDistribution.ftm} MW)
                   </span>
                 </div>
-                <Progress value={(installationDistribution.ftm / typeDistribution.total) * 100} className="mt-1" />
+                <Progress value={(installationDistribution.ftm / typeDistribution.total) * 100} className="mt-1 bg-muted" />
               </div>
             </div>
           </div>

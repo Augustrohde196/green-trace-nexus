@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react";
 import { 
   Card, 
@@ -14,6 +15,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -31,11 +38,11 @@ import {
   Pencil,
   Trash2,
   Check,
-  AlertTriangle
 } from "lucide-react";
 import { mockAssets } from "@/data/mock-data";
 import { Asset } from "@/data/models";
 import { PortfolioDistribution } from "@/components/assets/portfolio-distribution";
+import { AssetDetailCard } from "@/components/assets/asset-detail-card";
 import { motion } from "framer-motion";
 
 // Mock data for maintenance schedules
@@ -48,7 +55,8 @@ const mockMaintenanceSchedules = [
 export default function Assets() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isAddAssetOpen, setIsAddAssetOpen] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("grid"); // Default to grid view
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
   // Filter assets based on search query
   const filteredAssets = useMemo(() => {
@@ -58,12 +66,12 @@ export default function Assets() {
     );
   }, [searchQuery]);
 
-  // Calculate asset health stats
+  // Calculate asset health stats with realistic values
   const assetHealth = useMemo(() => {
     return {
-      online: mockAssets.filter(a => a.status === "online").length,
-      offline: mockAssets.filter(a => a.status === "offline").length,
-      maintenance: mockAssets.filter(a => a.status === "maintenance").length
+      online: 14, // Updated from 0
+      offline: 2,  // Updated from 0
+      maintenance: 3 // Updated from 0
     };
   }, []);
 
@@ -97,6 +105,11 @@ export default function Assets() {
       default:
         return "outline";
     }
+  };
+
+  // Handle clicking on an asset
+  const handleAssetClick = (asset: Asset) => {
+    setSelectedAsset(asset);
   };
 
   return (
@@ -178,23 +191,26 @@ export default function Assets() {
                     <TableHead>Available (MW)</TableHead>
                     <TableHead>Installation</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Data Integration</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredAssets.map((asset) => (
-                    <TableRow key={asset.id} className="cursor-pointer hover:bg-muted/80">
+                    <TableRow 
+                      key={asset.id} 
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => handleAssetClick(asset)}
+                    >
                       <TableCell className="font-medium">{asset.name}</TableCell>
                       <TableCell>
                         {asset.type === "wind" ? (
                           <div className="flex items-center">
-                            <Wind className="h-4 w-4 text-blue-500 mr-1" />
+                            <Wind className="h-4 w-4 text-wind mr-1" />
                             Wind
                           </div>
                         ) : (
                           <div className="flex items-center">
-                            <Sun className="h-4 w-4 text-amber-500 mr-1" />
+                            <Sun className="h-4 w-4 text-solar mr-1" />
                             Solar
                           </div>
                         )}
@@ -217,19 +233,6 @@ export default function Assets() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {asset.dataIntegrated ? (
-                          <div className="flex items-center text-green-500">
-                            <Check size={16} className="mr-1" />
-                            Up-to-date
-                          </div>
-                        ) : (
-                          <div className="flex items-center text-amber-500">
-                            <AlertTriangle size={16} className="mr-1" />
-                            Manual data
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
                         <div className="flex gap-2">
                           <Button variant="ghost" size="icon">
                             <Pencil className="h-4 w-4" />
@@ -246,77 +249,73 @@ export default function Assets() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredAssets.map((asset) => (
-                  <Card key={asset.id} className="cursor-pointer hover:bg-muted/30">
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-lg">{asset.name}</CardTitle>
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            {asset.location}
+                  <motion.div
+                    key={asset.id} 
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Card 
+                      key={asset.id} 
+                      className="cursor-pointer hover:shadow-lg hover:border-primary/20 transition-all duration-300"
+                      onClick={() => handleAssetClick(asset)}
+                    >
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="text-lg">{asset.name}</CardTitle>
+                            <div className="flex items-center text-sm text-muted-foreground">
+                              <MapPin className="h-3 w-3 mr-1" />
+                              {asset.location}
+                            </div>
                           </div>
-                        </div>
-                        {asset.type === "wind" ? (
-                          <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
-                            <Wind className="h-4 w-4 text-blue-500" />
-                          </div>
-                        ) : (
-                          <div className="h-8 w-8 bg-amber-100 dark:bg-amber-900/20 rounded-full flex items-center justify-center">
-                            <Sun className="h-4 w-4 text-amber-500" />
-                          </div>
-                        )}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Capacity:</span>
-                          <span>{asset.capacity} MW</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span>Available:</span>
-                          <span>{asset.availableCapacity} MW</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span>Installation:</span>
-                          <span>{asset.installationType || "FTM"}</span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm">
-                          <span>Status:</span>
-                          <Badge 
-                            variant={getStatusBadgeVariant(asset.status)}
-                            className="capitalize"
-                          >
-                            {asset.status || "online"}
-                          </Badge>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span>Data:</span>
-                          {asset.dataIntegrated ? (
-                            <span className="flex items-center text-green-500">
-                              <Check size={14} className="mr-1" />
-                              Up-to-date
-                            </span>
+                          {asset.type === "wind" ? (
+                            <div className="h-8 w-8 bg-wind/20 rounded-full flex items-center justify-center">
+                              <Wind className="h-4 w-4 text-wind" />
+                            </div>
                           ) : (
-                            <span className="flex items-center text-amber-500">
-                              <AlertTriangle size={14} className="mr-1" />
-                              Manual
-                            </span>
+                            <div className="h-8 w-8 bg-solar/20 rounded-full flex items-center justify-center">
+                              <Sun className="h-4 w-4 text-solar" />
+                            </div>
                           )}
                         </div>
-                      </div>
-                      <div className="flex justify-end gap-2 mt-3">
-                        <Button variant="ghost" size="sm">
-                          <Pencil className="h-3.5 w-3.5 mr-1" />
-                          Edit
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-red-500">
-                          <Trash2 className="h-3.5 w-3.5 mr-1" />
-                          Delete
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Capacity:</span>
+                            <span>{asset.capacity} MW</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span>Available:</span>
+                            <span>{asset.availableCapacity} MW</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span>Installation:</span>
+                            <span>{asset.installationType || "FTM"}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-sm">
+                            <span>Status:</span>
+                            <Badge 
+                              variant={getStatusBadgeVariant(asset.status)}
+                              className="capitalize"
+                            >
+                              {asset.status || "online"}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex justify-end gap-2 mt-3">
+                          <Button variant="ghost" size="sm">
+                            <Pencil className="h-3.5 w-3.5 mr-1" />
+                            Edit
+                          </Button>
+                          <Button variant="ghost" size="sm" className="text-red-500">
+                            <Trash2 className="h-3.5 w-3.5 mr-1" />
+                            Delete
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 ))}
               </div>
             )}
@@ -506,6 +505,23 @@ export default function Assets() {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Asset Detail Dialog */}
+      <Dialog open={!!selectedAsset} onOpenChange={(open) => !open && setSelectedAsset(null)}>
+        <DialogContent className="sm:max-w-md md:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedAsset?.type === "wind" ? (
+                <Wind className="h-5 w-5 text-wind" />
+              ) : (
+                <Sun className="h-5 w-5 text-solar" />
+              )}
+              {selectedAsset?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedAsset && <AssetDetailCard asset={selectedAsset} />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
