@@ -1,14 +1,16 @@
+
 import { useState } from "react";
 import { Plus, Search, Users, Activity, BarChart3, Check, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { CustomerForm, CustomerFormData } from "@/components/customers/customer-form";
+import { CustomersList } from "@/components/customers/customers-list";
+import { CustomerDetailsDialog } from "@/components/customers/customer-details-dialog";
 import { useMockCustomers, NewCustomer } from "@/hooks/use-mock-customers";
 import { Customer } from "@/data/models";
 
@@ -17,6 +19,7 @@ export default function Customers() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("all");
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   const filteredCustomers = customers.filter((customer) => {
     const matchesSearch = customer.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -31,6 +34,10 @@ export default function Customers() {
   // Function to count customers by status
   const countCustomersByStatus = (status: string) => {
     return customers.filter(c => c.status === status).length || 0;
+  };
+
+  const handleCustomerClick = (customer: Customer) => {
+    setSelectedCustomer(customer);
   };
 
   return (
@@ -62,7 +69,7 @@ export default function Customers() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, delay: 0.1 }}
         >
-          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors h-full">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-500/5 opacity-70 group-hover:opacity-100 transition-opacity" />
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
               <CardTitle className="text-sm font-medium">
@@ -86,7 +93,7 @@ export default function Customers() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, delay: 0.2 }}
         >
-          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors h-full">
             <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-green-500/5 opacity-70 group-hover:opacity-100 transition-opacity" />
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
               <CardTitle className="text-sm font-medium">
@@ -112,7 +119,7 @@ export default function Customers() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, delay: 0.3 }}
         >
-          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors h-full">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-purple-500/5 opacity-70 group-hover:opacity-100 transition-opacity" />
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
               <CardTitle className="text-sm font-medium">
@@ -164,19 +171,40 @@ export default function Customers() {
           </div>
 
           <TabsContent value="all" className="mt-6">
-            <CustomersList customers={filteredCustomers} />
+            <CustomersList 
+              customers={filteredCustomers} 
+              onCustomerClick={handleCustomerClick} 
+            />
           </TabsContent>
           <TabsContent value="high" className="mt-6">
-            <CustomersList customers={filteredCustomers} />
+            <CustomersList 
+              customers={filteredCustomers} 
+              onCustomerClick={handleCustomerClick} 
+            />
           </TabsContent>
           <TabsContent value="medium" className="mt-6">
-            <CustomersList customers={filteredCustomers} />
+            <CustomersList 
+              customers={filteredCustomers} 
+              onCustomerClick={handleCustomerClick} 
+            />
           </TabsContent>
           <TabsContent value="low" className="mt-6">
-            <CustomersList customers={filteredCustomers} />
+            <CustomersList 
+              customers={filteredCustomers} 
+              onCustomerClick={handleCustomerClick} 
+            />
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Customer Details Dialog */}
+      <CustomerDetailsDialog
+        customer={selectedCustomer}
+        open={!!selectedCustomer}
+        onOpenChange={(open) => {
+          if (!open) setSelectedCustomer(null);
+        }}
+      />
 
       {/* Add Customer Sheet */}
       <Sheet open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
@@ -215,83 +243,5 @@ export default function Customers() {
         </SheetContent>
       </Sheet>
     </div>
-  );
-}
-
-// CustomersList component
-function CustomersList({ customers }: { customers: Customer[] }) {
-  return (
-    <motion.div
-      className="space-y-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
-      {customers.map((customer) => (
-        <motion.div
-          key={customer.id}
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.4 }}
-          className="cursor-pointer"
-        >
-          <Card className="overflow-hidden hover:border-primary/30 hover:bg-muted/20 transition-all">
-            <CardContent className="p-0">
-              <div className="grid grid-cols-12 items-center p-4">
-                <div className="col-span-3">
-                  <div className="font-semibold">{customer.name}</div>
-                  <div className="text-sm text-muted-foreground">{customer.location}</div>
-                </div>
-                <div className="col-span-3">
-                  <div className="text-sm flex items-center space-x-2">
-                    <span>Portfolio Status:</span>
-                    <span className="font-medium">{customer.portfolioStatus}</span>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {customer.annualConsumption.toFixed(1)} GWh/year
-                  </div>
-                </div>
-                <div className="col-span-3">
-                  <div className="text-sm mb-1">Portfolio Mix</div>
-                  <div className="flex h-2 w-full overflow-hidden rounded-full bg-muted">
-                    <div 
-                      className="bg-blue-500 h-full" 
-                      style={{ width: `${customer.preferredMix?.wind || customer.portfolioMix.wind}%` }}
-                    />
-                    <div 
-                      className="bg-green-500 h-full" 
-                      style={{ width: `${customer.preferredMix?.solar || customer.portfolioMix.solar}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-xs mt-1">
-                    <span>Wind: {customer.preferredMix?.wind || customer.portfolioMix.wind}%</span>
-                    <span>Solar: {customer.preferredMix?.solar || customer.portfolioMix.solar}%</span>
-                  </div>
-                </div>
-                <div className="col-span-1 text-center">
-                  <Badge 
-                    variant={customer.status === 'active' ? 'success' : 'outline'} 
-                    className={`${customer.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'}`}
-                  >
-                    {customer.status === 'active' ? (
-                      <><Check size={12} className="mr-1" /> Active</>
-                    ) : (
-                      <><Clock size={12} className="mr-1" /> Pending</>
-                    )}
-                  </Badge>
-                </div>
-                <div className="col-span-2 px-4">
-                  <div className="text-sm mb-1">Time Matching</div>
-                  <div className="flex items-center gap-2">
-                    <Progress value={customer.matchingScore} className="h-2" />
-                    <span className="text-sm font-medium">{customer.matchingScore}%</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      ))}
-    </motion.div>
   );
 }
