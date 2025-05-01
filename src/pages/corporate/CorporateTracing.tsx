@@ -236,7 +236,7 @@ const CorporateTracing = () => {
   };
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-background">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Certificate Tracing</h2>

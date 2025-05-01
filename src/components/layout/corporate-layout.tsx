@@ -78,7 +78,7 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      <div className="flex min-h-screen w-full bg-background">
         <Sidebar>
           <SidebarHeader className="flex items-center justify-center p-6">
             <span className="font-bold text-white text-2xl tracking-tight">Renuw</span>
@@ -108,7 +108,7 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
             </div>
           </SidebarFooter>
         </Sidebar>
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col bg-background">
           <header className="sticky top-0 z-[51] border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-16 items-center gap-4 px-6">
               <div className="flex-1">
@@ -154,7 +154,7 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
               </div>
             </div>
           </header>
-          <main className="flex-1 p-6">
+          <main className="flex-1 p-6 bg-background">
             {children}
           </main>
         </div>

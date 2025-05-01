@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Zap, PieChart, Calendar, Download, AlertTriangle, Info, Check, CheckCircle2, ArrowRight } from "lucide-react";
 import {
@@ -69,7 +68,7 @@ export default function GOAllocation() {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-background">
       <motion.div 
         className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
         initial={{ opacity: 0, y: -20 }}
@@ -101,7 +100,6 @@ export default function GOAllocation() {
           transition={{ duration: 0.4, delay: 0.1 }}
         >
           <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/5 opacity-70 group-hover:opacity-100 transition-opacity" />
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
               <CardTitle className="text-sm font-medium">
                 Total GOs
@@ -125,7 +123,6 @@ export default function GOAllocation() {
           transition={{ duration: 0.4, delay: 0.2 }}
         >
           <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-green-600/5 opacity-70 group-hover:opacity-100 transition-opacity" />
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
               <CardTitle className="text-sm font-medium">
                 Allocated GOs
@@ -149,7 +146,6 @@ export default function GOAllocation() {
           transition={{ duration: 0.4, delay: 0.3 }}
         >
           <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-amber-600/5 opacity-70 group-hover:opacity-100 transition-opacity" />
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
               <CardTitle className="text-sm font-medium">
                 Available GOs
@@ -173,7 +169,6 @@ export default function GOAllocation() {
           transition={{ duration: 0.4, delay: 0.4 }}
         >
           <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-purple-600/5 opacity-70 group-hover:opacity-100 transition-opacity" />
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
               <CardTitle className="text-sm font-medium">
                 Average Match Score
