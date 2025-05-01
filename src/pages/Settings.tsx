@@ -176,7 +176,7 @@ export default function Settings() {
                   <div className="flex items-center gap-3">
                     {contractSigned ? (
                       <>
-                        <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 pointer-events-none">
+                        <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                           <CheckCircle size={12} className="mr-1" />
                           Signed
                         </Badge>
@@ -187,7 +187,7 @@ export default function Settings() {
                       </>
                     ) : (
                       <>
-                        <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 pointer-events-none">
+                        <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
                           <AlertTriangle size={12} className="mr-1" />
                           Pending
                         </Badge>
@@ -269,8 +269,7 @@ export default function Settings() {
                   </div>
                   <Switch 
                     checked={twoFactorEnabled} 
-                    onCheckedChange={setTwoFactorEnabled}
-                    className="data-[state=checked]:bg-primary"
+                    onCheckedChange={setTwoFactorEnabled} 
                   />
                 </div>
                 
@@ -317,7 +316,7 @@ export default function Settings() {
                   Energinet Data Integration
                 </CardTitle>
                 <CardDescription>
-                  View customer consumption data provided by Energinet
+                  Manage access to customer consumption data via Energinet
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -326,14 +325,7 @@ export default function Settings() {
                     <div className="text-sm font-medium">Integration Status</div>
                     <div className="text-sm">{integrationRate.toFixed(0)}% of clients integrated</div>
                   </div>
-                  <div className="relative pt-1">
-                    <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-200">
-                      <div 
-                        style={{ width: `${integrationRate}%` }} 
-                        className="animate-pulse shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-primary to-primary-foreground transition-all duration-500"
-                      ></div>
-                    </div>
-                  </div>
+                  <Progress value={integrationRate} className="h-2" />
                   <div className="text-xs text-muted-foreground">
                     {integratedClients.length} out of {integratedClients.length + nonIntegratedClients.length} clients have authorized Renuw to access their consumption data
                   </div>
@@ -353,7 +345,7 @@ export default function Settings() {
                               <div className="font-medium">{client}</div>
                               <div className="text-xs text-green-600 dark:text-green-400">Data access authorized</div>
                             </div>
-                            <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 pointer-events-none">
+                            <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                               <CheckCircle size={12} className="mr-1" />
                               Active
                             </Badge>
@@ -378,6 +370,7 @@ export default function Settings() {
                                 Awaiting authorization
                               </div>
                             </div>
+                            <Button size="sm" variant="outline" className="h-8">Send Invite</Button>
                           </CardContent>
                         </Card>
                       ))}
