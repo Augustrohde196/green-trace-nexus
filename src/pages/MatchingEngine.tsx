@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Zap, PieChart, Calendar, Download, AlertTriangle, Info, Check, CheckCircle2, ArrowRight } from "lucide-react";
 import {
@@ -400,7 +399,7 @@ export default function GOAllocation() {
                   <ResponsiveContainer width="100%" height="100%">
                     <RechartsPieChart>
                       <Pie 
-                        data={customerAllocations.map(c => ({name: c.name, value: c.allocation}))} 
+                        data={customerAllocations.map(c => ({name: c.name, value: c.volume}))} 
                         dataKey="value"
                         cx="50%" 
                         cy="50%" 
