@@ -1,14 +1,15 @@
 
 import { useState } from "react";
-import { Plus, FileBarChart, Filter, Search, Users, Activity, BarChart3 } from "lucide-react";
+import { Plus, Search, Users, Activity, BarChart3, Check, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { CustomersList } from "@/components/customers/customers-list";
-import { CustomerForm } from "@/components/customers/customer-form";
+import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
+import { CustomerForm } from "@/components/customers/customer-form";
 import { useMockCustomers } from "@/hooks/use-mock-customers";
 
 export default function Customers() {
@@ -19,7 +20,7 @@ export default function Customers() {
 
   const filteredCustomers = customers.filter((customer) => {
     const matchesSearch = customer.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         customer.industry.toLowerCase().includes(searchQuery.toLowerCase());
+                         customer.location.toLowerCase().includes(searchQuery.toLowerCase());
     
     if (selectedTab === "all") return matchesSearch;
     if (selectedTab === "high") return matchesSearch && customer.matchingScore >= 80;
@@ -29,126 +30,273 @@ export default function Customers() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <motion.div 
+        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Corporate Customers</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Customers</h2>
           <p className="text-muted-foreground">
             Manage your corporate customers, their portfolios and allocations.
           </p>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Button 
-            onClick={() => setIsAddCustomerOpen(true)}
-            className="gap-2"
-          >
-            <Plus size={16} />
-            Add Customer
-          </Button>
-          <Button variant="outline" className="gap-2">
-            <FileBarChart size={16} />
-            Generate Report
-          </Button>
-        </div>
-      </div>
+        <Button 
+          onClick={() => setIsAddCustomerOpen(true)}
+          className="gap-2"
+        >
+          <Plus size={16} />
+          Add Customer
+        </Button>
+      </motion.div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Customers
-            </CardTitle>
-            <Users size={16} />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{customers.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Consumption
-            </CardTitle>
-            <Activity size={16} />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {customers.reduce((acc, customer) => acc + customer.annualConsumption, 0).toFixed(1)} GWh
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Average Matching Score
-            </CardTitle>
-            <BarChart3 size={16} />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {Math.round(customers.reduce((acc, customer) => acc + customer.matchingScore, 0) / customers.length)}%
-            </div>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-500/5 opacity-70 group-hover:opacity-100 transition-opacity" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
+              <CardTitle className="text-sm font-medium">
+                Total Customers
+              </CardTitle>
+              <div className="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <Users size={18} className="text-blue-600 dark:text-blue-400" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-3xl font-bold">{customers.length}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {customers.filter(c => c.status === 'active').length} active, {customers.filter(c => c.status === 'pending').length || 0} pending
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+        >
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+            <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-green-500/5 opacity-70 group-hover:opacity-100 transition-opacity" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
+              <CardTitle className="text-sm font-medium">
+                Total Consumption
+              </CardTitle>
+              <div className="h-9 w-9 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <Activity size={18} className="text-green-600 dark:text-green-400" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-3xl font-bold">
+                {customers.reduce((acc, customer) => acc + customer.annualConsumption, 0).toFixed(1)} GWh
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Annual energy allocation
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+        >
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-purple-500/5 opacity-70 group-hover:opacity-100 transition-opacity" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
+              <CardTitle className="text-sm font-medium">
+                Average Matching Score
+              </CardTitle>
+              <div className="h-9 w-9 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                <BarChart3 size={18} className="text-purple-600 dark:text-purple-400" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-3xl font-bold">
+                {Math.round(customers.reduce((acc, customer) => acc + customer.matchingScore, 0) / customers.length)}%
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Temporal matching between production and consumption
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search customers..."
-            className="pl-9"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <div>
-          <Button variant="outline" size="icon">
-            <Filter className="h-4 w-4" />
-          </Button>
-        </div>
+      <div className="flex justify-between items-center">
+        <Tabs defaultValue="all" value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+          <TabsList className="w-full md:w-auto">
+            <TabsTrigger value="all" className="animate-in fade-in-0 duration-300">
+              All Customers
+            </TabsTrigger>
+            <TabsTrigger value="high" className="animate-in fade-in-25 duration-300">
+              High Match <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">{customers.filter(c => c.matchingScore >= 80).length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="medium" className="animate-in fade-in-50 duration-300">
+              Medium Match <Badge variant="outline" className="ml-2 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">{customers.filter(c => c.matchingScore >= 50 && c.matchingScore < 80).length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="low" className="animate-in fade-in-75 duration-300">
+              Low Match <Badge variant="outline" className="ml-2 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">{customers.filter(c => c.matchingScore < 50).length}</Badge>
+            </TabsTrigger>
+          </TabsList>
+          
+          <div className="relative ml-auto w-full md:w-64 mt-2 md:mt-0">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search customers..."
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </Tabs>
       </div>
 
-      <Tabs defaultValue="all" value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList>
-          <TabsTrigger value="all">All Customers</TabsTrigger>
-          <TabsTrigger value="high">
-            High Match <Badge variant="outline" className="ml-2">{customers.filter(c => c.matchingScore >= 80).length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="medium">
-            Medium Match <Badge variant="outline" className="ml-2">{customers.filter(c => c.matchingScore >= 50 && c.matchingScore < 80).length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="low">
-            Low Match <Badge variant="outline" className="ml-2">{customers.filter(c => c.matchingScore < 50).length}</Badge>
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="all" className="mt-6">
-          <CustomersList customers={filteredCustomers} />
-        </TabsContent>
-        <TabsContent value="high" className="mt-6">
-          <CustomersList customers={filteredCustomers} />
-        </TabsContent>
-        <TabsContent value="medium" className="mt-6">
-          <CustomersList customers={filteredCustomers} />
-        </TabsContent>
-        <TabsContent value="low" className="mt-6">
-          <CustomersList customers={filteredCustomers} />
-        </TabsContent>
-      </Tabs>
+      <TabsContent value="all" className="mt-0">
+        <CustomersList customers={filteredCustomers} />
+      </TabsContent>
+      <TabsContent value="high" className="mt-0">
+        <CustomersList customers={filteredCustomers} />
+      </TabsContent>
+      <TabsContent value="medium" className="mt-0">
+        <CustomersList customers={filteredCustomers} />
+      </TabsContent>
+      <TabsContent value="low" className="mt-0">
+        <CustomersList customers={filteredCustomers} />
+      </TabsContent>
 
+      {/* Add Customer Sheet */}
       <Sheet open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
         <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
           <SheetHeader>
             <SheetTitle>Add Corporate Customer</SheetTitle>
           </SheetHeader>
-          <CustomerForm 
-            onSubmit={(customer) => {
-              addCustomer(customer);
-              setIsAddCustomerOpen(false);
-            }} 
-            onCancel={() => setIsAddCustomerOpen(false)}
-          />
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="companyName" className="text-sm font-medium">Company Name</label>
+              <Input id="companyName" placeholder="Enter company name" />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="contactName" className="text-sm font-medium">Contact Person Name (Optional)</label>
+              <Input id="contactName" placeholder="Enter contact name" />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="contactEmail" className="text-sm font-medium">Contact Email</label>
+              <Input id="contactEmail" type="email" placeholder="Enter contact email" />
+              <p className="text-xs text-muted-foreground">
+                An invite will be sent to this email for Corporate Portal access
+              </p>
+            </div>
+            
+            <div className="pt-4 flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setIsAddCustomerOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                addCustomer({
+                  id: `c${customers.length + 1}`,
+                  name: "New Customer", // This would be from form values in a real app
+                  location: "Copenhagen, Denmark",
+                  industry: "Technology",
+                  annualConsumption: 45.0,
+                  preferredMix: { wind: 70, solar: 30 },
+                  portfolioStatus: "Partially Allocated",
+                  matchingScore: 75,
+                  localOnly: true,
+                  status: "pending"
+                });
+                setIsAddCustomerOpen(false);
+              }}>
+                Add Customer
+              </Button>
+            </div>
+          </div>
         </SheetContent>
       </Sheet>
     </div>
+  );
+}
+
+// CustomersList component
+function CustomersList({ customers }: { customers: any[] }) {
+  return (
+    <motion.div
+      className="space-y-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      {customers.map((customer) => (
+        <motion.div
+          key={customer.id}
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="cursor-pointer"
+        >
+          <Card className="overflow-hidden hover:border-primary/30 hover:bg-muted/20 transition-all">
+            <CardContent className="p-0">
+              <div className="grid grid-cols-12 items-center p-4">
+                <div className="col-span-3">
+                  <div className="font-semibold">{customer.name}</div>
+                  <div className="text-sm text-muted-foreground">{customer.location}</div>
+                </div>
+                <div className="col-span-3">
+                  <div className="text-sm flex items-center space-x-2">
+                    <span>Portfolio Status:</span>
+                    <span className="font-medium">{customer.portfolioStatus}</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {customer.annualConsumption.toFixed(1)} GWh/year
+                  </div>
+                </div>
+                <div className="col-span-3">
+                  <div className="text-sm mb-1">Portfolio Mix</div>
+                  <div className="flex h-2 w-full overflow-hidden rounded-full bg-muted">
+                    <div 
+                      className="bg-blue-500 h-full" 
+                      style={{ width: `${customer.preferredMix.wind}%` }}
+                    />
+                    <div 
+                      className="bg-green-500 h-full" 
+                      style={{ width: `${customer.preferredMix.solar}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs mt-1">
+                    <span>Wind: {customer.preferredMix.wind}%</span>
+                    <span>Solar: {customer.preferredMix.solar}%</span>
+                  </div>
+                </div>
+                <div className="col-span-1 text-center">
+                  <Badge 
+                    variant={customer.status === 'active' ? 'success' : 'outline'} 
+                    className={`${customer.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'}`}
+                  >
+                    {customer.status === 'active' ? (
+                      <><Check size={12} className="mr-1" /> Active</>
+                    ) : (
+                      <><Clock size={12} className="mr-1" /> Pending</>
+                    )}
+                  </Badge>
+                </div>
+                <div className="col-span-2 px-4">
+                  <div className="text-sm mb-1">Time Matching</div>
+                  <div className="flex items-center gap-2">
+                    <Progress value={customer.matchingScore} className="h-2" />
+                    <span className="text-sm font-medium">{customer.matchingScore}%</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ))}
+    </motion.div>
   );
 }

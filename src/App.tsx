@@ -10,7 +10,9 @@ import Dashboard from "./pages/Dashboard";
 import Assets from "./pages/Assets";
 import Customers from "./pages/Customers";
 import Billing from "./pages/Billing";
-import MatchingEngine from "./pages/MatchingEngine";
+import GOAllocation from "./pages/MatchingEngine";
+import Reporting from "./pages/Reporting";
+import Settings from "./pages/Settings";
 import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 import CorporateDashboard from "./pages/corporate/CorporateDashboard";
@@ -52,7 +54,9 @@ const App = () => (
             <Route path="/assets" element={<AppLayout><Assets /></AppLayout>} />
             <Route path="/customers" element={<AppLayout><Customers /></AppLayout>} />
             <Route path="/analytics" element={<AppLayout><Analytics /></AppLayout>} />
-            <Route path="/matching" element={<AppLayout><MatchingEngine /></AppLayout>} />
+            <Route path="/matching" element={<AppLayout><GOAllocation /></AppLayout>} />
+            <Route path="/reporting" element={<AppLayout><Reporting /></AppLayout>} />
+            <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
             <Route path="/billing" element={<AppLayout><Billing /></AppLayout>} />
             
             {/* Corporate Portal Routes */}

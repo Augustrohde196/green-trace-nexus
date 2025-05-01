@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import { Zap, BarChart3, Check, Waves, Activity, Lightbulb, Database } from "lucide-react";
+import { Zap, PieChart, Calendar, Download, AlertTriangle, Info, Check, CheckCircle2, ArrowRight } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -9,403 +10,15 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
-import { GOTrackingTable } from "@/components/go/go-tracking-table";
-import { DataSimulationPanel } from "@/components/data-simulation/data-simulation-panel";
 import { matchingEngineService } from "@/services/matching-engine-service";
 import { goService } from "@/services/go-service";
 import { mockCustomers } from "@/data/mock-data";
 import { AllocationPrediction } from "@/data/go-models";
 import { toast } from "@/hooks/use-toast";
-
-export default function MatchingEngine() {
-  const [activeTab, setActiveTab] = useState("overview");
-  const [predictions, setPredictions] = useState<AllocationPrediction[]>([]);
-  const [isRunningPrediction, setIsRunningPrediction] = useState(false);
-  const [isAllocating, setIsAllocating] = useState(false);
-  const [metrics, setMetrics] = useState(goService.getMetrics());
-  
-  // Generate predictions on initial load
-  useEffect(() => {
-    runPredictionModel();
-  }, []);
-  
-  // Refresh metrics when tab changes
-  useEffect(() => {
-    setMetrics(goService.getMetrics());
-  }, [activeTab]);
-  
-  const runPredictionModel = async () => {
-    setIsRunningPrediction(true);
-    
-    // Simulate ML processing time
-    setTimeout(async () => {
-      try {
-        const availableGOs = goService.getAvailableGOs();
-        const predictionResults = await matchingEngineService.predictOptimalAllocations(
-          availableGOs,
-          mockCustomers
-        );
-        setPredictions(predictionResults);
-        
-        toast({
-          title: "Model Execution Complete",
-          description: `Generated ${predictionResults.length} allocation predictions`,
-        });
-      } catch (error) {
-        console.error("Error running prediction model:", error);
-        toast({
-          title: "Prediction Error",
-          description: "An error occurred while generating predictions",
-          variant: "destructive"
-        });
-      } finally {
-        setIsRunningPrediction(false);
-      }
-    }, 1500);
-  };
-  
-  const executeAllocations = () => {
-    if (predictions.length === 0) {
-      toast({
-        title: "No Predictions Available",
-        description: "Run the prediction model first to generate allocations",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIsAllocating(true);
-    
-    // Simulate processing time
-    setTimeout(() => {
-      const allocatedCount = matchingEngineService.executeAllocations(predictions);
-      
-      // Refresh data
-      setMetrics(goService.getMetrics());
-      setPredictions([]);
-      setIsAllocating(false);
-    }, 2000);
-  };
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Matching Engine</h2>
-        <p className="text-muted-foreground">
-          AI-powered GO allocation between assets and corporate customers
-        </p>
-      </div>
-      
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <DashboardCard
-          title="Total GOs"
-          value={metrics.totalGOs}
-          description={`${metrics.totalMWh} MWh of renewable energy`}
-          icon={Lightbulb}
-        />
-        <DashboardCard
-          title="Allocated GOs"
-          value={metrics.allocatedGOs}
-          description={`${metrics.allocatedMWh} MWh allocated to customers`}
-          icon={Check}
-        />
-        <DashboardCard
-          title="Available GOs"
-          value={metrics.availableGOs}
-          description={`${metrics.availableMWh} MWh available for allocation`}
-          icon={Activity}
-        />
-        <DashboardCard
-          title="Average Match Score"
-          value={`${Math.round(metrics.averageMatchingScore)}%`}
-          description="Temporal matching between production and consumption"
-          icon={Waves}
-        />
-      </div>
-      
-      <div className="flex flex-wrap gap-4">
-        <Button 
-          onClick={runPredictionModel} 
-          disabled={isRunningPrediction}
-          className="gap-2"
-        >
-          <Zap size={16} />
-          {isRunningPrediction ? "Running Prediction Model..." : "Run Prediction Model"}
-        </Button>
-        
-        <Button 
-          onClick={executeAllocations} 
-          disabled={isAllocating || predictions.length === 0}
-          variant="outline" 
-          className="gap-2"
-        >
-          <Check size={16} />
-          {isAllocating ? "Executing Allocations..." : "Execute Allocations"}
-        </Button>
-      </div>
-      
-      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="predictions">ML Predictions</TabsTrigger>
-          <TabsTrigger value="allocations">Allocated GOs</TabsTrigger>
-          <TabsTrigger value="available">Available GOs</TabsTrigger>
-          <TabsTrigger value="data-simulation">Data Simulation</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="overview" className="mt-6 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>ML-Based Matching Engine</CardTitle>
-              <CardDescription>
-                Our machine learning model optimizes GO allocation based on customer preferences and consumption patterns
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Available GO capacity</span>
-                  <span className="font-medium">{metrics.availableMWh} MWh</span>
-                </div>
-                <Progress value={metrics.availableMWh / metrics.totalMWh * 100} />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Allocated GO capacity</span>
-                  <span className="font-medium">{metrics.allocatedMWh} MWh</span>
-                </div>
-                <Progress value={metrics.allocatedMWh / metrics.totalMWh * 100} />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Average matching score</span>
-                  <span className="font-medium">{Math.round(metrics.averageMatchingScore)}%</span>
-                </div>
-                <Progress value={metrics.averageMatchingScore} />
-              </div>
-              
-              <div className="pt-4">
-                <h4 className="text-sm font-medium mb-2">Model Features</h4>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <Check size={16} className="text-green-500" />
-                    Customer portfolio preferences (solar vs wind mix)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check size={16} className="text-green-500" />
-                    24-hour consumption pattern analysis
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check size={16} className="text-green-500" />
-                    Temporal matching of production and consumption
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check size={16} className="text-green-500" />
-                    Industry-specific consumption behaviors
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check size={16} className="text-green-500" />
-                    Predictive allocation for future production
-                  </li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <GOTrackingTable 
-            guaranteesOfOrigin={goService.getGuaranteesOfOrigin().slice(0, 10)} 
-            title="Recent Guarantees of Origin" 
-          />
-        </TabsContent>
-        
-        <TabsContent value="predictions" className="mt-6">
-          {predictions.length > 0 ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Allocation Predictions</CardTitle>
-                <CardDescription>
-                  Machine learning predictions for optimal GO allocations
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Customer</TableHead>
-                      <TableHead>Asset</TableHead>
-                      <TableHead>Volume (MWh)</TableHead>
-                      <TableHead>Predicted Score</TableHead>
-                      <TableHead>Confidence</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {predictions.map((prediction, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{prediction.customerName}</TableCell>
-                        <TableCell>{prediction.assetName}</TableCell>
-                        <TableCell>{prediction.allocatedVolume}</TableCell>
-                        <TableCell>
-                          <span className={`font-medium ${
-                            prediction.predictedScore >= 80 ? "text-green-500" :
-                            prediction.predictedScore >= 50 ? "text-yellow-500" : "text-red-500"
-                          }`}>
-                            {prediction.predictedScore}%
-                          </span>
-                        </TableCell>
-                        <TableCell>{Math.round(prediction.matchConfidence * 100)}%</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardContent className="py-8 text-center">
-                <BarChart3 className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                <h3 className="mt-4 text-lg font-medium">No Predictions Available</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Run the prediction model to generate new allocation predictions
-                </p>
-                <Button 
-                  onClick={runPredictionModel} 
-                  disabled={isRunningPrediction}
-                  className="mt-4 gap-2"
-                >
-                  <Zap size={16} />
-                  {isRunningPrediction ? "Running Model..." : "Run Prediction Model"}
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="allocations" className="mt-6">
-          <GOTrackingTable 
-            guaranteesOfOrigin={goService.getGuaranteesOfOrigin().filter(go => go.status === "allocated")} 
-            title="Allocated Guarantees of Origin" 
-          />
-        </TabsContent>
-        
-        <TabsContent value="available" className="mt-6">
-          <GOTrackingTable 
-            guaranteesOfOrigin={goService.getAvailableGOs()} 
-            title="Available Guarantees of Origin" 
-          />
-        </TabsContent>
-        
-        <TabsContent value="data-simulation" className="mt-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <div>
-              <DataSimulationPanel />
-            </div>
-            
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Database className="h-5 w-5" />
-                    Collected Data Insights
-                  </CardTitle>
-                  <CardDescription>
-                    Insights from collected production and consumption data
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-medium mb-2">Benefits of Data Collection</h3>
-                      <ul className="space-y-2 text-sm">
-                        <li className="flex items-center gap-2">
-                          <Check size={16} className="text-green-500" />
-                          More accurate matching between production and consumption
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Check size={16} className="text-green-500" />
-                          Improved ML model training with real-time data
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Check size={16} className="text-green-500" />
-                          Better predictions for future GO allocations
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Check size={16} className="text-green-500" />
-                          Enables time-matching of energy production and consumption
-                        </li>
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium mb-2">API Integration</h3>
-                      <p className="text-sm text-muted-foreground">
-                        The API simulates real-time integration with Energinet's data services,
-                        collecting metering data from both assets and customers.
-                        Start a simulation to see data being collected in real-time.
-                      </p>
-                    </div>
-                    
-                    <div className="text-xs text-muted-foreground mt-4">
-                      <p>Note: In a production environment, this would connect to the actual Energinet API</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Data Flow</CardTitle>
-                  <CardDescription>
-                    How data flows through the system
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>Data collection</span>
-                        <span className="font-medium">Energinet API → Our System</span>
-                      </div>
-                      <Progress value={100} className="h-2" />
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>Data processing</span>
-                        <span className="font-medium">Raw Data → Pattern Analysis</span>
-                      </div>
-                      <Progress value={75} className="h-2" />
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>ML model integration</span>
-                        <span className="font-medium">Patterns → Predictions</span>
-                      </div>
-                      <Progress value={50} className="h-2" />
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>GO allocation</span>
-                        <span className="font-medium">Predictions → Allocations</span>
-                      </div>
-                      <Progress value={90} className="h-2" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
-}
-
 import {
   Table,
   TableBody,
@@ -414,3 +27,366 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { motion } from "framer-motion";
+
+// Chart component imports from recharts
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip as RechartsTooltip,
+} from "recharts";
+
+export default function GOAllocation() {
+  const [metrics, setMetrics] = useState(goService.getMetrics());
+  const [view, setView] = useState<"overview" | "customers">("overview");
+  const [timeRange, setTimeRange] = useState<"week" | "month" | "year">("month");
+  
+  // Mock allocation data for charts
+  const allocationData = [
+    { month: "Jan", production: 680, allocated: 650, shortfall: 30 },
+    { month: "Feb", production: 720, allocated: 700, shortfall: 20 },
+    { month: "Mar", production: 800, allocated: 800, shortfall: 0 },
+    { month: "Apr", production: 850, allocated: 830, shortfall: 0, excess: 20 },
+    { month: "May", production: 920, allocated: 880, shortfall: 0, excess: 40 },
+  ];
+  
+  // Mock customer allocation data
+  const customerAllocations = mockCustomers.map(customer => ({
+    id: customer.id,
+    name: customer.name,
+    allocation: Math.round(customer.annualConsumption * 83.33), // Monthly allocation in MWh
+    percentOfTotal: Math.round((customer.annualConsumption / mockCustomers.reduce((acc, c) => acc + c.annualConsumption, 0)) * 100),
+    matchingScore: customer.matchingScore,
+    traderSource: customer.id === "c3" || customer.id === "c5" ? Math.round(customer.annualConsumption * 0.2 * 83.33) : 0, // 20% from trader for some customers
+  }));
+
+  return (
+    <div className="space-y-6">
+      <motion.div 
+        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">GO Allocation</h2>
+          <p className="text-muted-foreground">
+            AI-powered GO allocation between assets and corporate customers
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" className="gap-2">
+            <Calendar size={16} />
+            Select Period
+          </Button>
+          <Button className="gap-2">
+            <Download size={16} />
+            Export Report
+          </Button>
+        </div>
+      </motion.div>
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/5 opacity-70 group-hover:opacity-100 transition-opacity" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
+              <CardTitle className="text-sm font-medium">
+                Total GOs
+              </CardTitle>
+              <div className="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <Zap size={18} className="text-blue-600 dark:text-blue-400" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-2xl font-bold">{metrics.totalGOs}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {metrics.totalMWh} MWh of renewable energy
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+        >
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+            <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-green-600/5 opacity-70 group-hover:opacity-100 transition-opacity" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
+              <CardTitle className="text-sm font-medium">
+                Allocated GOs
+              </CardTitle>
+              <div className="h-9 w-9 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <CheckCircle2 size={18} className="text-green-600 dark:text-green-400" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-2xl font-bold">{metrics.allocatedGOs}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {metrics.allocatedMWh} MWh allocated to customers
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+        >
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-amber-600/5 opacity-70 group-hover:opacity-100 transition-opacity" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
+              <CardTitle className="text-sm font-medium">
+                Available GOs
+              </CardTitle>
+              <div className="h-9 w-9 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                <ArrowRight size={18} className="text-amber-600 dark:text-amber-400" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-2xl font-bold">{metrics.availableGOs}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {metrics.availableMWh} MWh available for allocation
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.4 }}
+        >
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-purple-600/5 opacity-70 group-hover:opacity-100 transition-opacity" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
+              <CardTitle className="text-sm font-medium">
+                Average Match Score
+              </CardTitle>
+              <div className="h-9 w-9 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                <PieChart size={18} className="text-purple-600 dark:text-purple-400" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-2xl font-bold">{Math.round(metrics.averageMatchingScore)}%</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Temporal matching between production and consumption
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      <div className="flex justify-between items-center">
+        <ToggleGroup type="single" value={view} onValueChange={(value) => value && setView(value as "overview" | "customers")}>
+          <ToggleGroupItem value="overview" aria-label="Toggle overview">
+            Allocation Overview
+          </ToggleGroupItem>
+          <ToggleGroupItem value="customers" aria-label="Toggle customers">
+            Customer Breakdown
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
+      {/* Allocation Overview */}
+      {view === "overview" && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Production & Allocation</CardTitle>
+                <CardDescription>
+                  Monthly analysis of renewable energy production vs. customer allocation
+                </CardDescription>
+              </div>
+              <div>
+                <ToggleGroup type="single" value={timeRange} onValueChange={(value) => value && setTimeRange(value as "week" | "month" | "year")}>
+                  <ToggleGroupItem value="week" aria-label="View weekly data">
+                    Week
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="month" aria-label="View monthly data">
+                    Month
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="year" aria-label="View yearly data">
+                    Year
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={allocationData}
+                    margin={{
+                      top: 5,
+                      right: 30,
+                      left: 20,
+                      bottom: 5,
+                    }}
+                    barGap={0}
+                    barSize={20}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                    <XAxis dataKey="month" />
+                    <YAxis unit=" MWh" />
+                    <RechartsTooltip 
+                      formatter={(value: number, name: string) => {
+                        const formattedName = name === 'production' ? 'Production' : 
+                                            name === 'allocated' ? 'Allocated' : 
+                                            name === 'shortfall' ? 'Shortfall' : 'Excess';
+                        return [`${value} MWh`, formattedName];
+                      }}
+                    />
+                    <Legend />
+                    <Bar dataKey="production" name="Production" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="allocated" name="Allocated" fill="#22C55E" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="shortfall" name="Shortfall" fill="#EF4444" radius={[4, 4, 0, 0]} stackId="allocation" />
+                    <Bar dataKey="excess" name="Excess" fill="#F59E0B" radius={[4, 4, 0, 0]} stackId="allocation" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              
+              {/* Shortfall/Excess Indicators */}
+              <div className="mt-6 space-y-4">
+                {allocationData[allocationData.length - 1].shortfall > 0 && (
+                  <div className="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-900/10 text-red-800 dark:text-red-300 rounded-md">
+                    <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium">Shortfall Alert</p>
+                      <p className="text-sm">{allocationData[allocationData.length - 1].shortfall} MWh of customer consumption went unfulfilled due to lack of supply.</p>
+                    </div>
+                  </div>
+                )}
+                
+                {allocationData[allocationData.length - 1].excess && (
+                  <div className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/10 text-amber-800 dark:text-amber-300 rounded-md">
+                    <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium">Excess Supply</p>
+                      <p className="text-sm">{allocationData[allocationData.length - 1].excess} MWh of renewable energy was not allocated (excess).</p>
+                    </div>
+                  </div>
+                )}
+                
+                <TooltipProvider>
+                  <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/10 text-blue-800 dark:text-blue-300 rounded-md">
+                    <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium">Certificate Retirement Notice</p>
+                      <p className="text-sm">Allocated GOs need to be formally cancelled/retired in the official registry. 
+                        <Tooltip>
+                          <TooltipTrigger className="underline ml-1 cursor-help">Learn more</TooltipTrigger>
+                          <TooltipContent className="max-w-sm">
+                            <p>Renuw marks GOs as internally retired in its ledger, but the utility/trader must execute the actual retirement in Energinet or the relevant registry.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </p>
+                    </div>
+                  </div>
+                </TooltipProvider>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* Customer Breakdown */}
+      {view === "customers" && (
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="md:col-span-1">
+            <Card>
+              <CardHeader>
+                <CardTitle>Allocation By Customer</CardTitle>
+                <CardDescription>Proportion of total allocation by customer</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <pie 
+                        data={customerAllocations.map(c => ({name: c.name, value: c.allocation}))} 
+                        cx="50%" 
+                        cy="50%" 
+                        outerRadius={80} 
+                        fill="#8884d8" 
+                        dataKey="value"
+                      />
+                      <RechartsTooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="md:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Customer Allocation</CardTitle>
+                <CardDescription>Detailed breakdown of customer allocations for the current period</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Allocation (MWh)</TableHead>
+                      <TableHead>% of Total</TableHead>
+                      <TableHead>Matching Score</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {customerAllocations.map((customer) => (
+                      <TableRow key={customer.id} className="cursor-pointer hover:bg-muted/50">
+                        <TableCell className="font-medium">{customer.name}</TableCell>
+                        <TableCell>
+                          {customer.allocation}
+                          {customer.traderSource > 0 && (
+                            <div className="text-xs text-muted-foreground">
+                              (incl. {customer.traderSource} MWh from Trader GOs)
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>{customer.percentOfTotal}%</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Progress value={customer.matchingScore} className="h-2 w-16" />
+                            <span className="text-sm">{customer.matchingScore}%</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
+}

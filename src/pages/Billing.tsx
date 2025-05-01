@@ -4,47 +4,53 @@ import { format } from "date-fns";
 import { 
   Calendar, 
   Download, 
-  Search,
   ChevronLeft,
   ChevronRight,
-  FileText,
-  Building,
-  Euro,
   CreditCard,
-  AlertTriangle,
-  CheckCircle
+  Receipt,
+  BarChart,
+  FileText,
+  Clock
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { useMockCustomers } from "@/hooks/use-mock-customers";
+import { Progress } from "@/components/ui/progress";
+import { motion } from "framer-motion";
 
 export default function Billing() {
-  const { customers } = useMockCustomers();
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   
   // Calculate the first day of the selected month
   const firstDayOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
   
-  // Calculate the last day of the selected month
-  const lastDayOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0);
-  
   // Format the date range for display
   const dateRangeDisplay = `${format(firstDayOfMonth, "MMMM yyyy")}`;
   
-  // Billing rate in DKK per MWh
-  const RATE_PER_MWH = 20;
-
+  // Mock billing data
+  const billingData = {
+    subscriptionTier: "Enterprise",
+    pricePerMWh: 20, // DKK per MWh
+    commission: 5, // Percentage
+    monthlyUsage: 3650, // MWh
+    estimatedCost: 3650 * 20, // MWh * price
+    billingFrequency: "Monthly",
+    lastInvoice: {
+      number: "INV-2025-04",
+      amount: 70000,
+      date: "2025-04-01",
+      status: "Paid"
+    }
+  };
+  
+  // Usage history data for chart
+  const usageHistory = [
+    { month: "Jan", usage: 3200 },
+    { month: "Feb", usage: 3400 },
+    { month: "Mar", usage: 3500 },
+    { month: "Apr", usage: 3650 },
+  ];
+  
   // Function to handle going to the previous month
   const goToPreviousMonth = () => {
     const newDate = new Date(selectedMonth);
@@ -59,61 +65,36 @@ export default function Billing() {
     setSelectedMonth(newDate);
   };
 
-  // Mock single utility/trader
-  const utility = {
-    id: "ut1",
-    name: "Energi Danmark A/S",
-    country: "Denmark",
-    invoiceNumber: `INV-ED-${format(firstDayOfMonth, "yyyyMM")}`,
-    invoiceDate: format(firstDayOfMonth, "yyyy-MM-dd"),
-    dueDate: format(new Date(firstDayOfMonth.getTime() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
-    paymentStatus: "pending"
-  };
-  
-  // Assign all customers to this utility for the demo
-  const utilityCustomers = customers;
-  
-  // Calculate monthly consumption and billing amount
-  const monthlyConsumption = utilityCustomers.reduce((acc, customer) => acc + customer.annualConsumption / 12, 0);
-  const billingAmount = monthlyConsumption * 1000 * RATE_PER_MWH; // Convert GWh to MWh for billing
-  
-  // Filter customers based on search query
-  const filteredCustomers = utilityCustomers.filter(customer => 
-    customer.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Calculate previous month stats for comparison
-  const prevMonthConsumption = monthlyConsumption * 0.95; // 5% less for demo
-  const prevMonthAmount = prevMonthConsumption * 1000 * RATE_PER_MWH;
-  const monthlyChange = (monthlyConsumption - prevMonthConsumption) / prevMonthConsumption * 100;
-
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <motion.div 
+        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Billing</h2>
           <p className="text-muted-foreground">
-            Monthly billing for {utility.name}
+            Platform usage, pricing terms, and monthly billing estimate
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button 
             variant="outline"
             className="gap-2"
-            onClick={() => {}}
           >
             <Calendar size={16} />
             Select Period
           </Button>
           <Button 
             className="gap-2"
-            onClick={() => {}}
           >
             <Download size={16} />
-            Export Invoice
+            Download Invoice PDF
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Date navigation controls */}
       <div className="flex items-center justify-between">
@@ -126,211 +107,197 @@ export default function Billing() {
         </Button>
       </div>
 
-      {/* Utility/Trader Invoice Details */}
-      <Card className="border-primary/20">
-        <CardHeader className="pb-2">
-          <div className="flex justify-between">
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <Card className="overflow-hidden">
+          <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              Invoice Details
-              {utility.paymentStatus === "paid" ? (
-                <CheckCircle className="h-5 w-5 text-green-500" />
-              ) : utility.paymentStatus === "overdue" ? (
-                <AlertTriangle className="h-5 w-5 text-red-500" />
-              ) : (
-                <FileText className="h-5 w-5 text-yellow-500" />
-              )}
+              <CreditCard className="h-5 w-5 text-primary" />
+              Subscription Overview
             </CardTitle>
-            <Badge
-              variant="outline"
-              className={
-                utility.paymentStatus === "paid"
-                  ? "bg-green-100 text-green-800 hover:bg-green-100"
-                  : utility.paymentStatus === "pending"
-                  ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
-                  : "bg-red-100 text-red-800 hover:bg-red-100"
-              }
-            >
-              {utility.paymentStatus === "paid"
-                ? "Paid"
-                : utility.paymentStatus === "pending"
-                ? "Pending"
-                : "Overdue"}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-            <div>
-              <div className="text-sm text-muted-foreground">Utility/Trader</div>
-              <div className="font-medium">{utility.name}</div>
-              <div className="text-xs text-muted-foreground">{utility.country}</div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Invoice Number</div>
-              <div className="font-medium">{utility.invoiceNumber}</div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Invoice Date</div>
-              <div className="font-medium">{utility.invoiceDate}</div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Due Date</div>
-              <div className="font-medium">{utility.dueDate}</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Consumption
-            </CardTitle>
-            <Building className="h-4 w-4 text-muted-foreground" />
+            <CardDescription>
+              Details of your platform subscription and pricing
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{monthlyConsumption.toFixed(1)} GWh</div>
-            <p className="text-xs text-muted-foreground flex items-center">
-              {monthlyChange >= 0 ? (
-                <span className="text-green-500 flex items-center">
-                  ↑ {monthlyChange.toFixed(1)}%
-                </span>
-              ) : (
-                <span className="text-red-500 flex items-center">
-                  ↓ {Math.abs(monthlyChange).toFixed(1)}%
-                </span>
-              )}
-              <span className="ml-1">from last month</span>
-            </p>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 bg-muted/30 rounded-lg">
+                <div className="text-sm text-muted-foreground">Subscription Tier</div>
+                <div className="text-lg font-bold">{billingData.subscriptionTier}</div>
+              </div>
+              
+              <div className="p-4 bg-muted/30 rounded-lg">
+                <div className="text-sm text-muted-foreground">Price per MWh</div>
+                <div className="text-lg font-bold">DKK {billingData.pricePerMWh}</div>
+              </div>
+              
+              <div className="p-4 bg-muted/30 rounded-lg">
+                <div className="text-sm text-muted-foreground">Commission Rate</div>
+                <div className="text-lg font-bold">{billingData.commission}%</div>
+              </div>
+              
+              <div className="p-4 bg-muted/30 rounded-lg">
+                <div className="text-sm text-muted-foreground">Billing Frequency</div>
+                <div className="text-lg font-bold">{billingData.billingFrequency}</div>
+              </div>
+            </div>
+            
+            <div className="pt-2">
+              <div className="text-sm font-medium mb-1">Service Agreement</div>
+              <div className="flex items-center justify-between gap-2 p-3 border rounded-lg">
+                <div className="text-sm">
+                  Renuw Platform Utility Agreement
+                </div>
+                <Button variant="outline" size="sm" className="gap-1">
+                  <FileText size={14} />
+                  View
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Billed
+        <Card className="overflow-hidden">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Receipt className="h-5 w-5 text-primary" />
+              Monthly Usage Summary
             </CardTitle>
-            <Euro className="h-4 w-4 text-muted-foreground" />
+            <CardDescription>
+              Current month's platform usage and estimated costs
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">DKK {billingAmount.toLocaleString("da-DK")}</div>
-            <p className="text-xs text-muted-foreground">
-              For {format(firstDayOfMonth, "MMMM yyyy")}
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Rate
-            </CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              DKK {RATE_PER_MWH}/MWh
+          <CardContent className="space-y-6">
+            <div className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span>Monthly MWh Usage</span>
+                <span className="font-medium">{billingData.monthlyUsage} MWh</span>
+              </div>
+              <Progress value={80} className="h-2" /> {/* Example progress */}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Standard GO allocation rate
-            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 bg-primary/5 border border-primary/10 rounded-lg">
+                <div className="text-sm text-muted-foreground">Estimated Cost</div>
+                <div className="text-2xl font-bold">DKK {billingData.estimatedCost.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground mt-1">For {format(firstDayOfMonth, "MMMM yyyy")}</div>
+              </div>
+              
+              <div className="p-4 bg-muted/30 rounded-lg">
+                <div className="flex justify-between">
+                  <div className="text-sm text-muted-foreground">Last Invoice</div>
+                  <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                    {billingData.lastInvoice.status}
+                  </Badge>
+                </div>
+                <div className="text-lg font-bold mt-1">DKK {billingData.lastInvoice.amount.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {billingData.lastInvoice.number} ({new Date(billingData.lastInvoice.date).toLocaleDateString()})
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end">
+              <Button className="gap-2">
+                <Download size={16} />
+                Download Invoice PDF
+              </Button>
+            </div>
           </CardContent>
         </Card>
-        
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Corporate Customers
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart className="h-5 w-5 text-primary" />
+              Usage History
             </CardTitle>
-            <Building className="h-4 w-4 text-muted-foreground" />
+            <CardDescription>
+              Monthly MWh usage over time
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {utilityCustomers.length}
+            <div className="h-64 mt-4">
+              {/* This would normally be a chart component */}
+              <div className="flex h-full items-end gap-2">
+                {usageHistory.map((month, index) => (
+                  <div key={index} className="flex flex-col items-center flex-1">
+                    <div 
+                      className="bg-primary/80 w-full rounded-t-md transition-all duration-500" 
+                      style={{ 
+                        height: `${(month.usage / 4000) * 100}%`,
+                        animationDelay: `${index * 0.1}s`
+                      }}
+                    ></div>
+                    <div className="text-xs pt-2">{month.month}</div>
+                    <div className="text-xs text-muted-foreground">{month.usage} MWh</div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Total customers served
-            </p>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
 
-      {/* Search for customers */}
-      <div className="relative">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search customers..."
-          className="pl-9"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-
-      {/* Customer Breakdown */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Customer Breakdown</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Industry</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Volume (MWh)</TableHead>
-                <TableHead className="text-right">Billing Amount (DKK)</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredCustomers.map(customer => {
-                const consumption = customer.annualConsumption / 12 * 1000; // Monthly in MWh
-                const amount = consumption * RATE_PER_MWH;
-                
-                return (
-                  <TableRow key={customer.id}>
-                    <TableCell className="font-medium">{customer.name}</TableCell>
-                    <TableCell>{customer.industry}</TableCell>
-                    <TableCell>{customer.location}</TableCell>
-                    <TableCell>{consumption.toFixed(0)}</TableCell>
-                    <TableCell className="text-right">{amount.toLocaleString("da-DK")}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Billing Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4 text-sm">
-            <p>
-              Our billing model charges utilities and energy traders for the GO matching and allocation services
-              we provide to their corporate customers. The standard rate is <span className="font-medium">DKK 20 per MWh</span> of 
-              allocated renewable energy.
-            </p>
-            <p>
-              This fee covers:
-            </p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>AI-powered GO allocation and matching</li>
-              <li>Temporal matching between production and consumption</li>
-              <li>Portfolio mix optimization based on customer preferences</li>
-              <li>GO tracking and verification services</li>
-              <li>Customer-specific analytics and reporting</li>
-            </ul>
-            <p>
-              Invoices are generated monthly based on the total volume of renewable energy
-              allocated to corporate customers during the billing period.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-primary" />
+              Upcoming Invoices
+            </CardTitle>
+            <CardDescription>
+              Preview of upcoming billing cycles
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center p-4 bg-muted/20 rounded-lg border">
+                <div className="flex-1">
+                  <div className="font-medium">May 2025 Invoice</div>
+                  <div className="text-sm text-muted-foreground">Estimated: DKK 73,000</div>
+                </div>
+                <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                  Upcoming
+                </Badge>
+              </div>
+              
+              <div className="flex items-center p-4 bg-muted/20 rounded-lg border">
+                <div className="flex-1">
+                  <div className="font-medium">June 2025 Invoice</div>
+                  <div className="text-sm text-muted-foreground">Estimated: DKK 75,000</div>
+                </div>
+                <Badge variant="outline">
+                  Projected
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/10 text-blue-800 dark:text-blue-300 rounded-md">
+              <h4 className="font-medium">Billing Information</h4>
+              <p className="text-sm mt-2">
+                The standard rate for GO matching and allocation services is <span className="font-medium">DKK 20 per MWh</span> of 
+                allocated renewable energy. This fee covers AI-powered GO allocation, temporal matching between production and consumption,
+                portfolio optimization, GO tracking, and customer-specific analytics.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }

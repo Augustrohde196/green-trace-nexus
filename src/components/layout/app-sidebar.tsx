@@ -1,13 +1,10 @@
 
-import { Home, PieChart, Users, BarChart3, Receipt, Zap } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Home, BarChart3, Users, FileText, Zap, Receipt, Settings } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -22,61 +19,70 @@ const menuItems = [
   },
   {
     title: "Assets",
-    icon: PieChart,
+    icon: BarChart3,
     url: "/assets",
   },
   {
-    title: "Corporate Customers",
+    title: "Customers",
     icon: Users,
     url: "/customers",
   },
   {
-    title: "Analytics",
-    icon: BarChart3,
-    url: "/analytics",
-  },
-  {
-    title: "Matching Engine",
+    title: "Allocation",
     icon: Zap,
     url: "/matching",
+  },
+  {
+    title: "Reporting",
+    icon: FileText,
+    url: "/reporting",
   },
   {
     title: "Billing",
     icon: Receipt,
     url: "/billing",
   },
+  {
+    title: "Settings",
+    icon: Settings,
+    url: "/settings",
+  }
 ];
 
 export function AppSidebar() {
+  const location = useLocation();
+
   return (
     <Sidebar>
       <SidebarHeader className="flex items-center justify-center p-6">
-        <span className="font-bold text-white text-2xl tracking-tight">Renuw</span>
+        <img 
+          src="/lovable-uploads/419093cd-a308-42b6-b46a-779e847ce4f1.png" 
+          alt="Renuw" 
+          className="h-10" 
+        />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Management</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link to={item.url}>
-                      <item.icon size={20} />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <SidebarMenu>
+          {menuItems.map((item) => {
+            const isActive = location.pathname === item.url || 
+                            (item.url !== '/' && location.pathname.startsWith(item.url));
+            
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton 
+                  className={isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""}
+                  asChild
+                >
+                  <Link to={item.url}>
+                    <item.icon size={20} />
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter className="px-6 py-4">
-        <div className="text-xs text-white/70">
-          Renuw Platform v1.0
-        </div>
-      </SidebarFooter>
     </Sidebar>
   );
 }

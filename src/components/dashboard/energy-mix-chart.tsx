@@ -11,7 +11,7 @@ interface EnergyMixChartProps {
 export function EnergyMixChart({ data }: EnergyMixChartProps) {
   // Make sure we use the correct names for Wind and Solar
   const chartData = data.map(item => ({
-    name: item.type === 'wind' ? 'Wind' : 'Solar', // Ensure proper capitalization
+    name: item.type === 'wind' ? 'Wind' : 'Solar',
     value: item.value,
     type: item.type
   }));
@@ -51,7 +51,7 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
     );
   };
 
-  // Custom label that only shows the value, not the name
+  // Custom label that shows only the value, not the full text
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value, index }: any) => {
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
