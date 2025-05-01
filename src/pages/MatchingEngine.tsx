@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Zap, PieChart, Calendar, Download, AlertTriangle, Info, Check, CheckCircle2, ArrowRight } from "lucide-react";
 import {
@@ -28,6 +29,8 @@ import {
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
+import { DateNavigation } from "@/components/billing/date-navigation";
+import { CustomerBreakdown } from "@/components/billing/customer-breakdown";
 
 // Chart component imports from recharts
 import {
@@ -41,31 +44,96 @@ import {
   Pie,
   ResponsiveContainer,
   Tooltip as RechartsTooltip,
+  Cell,
 } from "recharts";
 
 export default function GOAllocation() {
   const [metrics, setMetrics] = useState(goService.getMetrics());
   const [view, setView] = useState<"overview" | "customers">("overview");
   const [timeRange, setTimeRange] = useState<"week" | "month" | "year">("month");
+  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   
-  // Mock allocation data for charts
-  const allocationData = [
-    { month: "Jan", production: 680, allocated: 650, shortfall: 30 },
-    { month: "Feb", production: 720, allocated: 700, shortfall: 20 },
-    { month: "Mar", production: 800, allocated: 800, shortfall: 0 },
-    { month: "Apr", production: 850, allocated: 830, shortfall: 0, excess: 20 },
-    { month: "May", production: 920, allocated: 880, shortfall: 0, excess: 40 },
+  // Chart colors for better visual distinction
+  const CHART_COLORS = [
+    "#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#0088fe", 
+    "#00C49F", "#FFBB28", "#FF8042", "#a4de6c", "#d0ed57"
   ];
+  
+  // Dynamic allocation data based on timeRange
+  const getTimeBasedData = () => {
+    switch (timeRange) {
+      case "week":
+        return [
+          { month: "Mon", production: 140, allocated: 135, shortfall: 5 },
+          { month: "Tue", production: 155, allocated: 150, shortfall: 5 },
+          { month: "Wed", production: 180, allocated: 175, shortfall: 5 },
+          { month: "Thu", production: 165, allocated: 160, shortfall: 5 },
+          { month: "Fri", production: 190, allocated: 180, shortfall: 0, excess: 10 },
+          { month: "Sat", production: 110, allocated: 100, shortfall: 0, excess: 10 },
+          { month: "Sun", production: 100, allocated: 90, shortfall: 0, excess: 10 },
+        ];
+      case "year":
+        return [
+          { month: "Jan", production: 680, allocated: 650, shortfall: 30 },
+          { month: "Feb", production: 720, allocated: 700, shortfall: 20 },
+          { month: "Mar", production: 800, allocated: 800, shortfall: 0 },
+          { month: "Apr", production: 850, allocated: 830, shortfall: 0, excess: 20 },
+          { month: "May", production: 920, allocated: 880, shortfall: 0, excess: 40 },
+          { month: "Jun", production: 980, allocated: 950, shortfall: 0, excess: 30 },
+          { month: "Jul", production: 1050, allocated: 1000, shortfall: 0, excess: 50 },
+          { month: "Aug", production: 900, allocated: 870, shortfall: 0, excess: 30 },
+          { month: "Sep", production: 830, allocated: 800, shortfall: 0, excess: 30 },
+          { month: "Oct", production: 780, allocated: 760, shortfall: 20 },
+          { month: "Nov", production: 740, allocated: 720, shortfall: 20 },
+          { month: "Dec", production: 720, allocated: 690, shortfall: 30 },
+        ];
+      case "month":
+      default:
+        return [
+          { month: "Week 1", production: 680, allocated: 650, shortfall: 30 },
+          { month: "Week 2", production: 720, allocated: 700, shortfall: 20 },
+          { month: "Week 3", production: 800, allocated: 800, shortfall: 0 },
+          { month: "Week 4", production: 850, allocated: 830, shortfall: 0, excess: 20 },
+        ];
+    }
+  };
+  
+  const allocationData = getTimeBasedData();
+  
+  // Navigate through dates
+  const goToPreviousMonth = () => {
+    const newDate = new Date(selectedMonth);
+    newDate.setMonth(newDate.getMonth() - 1);
+    setSelectedMonth(newDate);
+  };
+
+  const goToNextMonth = () => {
+    const newDate = new Date(selectedMonth);
+    newDate.setMonth(newDate.getMonth() + 1);
+    setSelectedMonth(newDate);
+  };
   
   // Mock customer allocation data
   const customerAllocations = mockCustomers.map(customer => ({
     id: customer.id,
     name: customer.name,
-    allocation: Math.round(customer.annualConsumption * 83.33), // Monthly allocation in MWh
+    location: customer.location,
+    volume: Math.round(customer.annualConsumption * 83.33), // Monthly allocation in MWh
     percentOfTotal: Math.round((customer.annualConsumption / mockCustomers.reduce((acc, c) => acc + c.annualConsumption, 0)) * 100),
     matchingScore: customer.matchingScore,
     traderSource: customer.id === "c3" || customer.id === "c5" ? Math.round(customer.annualConsumption * 0.2 * 83.33) : 0, // 20% from trader for some customers
+    amount: Math.round(customer.annualConsumption * 83.33 * 140), // DKK amount based on volume and rate
   }));
+
+  // Get period text based on timeRange
+  const getPeriodText = () => {
+    switch(timeRange) {
+      case "week": return "Weekly";
+      case "month": return "Monthly";
+      case "year": return "Yearly";
+      default: return "Monthly";
+    }
+  };
 
   return (
     <div className="space-y-6 bg-background">
@@ -82,6 +150,11 @@ export default function GOAllocation() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <DateNavigation
+            selectedMonth={selectedMonth}
+            goToPreviousMonth={goToPreviousMonth}
+            goToNextMonth={goToNextMonth}
+          />
           <Button variant="outline" className="gap-2">
             <Calendar size={16} />
             Select Period
@@ -98,8 +171,9 @@ export default function GOAllocation() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
+          className="h-full"
         >
-          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors h-full">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
               <CardTitle className="text-sm font-medium">
                 Total GOs
@@ -121,8 +195,9 @@ export default function GOAllocation() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
+          className="h-full"
         >
-          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors h-full">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
               <CardTitle className="text-sm font-medium">
                 Allocated GOs
@@ -144,8 +219,9 @@ export default function GOAllocation() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.3 }}
+          className="h-full"
         >
-          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors h-full">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
               <CardTitle className="text-sm font-medium">
                 Available GOs
@@ -167,8 +243,9 @@ export default function GOAllocation() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.4 }}
+          className="h-full"
         >
-          <Card className="overflow-hidden group hover:border-primary/50 transition-colors">
+          <Card className="overflow-hidden group hover:border-primary/50 transition-colors h-full">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
               <CardTitle className="text-sm font-medium">
                 Average Match Score
@@ -188,14 +265,12 @@ export default function GOAllocation() {
       </div>
 
       <div className="flex justify-between items-center">
-        <ToggleGroup type="single" value={view} onValueChange={(value) => value && setView(value as "overview" | "customers")}>
-          <ToggleGroupItem value="overview" aria-label="Toggle overview">
-            Allocation Overview
-          </ToggleGroupItem>
-          <ToggleGroupItem value="customers" aria-label="Toggle customers">
-            Customer Breakdown
-          </ToggleGroupItem>
-        </ToggleGroup>
+        <Tabs defaultValue={view} value={view} onValueChange={(value) => setView(value as "overview" | "customers")} className="w-full">
+          <TabsList className="grid w-64 grid-cols-2">
+            <TabsTrigger value="overview">Allocation Overview</TabsTrigger>
+            <TabsTrigger value="customers">Customer Breakdown</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {/* Allocation Overview */}
@@ -208,20 +283,21 @@ export default function GOAllocation() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Production & Allocation</CardTitle>
+                <CardTitle>{getPeriodText()} Allocation</CardTitle>
                 <CardDescription>
-                  Monthly analysis of renewable energy production vs. customer allocation
+                  {getPeriodText()} analysis of renewable energy production vs. customer allocation
                 </CardDescription>
               </div>
               <div>
-                <ToggleGroup type="single" value={timeRange} onValueChange={(value) => value && setTimeRange(value as "week" | "month" | "year")}>
-                  <ToggleGroupItem value="week" aria-label="View weekly data">
+                <ToggleGroup type="single" value={timeRange} onValueChange={(value) => value && setTimeRange(value as "week" | "month" | "year")} 
+                  className="bg-muted rounded-md">
+                  <ToggleGroupItem value="week" aria-label="View weekly data" className="data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm">
                     Week
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="month" aria-label="View monthly data">
+                  <ToggleGroupItem value="month" aria-label="View monthly data" className="data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm">
                     Month
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="year" aria-label="View yearly data">
+                  <ToggleGroupItem value="year" aria-label="View yearly data" className="data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm">
                     Year
                   </ToggleGroupItem>
                 </ToggleGroup>
@@ -329,10 +405,15 @@ export default function GOAllocation() {
                         cx="50%" 
                         cy="50%" 
                         outerRadius={80} 
-                        fill="#8884d8" 
                         label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {customerAllocations.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <RechartsTooltip 
+                        formatter={(value: number, name: string) => [`${value.toLocaleString()} MWh`, name]}
                       />
-                      <RechartsTooltip />
                       <Legend />
                     </RechartsPieChart>
                   </ResponsiveContainer>
@@ -342,46 +423,7 @@ export default function GOAllocation() {
           </div>
           
           <div className="md:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Customer Allocation</CardTitle>
-                <CardDescription>Detailed breakdown of customer allocations for the current period</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Customer</TableHead>
-                      <TableHead>Allocation (MWh)</TableHead>
-                      <TableHead>% of Total</TableHead>
-                      <TableHead>Matching Score</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {customerAllocations.map((customer) => (
-                      <TableRow key={customer.id} className="cursor-pointer hover:bg-muted/50">
-                        <TableCell className="font-medium">{customer.name}</TableCell>
-                        <TableCell>
-                          {customer.allocation}
-                          {customer.traderSource > 0 && (
-                            <div className="text-xs text-muted-foreground">
-                              (incl. {customer.traderSource} MWh from Trader GOs)
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell>{customer.percentOfTotal}%</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Progress value={customer.matchingScore} className="h-2 w-16" />
-                            <span className="text-sm">{customer.matchingScore}%</span>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <CustomerBreakdown customerBreakdown={customerAllocations} />
           </div>
         </motion.div>
       )}
