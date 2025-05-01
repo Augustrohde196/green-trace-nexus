@@ -24,12 +24,12 @@ export function DashboardCard({
       whileHover={{ y: -2, transition: { duration: 0.2 } }}
       transition={{ duration: 0.2 }}
     >
-      <Card className={`group overflow-hidden hover:border-primary/50 transition-colors ${className}`}>
+      <Card className={`group overflow-hidden border hover:border-primary/50 hover:shadow-sm transition-all ${className}`}>
         <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
           <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
           {Icon && (
-            <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 group-hover:bg-primary/15 transition-colors">
-              <Icon className="h-5 w-5 text-primary" />
+            <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors">
+              <Icon className="h-5 w-5" />
             </div>
           )}
         </CardHeader>
