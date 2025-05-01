@@ -16,11 +16,11 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
     type: item.type
   }));
   
-  const COLORS = ["#3B82F6", "#F59E0B"]; // Wind: blue, Solar: amber
+  const COLORS = ["#3B82F6", "#4DA167"]; // Wind: blue, Solar: green - matching Production Timeline
   const totalProduction = chartData.reduce((sum, item) => sum + item.value, 0);
 
   return (
-    <Card>
+    <Card className="flex-none w-full md:w-[30%]">
       <CardHeader>
         <CardTitle>Energy Mix</CardTitle>
       </CardHeader>

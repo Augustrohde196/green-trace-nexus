@@ -76,9 +76,10 @@ export function ProductionChart({ data, timeRange, setTimeRange }: ProductionCha
   };
   
   const chartData = generateChartData();
+  const energyUnit = timeRange === "year" ? "GWh" : "MWh";
 
   return (
-    <Card>
+    <Card className="flex-1 w-full md:w-[70%]">
       <CardHeader>
         <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 justify-between items-start">
           <div>
@@ -143,18 +144,19 @@ export function ProductionChart({ data, timeRange, setTimeRange }: ProductionCha
                 />
                 <YAxis 
                   label={{ 
-                    value: timeRange === "year" ? "GWh" : "MWh", 
+                    value: energyUnit, 
                     angle: -90, 
                     position: 'insideLeft',
-                    style: { textAnchor: 'middle' }
+                    style: { fontSize: '10px', textAnchor: 'middle' },
+                    offset: 0,
+                    dx: -15
                   }} 
                 />
                 <Tooltip 
                   labelFormatter={(value) => `Date: ${value}`}
                   formatter={(value: number, name: string) => {
-                    const unit = timeRange === "year" ? "GWh" : "MWh";
                     const displayName = name === "wind" ? "Wind" : name === "solar" ? "Solar" : "Total";
-                    return [`${value} ${unit}`, displayName];
+                    return [`${value} ${energyUnit}`, displayName];
                   }}
                 />
                 <Area 
@@ -179,14 +181,14 @@ export function ProductionChart({ data, timeRange, setTimeRange }: ProductionCha
             </ResponsiveContainer>
           </motion.div>
         </AnimatePresence>
-        <div className="flex justify-center items-center gap-6 py-2">
+        <div className="flex justify-center items-center gap-6 py-4 mt-1">
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-[#3B82F6]"></div>
-            <span className="text-sm">wind</span>
+            <span className="text-sm">Wind</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-[#4DA167]"></div>
-            <span className="text-sm">solar</span>
+            <span className="text-sm">Solar</span>
           </div>
         </div>
       </CardContent>

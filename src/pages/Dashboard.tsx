@@ -132,7 +132,7 @@ const Dashboard = () => {
       </motion.div>
 
       <motion.div 
-        className="grid gap-4 md:grid-cols-2"
+        className="flex flex-col md:flex-row gap-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
@@ -184,7 +184,7 @@ const Dashboard = () => {
             >
               <motion.div 
                 variants={fadeInUp}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-all duration-300"
+                className="flex items-center justify-between p-4 border rounded-lg transition-all duration-300 hover:bg-accent/20"
               >
                 <div>
                   <h3 className="font-medium">Projected Shortfall</h3>
@@ -196,7 +196,7 @@ const Dashboard = () => {
               </motion.div>
               <motion.div 
                 variants={fadeInUp}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-all duration-300"
+                className="flex items-center justify-between p-4 border rounded-lg transition-all duration-300 hover:bg-accent/20"
               >
                 <div>
                   <h3 className="font-medium">Sourcing Recommendations</h3>

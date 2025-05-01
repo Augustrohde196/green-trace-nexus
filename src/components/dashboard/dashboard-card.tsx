@@ -26,7 +26,7 @@ export function DashboardCard({
     >
       <Card className={className}>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          <CardTitle className="text-sm font-normal text-muted-foreground">{title}</CardTitle>
           {Icon && (
             <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
               <Icon className="h-4 w-4 text-primary" />
