@@ -33,7 +33,7 @@ export default function Customers() {
   };
 
   return (
-    <div className="space-y-6 relative z-0">
+    <div className="space-y-6 relative z-0 bg-background">
       {/* Page Header */}
       <CustomerPageHeader onAddCustomerClick={() => setIsAddCustomerOpen(true)} />
 
