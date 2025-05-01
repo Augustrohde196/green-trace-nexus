@@ -132,13 +132,17 @@ const Dashboard = () => {
       </motion.div>
 
       <motion.div 
-        className="grid gap-4 md:grid-cols-2"
+        className="grid gap-4 grid-cols-12"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
       >
-        <ProductionChart timeRange={timeRange} setTimeRange={setTimeRange} />
-        <EnergyMixChart data={metrics.productionByType} />
+        <div className="col-span-12 md:col-span-8">
+          <ProductionChart timeRange={timeRange} setTimeRange={setTimeRange} />
+        </div>
+        <div className="col-span-12 md:col-span-4">
+          <EnergyMixChart data={metrics.productionByType} />
+        </div>
       </motion.div>
 
       <motion.div
@@ -146,7 +150,7 @@ const Dashboard = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.5 }}
       >
-        <Card>
+        <Card className="hover:bg-accent/5 transition-colors duration-300">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Commitments vs Production</CardTitle>
@@ -184,7 +188,7 @@ const Dashboard = () => {
             >
               <motion.div 
                 variants={fadeInUp}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-all duration-300"
+                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/10 transition-all duration-300"
               >
                 <div>
                   <h3 className="font-medium">Projected Shortfall</h3>
@@ -196,7 +200,7 @@ const Dashboard = () => {
               </motion.div>
               <motion.div 
                 variants={fadeInUp}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-all duration-300"
+                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/10 transition-all duration-300"
               >
                 <div>
                   <h3 className="font-medium">Sourcing Recommendations</h3>
