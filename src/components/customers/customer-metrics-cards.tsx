@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Users, Activity, BarChart3 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -82,7 +83,7 @@ export function CustomerMetricsCards({
       delay: 0.3
     }}>
         <Card className="overflow-hidden group hover:border-primary/50 transition-colors h-full">
-          <div className="" />
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-purple-500/5 opacity-70 group-hover:opacity-100 transition-opacity" />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
             <CardTitle className="text-sm font-medium">
               Average Matching Score

@@ -1,9 +1,9 @@
 
+
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Customer } from "@/data/models";
-import { Check, Clock } from "lucide-react";
 
 interface CustomersListProps {
   customers: Customer[];
@@ -42,7 +42,7 @@ export function CustomersList({ customers, onCustomerClick }: CustomersListProps
         >
           <Card className="overflow-hidden hover:border-primary/30 hover:bg-muted/20 transition-all">
             <CardContent className="p-0">
-              <div className="grid grid-cols-12 items-center p-4">
+              <div className="grid grid-cols-11 items-center p-4">
                 <div className="col-span-3">
                   <div className="font-semibold">{customer.name}</div>
                   <div className="text-sm text-muted-foreground">{customer.location}</div>
@@ -67,18 +67,6 @@ export function CustomersList({ customers, onCustomerClick }: CustomersListProps
                     </Badge>
                   </div>
                 </div>
-                <div className="col-span-1 text-center">
-                  <Badge 
-                    variant={customer.status === 'active' ? 'success' : 'outline'} 
-                    className={`${customer.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'} cursor-default`}
-                  >
-                    {customer.status === 'active' ? (
-                      <><Check size={12} className="mr-1" /> Active</>
-                    ) : (
-                      <><Clock size={12} className="mr-1" /> Pending</>
-                    )}
-                  </Badge>
-                </div>
                 <div className="col-span-2 px-4">
                   <div className="text-sm mb-1">Time Matching</div>
                   <Badge 
@@ -101,3 +89,4 @@ function getScoreBadgeClass(score: number): string {
   if (score >= 50) return "bg-amber-500/20 text-amber-500 hover:bg-amber-500/30";
   return "bg-red-500/20 text-red-500 hover:bg-red-500/30";
 }
+

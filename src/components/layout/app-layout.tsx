@@ -1,4 +1,5 @@
 
+
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./app-sidebar";
 import { AppHeader } from "./app-header";
@@ -12,11 +13,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col bg-background">
           <AppHeader />
-          <main className="flex-1 p-6 relative z-0">{children}</main>
+          <main className="flex-1 p-6 relative z-0 bg-background">{children}</main>
         </div>
       </div>
     </SidebarProvider>
   );
 }
+
