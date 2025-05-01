@@ -1,22 +1,26 @@
-
 import { motion } from "framer-motion";
 import { Users, Activity, BarChart3 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Customer } from "@/data/models";
-
 interface CustomerMetricsCardsProps {
   customers: Customer[];
   countCustomersByStatus: (status: string) => number;
 }
-
-export function CustomerMetricsCards({ customers, countCustomersByStatus }: CustomerMetricsCardsProps) {
-  return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
+export function CustomerMetricsCards({
+  customers,
+  countCustomersByStatus
+}: CustomerMetricsCardsProps) {
+  return <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <motion.div initial={{
+      opacity: 0,
+      scale: 0.95
+    }} animate={{
+      opacity: 1,
+      scale: 1
+    }} transition={{
+      duration: 0.4,
+      delay: 0.1
+    }}>
         <Card className="overflow-hidden group hover:border-primary/50 transition-colors h-full">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-500/5 opacity-70 group-hover:opacity-100 transition-opacity" />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
@@ -36,11 +40,16 @@ export function CustomerMetricsCards({ customers, countCustomersByStatus }: Cust
         </Card>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-      >
+      <motion.div initial={{
+      opacity: 0,
+      scale: 0.95
+    }} animate={{
+      opacity: 1,
+      scale: 1
+    }} transition={{
+      duration: 0.4,
+      delay: 0.2
+    }}>
         <Card className="overflow-hidden group hover:border-primary/50 transition-colors h-full">
           <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-green-500/5 opacity-70 group-hover:opacity-100 transition-opacity" />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
@@ -62,13 +71,18 @@ export function CustomerMetricsCards({ customers, countCustomersByStatus }: Cust
         </Card>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
-      >
+      <motion.div initial={{
+      opacity: 0,
+      scale: 0.95
+    }} animate={{
+      opacity: 1,
+      scale: 1
+    }} transition={{
+      duration: 0.4,
+      delay: 0.3
+    }}>
         <Card className="overflow-hidden group hover:border-primary/50 transition-colors h-full">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-purple-500/5 opacity-70 group-hover:opacity-100 transition-opacity" />
+          <div className="" />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
             <CardTitle className="text-sm font-medium">
               Average Matching Score
@@ -87,6 +101,5 @@ export function CustomerMetricsCards({ customers, countCustomersByStatus }: Cust
           </CardContent>
         </Card>
       </motion.div>
-    </div>
-  );
+    </div>;
 }
