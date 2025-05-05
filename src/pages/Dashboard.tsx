@@ -24,7 +24,7 @@ const Dashboard = () => {
       const timer = setTimeout(() => {
         startWalkthrough();
         localStorage.setItem("hasShownWalkthrough", "true");
-      }, 500);
+      }, 800);
       
       return () => clearTimeout(timer);
     }

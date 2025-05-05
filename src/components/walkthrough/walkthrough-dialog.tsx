@@ -28,7 +28,7 @@ const walkthroughSteps = [
       <>
         <div className="mb-4">
           <h3 className="font-semibold mb-2">Service Agreement</h3>
-          <ScrollArea className="h-[240px] border rounded-md p-4 bg-muted/20">
+          <ScrollArea className="h-[240px] border rounded-md p-4 bg-muted/20" id="agreement-scroll-area">
             <div className="text-sm text-muted-foreground pr-4">
               <p className="mb-3"><strong>RENUW SERVICE AGREEMENT</strong></p>
               <p className="mb-3">This Service Agreement ("Agreement") is entered into by and between Renuw Energy Solutions ("Renuw") and the user ("User") of Renuw's renewable energy management platform.</p>
@@ -98,6 +98,28 @@ const walkthroughSteps = [
     requiresCheck: false
   },
   {
+    title: "Sidebar Navigation",
+    description: "Explore different sections of the portal through the sidebar.",
+    content: (
+      <div className="space-y-4">
+        <div className="rounded-lg border p-4 bg-muted/20">
+          <h3 className="font-semibold mb-2">Main Navigation</h3>
+          <p className="text-sm text-muted-foreground">
+            Use the sidebar to navigate between different sections of the portal, including Dashboard, Assets, Customers, Analytics, and more.
+          </p>
+        </div>
+        <div className="rounded-lg border p-4 bg-muted/20">
+          <h3 className="font-semibold mb-2">Quick Access</h3>
+          <p className="text-sm text-muted-foreground">
+            The sidebar provides quick access to all important features of the platform, allowing you to efficiently manage your renewable energy portfolio.
+          </p>
+        </div>
+      </div>
+    ),
+    requiresScroll: false,
+    requiresCheck: false
+  },
+  {
     title: "Asset Management",
     description: "Explore and manage your renewable energy assets with ease.",
     content: (
@@ -134,28 +156,6 @@ const walkthroughSteps = [
           <h3 className="font-semibold mb-2">Customer Analytics</h3>
           <p className="text-sm text-muted-foreground">
             Analyze customer energy needs, consumption patterns, and certificate requirements to optimize allocation strategies.
-          </p>
-        </div>
-      </div>
-    ),
-    requiresScroll: false,
-    requiresCheck: false
-  },
-  {
-    title: "Certificate Matching",
-    description: "Optimize certificate allocation across your customer base.",
-    content: (
-      <div className="space-y-4">
-        <div className="rounded-lg border p-4 bg-muted/20">
-          <h3 className="font-semibold mb-2">Matching Engine</h3>
-          <p className="text-sm text-muted-foreground">
-            Our matching engine helps you allocate renewable energy certificates to customers based on their specific requirements and preferences.
-          </p>
-        </div>
-        <div className="rounded-lg border p-4 bg-muted/20">
-          <h3 className="font-semibold mb-2">Allocation Overview</h3>
-          <p className="text-sm text-muted-foreground">
-            View allocation metrics, shortfall/excess analyses, and customer breakdown statistics for better decision-making.
           </p>
         </div>
       </div>
@@ -202,7 +202,6 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
   const [hasCheckedAgreement, setHasCheckedAgreement] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const checkboxRef = useRef<HTMLButtonElement>(null);
   
   const step = walkthroughSteps[currentStep];
   const isFirstStep = currentStep === 0;
@@ -218,7 +217,7 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
       setScrollProgress(Math.min(scrollPercentage, 100));
       
       // Detect if scrolled to bottom (with a small tolerance)
-      if (scrollTop + clientHeight >= scrollHeight - 5) {
+      if (scrollTop + clientHeight >= scrollHeight - 10) {
         if (!hasScrolledToBottom) {
           console.log("Scrolled to bottom");
           setHasScrolledToBottom(true);
@@ -330,7 +329,6 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
           <div className="flex items-center space-x-2 mt-2 mb-4 border-t pt-4">
             <Checkbox 
               id="agreement" 
-              ref={checkboxRef}
               checked={hasCheckedAgreement} 
               onCheckedChange={handleCheckboxChange}
               disabled={!hasScrolledToBottom}
@@ -381,7 +379,7 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
               onClick={handleNext} 
               disabled={!canProceed()}
               className={cn(
-                !canProceed() ? "opacity-50 cursor-not-allowed" : ""
+                !canProceed() ? "opacity-50" : ""
               )}
               type="button"
             >
