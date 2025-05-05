@@ -1,5 +1,5 @@
 
-import { useState, createContext, useContext } from "react";
+import { useState, createContext, useContext, useCallback } from "react";
 import { WalkthroughDialog } from "@/components/walkthrough/walkthrough-dialog";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -19,18 +19,18 @@ export const WalkthroughProvider = ({ children }: { children: React.ReactNode })
   const [isWalkthroughOpen, setIsWalkthroughOpen] = useState(false);
   const { toast } = useToast();
 
-  const startWalkthrough = () => {
+  const startWalkthrough = useCallback(() => {
     setIsWalkthroughOpen(true);
-  };
+  }, []);
 
-  const closeWalkthrough = () => {
+  const closeWalkthrough = useCallback(() => {
     setIsWalkthroughOpen(false);
     toast({
       title: "Walkthrough closed",
       description: "You can restart the walkthrough anytime from the notification icon in the header.",
       duration: 3000,
     });
-  };
+  }, [toast]);
 
   return (
     <WalkthroughContext.Provider value={{ isWalkthroughOpen, startWalkthrough, closeWalkthrough }}>

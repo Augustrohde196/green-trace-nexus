@@ -28,17 +28,6 @@ export const walkthroughSteps: WalkthroughStep[] = [
           <p className="mb-2">6. <strong>Termination:</strong> Either party may terminate this agreement with written notice.</p>
           <p>7. <strong>Governing Law:</strong> This agreement is governed by the laws of the jurisdiction in which our company is registered.</p>
         </div>
-        
-        <div className="flex items-center">
-          <input 
-            id="agree-checkbox" 
-            type="checkbox" 
-            className="mr-2 h-4 w-4" 
-          />
-          <label htmlFor="agree-checkbox" className="text-sm">
-            I have read and agree to the Service Agreement
-          </label>
-        </div>
       </div>
     ),
     placement: "bottom"

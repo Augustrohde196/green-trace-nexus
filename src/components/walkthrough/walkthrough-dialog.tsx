@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { walkthroughSteps, WalkthroughStep } from "./walkthrough-steps";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface WalkthroughDialogProps {
   open: boolean;
@@ -36,20 +37,23 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
     }
   }, [open, currentStep]);
   
+  // Handle checkbox change for agreement
+  const handleCheckboxChange = (checked: boolean) => {
+    setHasAgreed(checked);
+  };
+
   const nextStep = () => {
     // For first step, require agreement
-    if (currentStepIndex === 0) {
-      const agreeCheckbox = document.getElementById("agree-checkbox") as HTMLInputElement;
-      if (agreeCheckbox && !agreeCheckbox.checked) {
-        setHasAgreed(false);
-        // Animation to indicate required checkbox
+    if (currentStepIndex === 0 && !hasAgreed) {
+      // Animation to indicate required checkbox
+      const agreeCheckbox = document.getElementById("agree-checkbox-container");
+      if (agreeCheckbox) {
         agreeCheckbox.classList.add("animate-pulse");
         setTimeout(() => {
           agreeCheckbox.classList.remove("animate-pulse");
         }, 1000);
-        return;
       }
-      setHasAgreed(true);
+      return;
     }
     
     if (currentStepIndex < walkthroughSteps.length - 1) {
@@ -68,6 +72,25 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
   
   const handleSkip = () => {
     onClose();
+  };
+  
+  const renderAgreementCheckbox = () => {
+    if (currentStepIndex === 0) {
+      return (
+        <div className="flex items-center space-x-2" id="agree-checkbox-container">
+          <Checkbox 
+            id="agree-checkbox" 
+            checked={hasAgreed}
+            onCheckedChange={handleCheckboxChange}
+            className="h-4 w-4"
+          />
+          <label htmlFor="agree-checkbox" className="text-sm cursor-pointer">
+            I have read and agree to the Service Agreement
+          </label>
+        </div>
+      );
+    }
+    return null;
   };
   
   return (
@@ -104,6 +127,7 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
               <div className="text-sm text-gray-700 dark:text-gray-300">
                 {currentStep.description}
               </div>
+              {renderAgreementCheckbox()}
             </div>
             
             <div className="p-4 bg-gray-50 dark:bg-gray-900 flex justify-between items-center border-t">
