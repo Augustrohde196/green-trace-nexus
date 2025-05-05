@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { CreditCard, FileText } from "lucide-react";
+import { CreditCard, FileText, HelpCircle } from "lucide-react";
 import { 
   Card, 
   CardContent, 
@@ -9,6 +9,12 @@ import {
   CardDescription 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SubscriptionOverviewProps {
   billingData: {
@@ -45,8 +51,22 @@ export function SubscriptionOverview({ billingData, onViewContract }: Subscripti
           </div>
           
           <div className="p-4 bg-muted/30 rounded-lg">
-            <div className="text-sm text-muted-foreground">Commission Rate</div>
-            <div className="text-lg font-bold">{billingData.commission}%</div>
+            <div className="text-sm text-muted-foreground flex items-center gap-1">
+              Renuw Spread
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p>The fixed margin Renuw earns per MWh transacted through the platform. This includes infrastructure, reporting, and platform services.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="text-lg font-bold">DKK 20</div>
           </div>
           
           <div className="p-4 bg-muted/30 rounded-lg">
@@ -66,6 +86,7 @@ export function SubscriptionOverview({ billingData, onViewContract }: Subscripti
               size="sm" 
               className="gap-1"
               onClick={onViewContract}
+              type="button"
             >
               <FileText size={14} />
               View

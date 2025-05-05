@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface WalkthroughDialogProps {
   open: boolean;
@@ -201,6 +207,7 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const [hasCheckedAgreement, setHasCheckedAgreement] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const step = walkthroughSteps[currentStep];
   const isFirstStep = currentStep === 0;
@@ -246,7 +253,10 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
   useEffect(() => {
     setHasScrolledToBottom(false);
     setScrollProgress(0);
-  }, [currentStep]);
+    if (!step.requiresCheck) {
+      setHasCheckedAgreement(false);
+    }
+  }, [currentStep, step.requiresCheck]);
   
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
@@ -270,6 +280,7 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
         
         <div className="flex-1 overflow-hidden">
           <div 
+            ref={scrollAreaRef}
             className="pr-1 max-h-[400px] overflow-auto" 
             onScroll={handleScroll}
           >
@@ -282,13 +293,13 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
                   checked={hasCheckedAgreement} 
                   onCheckedChange={(checked) => setHasCheckedAgreement(checked === true)}
                   disabled={!hasScrolledToBottom}
-                  className="cursor-pointer"
+                  className={cn("cursor-pointer", !hasScrolledToBottom && "opacity-50")}
                 />
                 <label
                   htmlFor="agreement"
                   className={cn(
-                    "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer",
-                    !hasScrolledToBottom && "text-muted-foreground"
+                    "text-sm font-medium leading-none peer-disabled:cursor-not-allowed cursor-pointer",
+                    !hasScrolledToBottom ? "text-muted-foreground opacity-50" : ""
                   )}
                 >
                   I have read and agree to the service agreement
@@ -315,18 +326,28 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
           </div>
           <div className="flex gap-2">
             {!isFirstStep && (
-              <Button variant="outline" onClick={handlePrevious} type="button">
+              <Button 
+                variant="outline" 
+                onClick={handlePrevious} 
+                type="button"
+              >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
               </Button>
             )}
             {isLastStep ? (
-              <Button onClick={handleNext} type="button">
+              <Button 
+                onClick={handleNext} 
+                type="button"
+              >
                 Finish <Check className="ml-2 h-4 w-4" />
               </Button>
             ) : (
               <Button 
                 onClick={handleNext} 
                 disabled={!canProceed()}
+                className={cn(
+                  !canProceed() ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                )}
                 type="button"
               >
                 Next <ArrowRight className="ml-2 h-4 w-4" />

@@ -13,6 +13,12 @@ import {
 import { useTheme } from "@/components/theme-provider";
 import { motion } from "framer-motion";
 import { useWalkthrough } from "@/hooks/use-walkthrough";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function AppHeader() {
   const { theme, setTheme } = useTheme();
@@ -31,16 +37,24 @@ export function AppHeader() {
           <h1 className="text-xl font-semibold text-[#2C2C2C] dark:text-white">Utility Portal</h1>
         </div>
         <div className="flex items-center gap-3">
-          <Button 
-            variant="outline" 
-            size="icon"
-            onClick={startWalkthrough}
-            title="Start walkthrough guide"
-            className="rounded-full hover:bg-muted transition-colors border-none cursor-pointer"
-            type="button"
-          >
-            <HelpCircle size={18} className="text-blue-500" />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={startWalkthrough}
+                  className="rounded-full hover:bg-muted transition-colors border-none cursor-pointer"
+                  type="button"
+                >
+                  <HelpCircle size={18} className="text-blue-500" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Start onboarding walkthrough</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           
           <Button 
             variant="outline" 
