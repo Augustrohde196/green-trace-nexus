@@ -14,12 +14,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface WalkthroughDialogProps {
   open: boolean;
@@ -34,8 +28,8 @@ const walkthroughSteps = [
       <>
         <div className="mb-4">
           <h3 className="font-semibold mb-2">Service Agreement</h3>
-          <ScrollArea className="h-[240px] border rounded-md p-4 bg-muted/20 scroll-area-agreement">
-            <div className="text-sm text-muted-foreground">
+          <ScrollArea className="h-[240px] border rounded-md p-4 bg-muted/20">
+            <div className="text-sm text-muted-foreground pr-4">
               <p className="mb-3"><strong>RENUW SERVICE AGREEMENT</strong></p>
               <p className="mb-3">This Service Agreement ("Agreement") is entered into by and between Renuw Energy Solutions ("Renuw") and the user ("User") of Renuw's renewable energy management platform.</p>
               <p className="mb-3"><strong>1. SERVICES</strong></p>
@@ -208,7 +202,8 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
   const [hasCheckedAgreement, setHasCheckedAgreement] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-
+  const checkboxRef = useRef<HTMLButtonElement>(null);
+  
   const step = walkthroughSteps[currentStep];
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === walkthroughSteps.length - 1;
@@ -217,11 +212,17 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (step.requiresScroll) {
       const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-      const scrollPercentage = (scrollTop / (scrollHeight - clientHeight)) * 100;
+      const bottom = scrollHeight - clientHeight;
+      const scrollPercentage = bottom > 0 ? (scrollTop / bottom) * 100 : 100;
+      
       setScrollProgress(Math.min(scrollPercentage, 100));
       
-      if (scrollTop + clientHeight >= scrollHeight - 10) {
-        setHasScrolledToBottom(true);
+      // Detect if scrolled to bottom (with a small tolerance)
+      if (scrollTop + clientHeight >= scrollHeight - 5) {
+        if (!hasScrolledToBottom) {
+          console.log("Scrolled to bottom");
+          setHasScrolledToBottom(true);
+        }
       }
     }
   };
@@ -238,7 +239,6 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
         onClose();
       } else {
         setCurrentStep(prev => prev + 1);
-        setHasScrolledToBottom(false);
       }
     }
   };
@@ -246,28 +246,41 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
   const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
-      setHasScrolledToBottom(false);
+    }
+  };
+  
+  const handleCheckboxChange = (checked: boolean | "indeterminate") => {
+    if (checked === true) {
+      setHasCheckedAgreement(true);
+    } else {
+      setHasCheckedAgreement(false);
     }
   };
 
+  // Reset state when moving between steps or opening dialog
   useEffect(() => {
     setHasScrolledToBottom(false);
     setScrollProgress(0);
+    
     if (step.requiresCheck) {
       setHasCheckedAgreement(false);
+    } else {
+      setHasCheckedAgreement(true); // No checkbox required, so auto-enable next button
     }
     
     // Reset scroll position when changing steps
     if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('.scroll-area-viewport');
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollContainer) {
         scrollContainer.scrollTop = 0;
       }
     }
-  }, [currentStep, step.requiresCheck, step.requiresScroll]);
-  
+  }, [currentStep, step.requiresCheck, step.requiresScroll, open]);
+
   return (
-    <Dialog open={open} onOpenChange={() => onClose()}>
+    <Dialog open={open} onOpenChange={(openState) => {
+      if (!openState) onClose();
+    }}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <div className="flex items-center justify-between">
@@ -275,56 +288,33 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={() => onClose()} 
+              onClick={onClose} 
               className="h-6 w-6 rounded-full p-0"
               type="button"
             >
               <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
             </Button>
           </div>
           <DialogDescription>{step.description}</DialogDescription>
           <Progress value={progress} className="h-1 mt-2" />
         </DialogHeader>
         
-        <div className="flex-1 overflow-hidden">
-          <div 
-            ref={scrollAreaRef}
-            className="pr-1 max-h-[400px] overflow-auto scroll-area-viewport" 
-            onScroll={handleScroll}
-          >
-            {step.content}
-            
-            {step.requiresCheck && (
-              <div className="flex items-center space-x-2 mt-4 border-t pt-4">
-                <Checkbox 
-                  id="agreement" 
-                  checked={hasCheckedAgreement} 
-                  onCheckedChange={(checked) => {
-                    console.log("Checkbox clicked", checked);
-                    setHasCheckedAgreement(checked === true);
-                  }}
-                  disabled={!hasScrolledToBottom}
-                  className={cn(
-                    !hasScrolledToBottom ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-                  )}
-                />
-                <label
-                  htmlFor="agreement"
-                  className={cn(
-                    "text-sm font-medium leading-none peer-disabled:cursor-not-allowed",
-                    !hasScrolledToBottom ? "text-muted-foreground opacity-50 cursor-not-allowed" : "cursor-pointer"
-                  )}
-                  onClick={() => {
-                    if (hasScrolledToBottom) {
-                      setHasCheckedAgreement(!hasCheckedAgreement);
-                    }
-                  }}
-                >
-                  I have read and agree to the service agreement
-                </label>
-              </div>
-            )}
-          </div>
+        <div className="flex-1 overflow-hidden my-4">
+          {step.requiresScroll ? (
+            <div ref={scrollAreaRef} className="relative">
+              <ScrollArea 
+                className="pr-1 h-[240px]" 
+                onScroll={handleScroll}
+              >
+                {step.content}
+              </ScrollArea>
+            </div>
+          ) : (
+            <div className="pr-1 max-h-[400px] overflow-auto">
+              {step.content}
+            </div>
+          )}
         </div>
         
         {step.requiresScroll && !hasScrolledToBottom && (
@@ -336,13 +326,37 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
           </div>
         )}
         
+        {step.requiresCheck && (
+          <div className="flex items-center space-x-2 mt-2 mb-4 border-t pt-4">
+            <Checkbox 
+              id="agreement" 
+              ref={checkboxRef}
+              checked={hasCheckedAgreement} 
+              onCheckedChange={handleCheckboxChange}
+              disabled={!hasScrolledToBottom}
+              className={cn(
+                !hasScrolledToBottom ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+              )}
+            />
+            <label
+              htmlFor="agreement"
+              className={cn(
+                "text-sm font-medium leading-none select-none",
+                !hasScrolledToBottom ? "text-muted-foreground opacity-50 cursor-not-allowed" : "cursor-pointer"
+              )}
+            >
+              I have read and agree to the service agreement
+            </label>
+          </div>
+        )}
+        
         <DialogFooter className="flex justify-between items-center mt-4 gap-2">
           <div>
             <span className="text-xs text-muted-foreground">
               Step {currentStep + 1} of {walkthroughSteps.length}
             </span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             {!isFirstStep && (
               <Button 
                 variant="outline" 
@@ -363,25 +377,20 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
               </Button>
             )}
             
-            {isLastStep ? (
-              <Button 
-                onClick={handleNext} 
-                type="button"
-              >
-                Finish <Check className="ml-2 h-4 w-4" />
-              </Button>
-            ) : (
-              <Button 
-                onClick={handleNext} 
-                disabled={!canProceed()}
-                className={cn(
-                  !canProceed() ? "opacity-50 cursor-not-allowed" : ""
-                )}
-                type="button"
-              >
-                Next <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            )}
+            <Button 
+              onClick={handleNext} 
+              disabled={!canProceed()}
+              className={cn(
+                !canProceed() ? "opacity-50 cursor-not-allowed" : ""
+              )}
+              type="button"
+            >
+              {isLastStep ? (
+                <>Finish <Check className="ml-2 h-4 w-4" /></>
+              ) : (
+                <>Next <ArrowRight className="ml-2 h-4 w-4" /></>
+              )}
+            </Button>
           </div>
         </DialogFooter>
       </DialogContent>

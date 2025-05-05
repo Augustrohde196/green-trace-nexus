@@ -37,15 +37,16 @@ export function AppHeader() {
           <h1 className="text-xl font-semibold text-[#2C2C2C] dark:text-white">Utility Portal</h1>
         </div>
         <div className="flex items-center gap-3">
-          <TooltipProvider>
+          <TooltipProvider delayDuration={300}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button 
                   variant="outline" 
                   size="icon"
-                  onClick={startWalkthrough}
+                  onClick={() => startWalkthrough()}
                   className="rounded-full hover:bg-muted transition-colors border-none cursor-pointer"
                   type="button"
+                  aria-label="Start walkthrough"
                 >
                   <HelpCircle size={18} className="text-blue-500" />
                 </Button>
@@ -56,26 +57,44 @@ export function AppHeader() {
             </Tooltip>
           </TooltipProvider>
           
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            className="rounded-full hover:bg-muted transition-colors border-none cursor-pointer"
-            type="button"
-          >
-            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          </Button>
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                  className="rounded-full hover:bg-muted transition-colors border-none cursor-pointer"
+                  type="button"
+                >
+                  {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           
-          <Button 
-            variant="outline" 
-            size="icon"
-            className="rounded-full hover:bg-muted transition-colors border-none relative cursor-pointer"
-            type="button"
-          >
-            <Bell size={18} />
-            <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-red-500"></span>
-          </Button>
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  className="rounded-full hover:bg-muted transition-colors border-none relative cursor-pointer"
+                  type="button"
+                >
+                  <Bell size={18} />
+                  <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-red-500"></span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Notifications</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
