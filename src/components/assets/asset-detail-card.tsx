@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { useMemo } from "react";
 
 interface AssetDetailCardProps {
   asset: Asset;
@@ -34,6 +35,20 @@ export function AssetDetailCard({ asset }: AssetDetailCardProps) {
 
   // Calculate utilization percentage
   const utilization = Math.round(((asset.capacity - asset.availableCapacity) / asset.capacity) * 100);
+  
+  // Calculate energy figures in MWh
+  const availableEnergyMWh = useMemo(() => {
+    // Using capacity factor to estimate annual MWh production
+    const capacityFactor = asset.type === "wind" ? 0.35 : 0.25;
+    return Math.round(asset.availableCapacity * 24 * 365 * capacityFactor);
+  }, [asset]);
+  
+  const totalEnergyMWh = useMemo(() => {
+    const capacityFactor = asset.type === "wind" ? 0.35 : 0.25;
+    return Math.round(asset.capacity * 24 * 365 * capacityFactor);
+  }, [asset]);
+  
+  const allocatedEnergyMWh = totalEnergyMWh - availableEnergyMWh;
 
   return (
     <div className="space-y-6">
@@ -60,8 +75,8 @@ export function AssetDetailCard({ asset }: AssetDetailCardProps) {
             </div>
             
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Available</span>
-              <span className="font-medium">{asset.availableCapacity} MW</span>
+              <span className="text-muted-foreground">Available Energy</span>
+              <span className="font-medium">{availableEnergyMWh} MWh</span>
             </div>
             
             <div className="flex justify-between">
@@ -140,13 +155,17 @@ export function AssetDetailCard({ asset }: AssetDetailCardProps) {
         </div>
       </div>
       
-      {/* Utilization */}
+      {/* Energy Utilization */}
       <div>
         <div className="flex justify-between items-center mb-2">
-          <h3 className="text-sm font-medium">Capacity Utilization</h3>
+          <h3 className="text-sm font-medium">Energy Utilization</h3>
           <span className="text-sm font-medium">{utilization}%</span>
         </div>
         <Progress value={utilization} className="h-2" />
+        <div className="flex justify-between mt-1">
+          <span className="text-xs text-muted-foreground">Allocated: {allocatedEnergyMWh} MWh</span>
+          <span className="text-xs text-muted-foreground">Total: {totalEnergyMWh} MWh</span>
+        </div>
       </div>
       
       {/* Customer Allocations */}

@@ -38,6 +38,7 @@ import {
   Pencil,
   Trash2,
   Check,
+  Edit,
 } from "lucide-react";
 import { mockAssets } from "@/data/mock-data";
 import { Asset } from "@/data/models";
@@ -52,26 +53,37 @@ const mockMaintenanceSchedules = [
   { assetId: "s1", date: "2025-05-05", description: "Panel cleaning" },
 ];
 
+// Convert available capacity from MW to MWh (for demonstration purposes)
+const assetsWithMWh = mockAssets.map(asset => ({
+  ...asset,
+  // Assume assets operate at ~25-35% capacity factor annually, so convert MW to MWh with this factor
+  availableEnergyMWh: Math.round(asset.availableCapacity * 24 * 365 * (asset.type === 'wind' ? 0.35 : 0.25)),
+  totalEnergyMWh: Math.round(asset.capacity * 24 * 365 * (asset.type === 'wind' ? 0.35 : 0.25))
+}));
+
 export default function Assets() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isAddAssetOpen, setIsAddAssetOpen] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<"table" | "grid">("grid"); // Default to grid view
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [assets, setAssets] = useState(assetsWithMWh);
+  const [editingAssetId, setEditingAssetId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<number>(0);
 
   // Filter assets based on search query
   const filteredAssets = useMemo(() => {
-    return mockAssets.filter(asset => 
+    return assets.filter(asset => 
       asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       asset.location.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery]);
+  }, [searchQuery, assets]);
 
-  // Calculate asset health stats with realistic values
+  // Calculate asset health stats
   const assetHealth = useMemo(() => {
     return {
-      online: 14, // Updated from 0
-      offline: 2,  // Updated from 0
-      maintenance: 3 // Updated from 0
+      online: 14,
+      offline: 2,
+      maintenance: 3
     };
   }, []);
 
@@ -85,13 +97,13 @@ export default function Assets() {
       const scheduleDate = new Date(schedule.date);
       return scheduleDate >= now && scheduleDate <= threeDaysLater;
     }).map(schedule => {
-      const asset = mockAssets.find(a => a.id === schedule.assetId);
+      const asset = assets.find(a => a.id === schedule.assetId);
       return {
         ...schedule,
         assetName: asset ? asset.name : "Unknown Asset"
       };
     });
-  }, []);
+  }, [assets]);
 
   // Define status badge variant
   const getStatusBadgeVariant = (status?: string) => {
@@ -110,6 +122,32 @@ export default function Assets() {
   // Handle clicking on an asset
   const handleAssetClick = (asset: Asset) => {
     setSelectedAsset(asset);
+  };
+
+  // Start editing an asset's available energy
+  const startEditing = (asset: any) => {
+    setEditingAssetId(asset.id);
+    setEditValue(asset.availableEnergyMWh);
+  };
+
+  // Save the edited available energy
+  const saveEditing = (assetId: string) => {
+    setAssets(prevAssets => prevAssets.map(asset => 
+      asset.id === assetId 
+        ? { 
+            ...asset, 
+            availableEnergyMWh: editValue,
+            // Update the MW value based on the new MWh (approximate reverse calculation)
+            availableCapacity: Math.round(editValue / (24 * 365 * (asset.type === 'wind' ? 0.35 : 0.25)))
+          } 
+        : asset
+    ));
+    setEditingAssetId(null);
+  };
+
+  // Cancel editing
+  const cancelEditing = () => {
+    setEditingAssetId(null);
   };
 
   return (
@@ -139,7 +177,7 @@ export default function Assets() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.1 }}
       >
-        <PortfolioDistribution assets={mockAssets} />
+        <PortfolioDistribution assets={assets} />
       </motion.div>
 
       {/* Search Bar */}
@@ -188,32 +226,36 @@ export default function Assets() {
                     <TableHead>Type</TableHead>
                     <TableHead>Location</TableHead>
                     <TableHead>Capacity (MW)</TableHead>
-                    <TableHead>Available (MW)</TableHead>
+                    <TableHead>Available Energy (MWh)</TableHead>
                     <TableHead>Installation</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredAssets.map((asset) => (
+                  {filteredAssets.map((asset: any) => (
                     <TableRow 
                       key={asset.id} 
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => handleAssetClick(asset)}
+                      className={`hover:bg-muted/50 ${editingAssetId === asset.id ? 'bg-muted/30' : ''}`}
                     >
-                      <TableCell className="font-medium">{asset.name}</TableCell>
+                      <TableCell 
+                        className="font-medium cursor-pointer"
+                        onClick={() => handleAssetClick(asset)}
+                      >{asset.name}</TableCell>
                       <TableCell>
-                        {asset.type === "wind" ? (
-                          <div className="flex items-center">
-                            <Wind className="h-4 w-4 text-wind mr-1" />
-                            Wind
-                          </div>
-                        ) : (
-                          <div className="flex items-center">
-                            <Sun className="h-4 w-4 text-solar mr-1" />
-                            Solar
-                          </div>
-                        )}
+                        <div className="flex items-center">
+                          {asset.type === "wind" ? (
+                            <div className="flex items-center">
+                              <Wind className="h-4 w-4 text-wind mr-1" />
+                              Wind
+                            </div>
+                          ) : (
+                            <div className="flex items-center">
+                              <Sun className="h-4 w-4 text-solar mr-1" />
+                              Solar
+                            </div>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center">
@@ -222,7 +264,45 @@ export default function Assets() {
                         </div>
                       </TableCell>
                       <TableCell>{asset.capacity}</TableCell>
-                      <TableCell>{asset.availableCapacity}</TableCell>
+                      <TableCell>
+                        {editingAssetId === asset.id ? (
+                          <div className="flex items-center gap-2">
+                            <Input 
+                              type="number"
+                              value={editValue}
+                              onChange={(e) => setEditValue(Number(e.target.value))}
+                              className="w-32"
+                              autoFocus
+                            />
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => saveEditing(asset.id)}
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={cancelEditing}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span>{asset.availableEnergyMWh}</span>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => startEditing(asset)}
+                              title="Edit available energy"
+                            >
+                              <Edit className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
                       <TableCell>{asset.installationType || "FTM"}</TableCell>
                       <TableCell>
                         <Badge 
@@ -248,7 +328,7 @@ export default function Assets() {
               </Table>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredAssets.map((asset) => (
+                {filteredAssets.map((asset: any) => (
                   <motion.div
                     key={asset.id} 
                     whileHover={{ scale: 1.02 }}
@@ -256,12 +336,11 @@ export default function Assets() {
                   >
                     <Card 
                       key={asset.id} 
-                      className="cursor-pointer hover:shadow-lg hover:border-primary/20 transition-all duration-300"
-                      onClick={() => handleAssetClick(asset)}
+                      className="hover:shadow-lg hover:border-primary/20 transition-all duration-300"
                     >
                       <CardHeader className="pb-2">
                         <div className="flex justify-between items-start">
-                          <div>
+                          <div className="cursor-pointer" onClick={() => handleAssetClick(asset)}>
                             <CardTitle className="text-lg">{asset.name}</CardTitle>
                             <div className="flex items-center text-sm text-muted-foreground">
                               <MapPin className="h-3 w-3 mr-1" />
@@ -285,9 +364,48 @@ export default function Assets() {
                             <span>Capacity:</span>
                             <span>{asset.capacity} MW</span>
                           </div>
-                          <div className="flex justify-between text-sm">
-                            <span>Available:</span>
-                            <span>{asset.availableCapacity} MW</span>
+                          <div className="flex justify-between text-sm items-center">
+                            <span>Available Energy:</span>
+                            {editingAssetId === asset.id ? (
+                              <div className="flex items-center gap-2">
+                                <Input 
+                                  type="number"
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(Number(e.target.value))}
+                                  className="w-24 h-7 text-sm"
+                                  autoFocus
+                                />
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={() => saveEditing(asset.id)}
+                                >
+                                  <Check className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={cancelEditing}
+                                >
+                                  <X className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1">
+                                <span>{asset.availableEnergyMWh} MWh</span>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  className="h-5 w-5"
+                                  onClick={() => startEditing(asset)}
+                                  title="Edit available energy"
+                                >
+                                  <Edit className="h-3 w-3 text-muted-foreground" />
+                                </Button>
+                              </div>
+                            )}
                           </div>
                           <div className="flex justify-between text-sm">
                             <span>Installation:</span>
@@ -462,8 +580,8 @@ export default function Assets() {
             </div>
             
             <div className="space-y-2">
-              <label htmlFor="availableGO" className="text-sm font-medium">Available GO Allocation (%)</label>
-              <Input id="availableGO" type="number" placeholder="100" />
+              <label htmlFor="availableEnergy" className="text-sm font-medium">Available Energy (MWh)</label>
+              <Input id="availableEnergy" type="number" placeholder="0" />
             </div>
             
             <div className="space-y-2">

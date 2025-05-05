@@ -34,7 +34,7 @@ const walkthroughSteps = [
       <>
         <div className="mb-4">
           <h3 className="font-semibold mb-2">Service Agreement</h3>
-          <ScrollArea className="h-[240px] border rounded-md p-4 bg-muted/20">
+          <ScrollArea className="h-[240px] border rounded-md p-4 bg-muted/20 scroll-area-agreement">
             <div className="text-sm text-muted-foreground">
               <p className="mb-3"><strong>RENUW SERVICE AGREEMENT</strong></p>
               <p className="mb-3">This Service Agreement ("Agreement") is entered into by and between Renuw Energy Solutions ("Renuw") and the user ("User") of Renuw's renewable energy management platform.</p>
@@ -253,10 +253,18 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
   useEffect(() => {
     setHasScrolledToBottom(false);
     setScrollProgress(0);
-    if (!step.requiresCheck) {
+    if (step.requiresCheck) {
       setHasCheckedAgreement(false);
     }
-  }, [currentStep, step.requiresCheck]);
+    
+    // Reset scroll position when changing steps
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('.scroll-area-viewport');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = 0;
+      }
+    }
+  }, [currentStep, step.requiresCheck, step.requiresScroll]);
   
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
@@ -281,7 +289,7 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
         <div className="flex-1 overflow-hidden">
           <div 
             ref={scrollAreaRef}
-            className="pr-1 max-h-[400px] overflow-auto" 
+            className="pr-1 max-h-[400px] overflow-auto scroll-area-viewport" 
             onScroll={handleScroll}
           >
             {step.content}
@@ -291,16 +299,26 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
                 <Checkbox 
                   id="agreement" 
                   checked={hasCheckedAgreement} 
-                  onCheckedChange={(checked) => setHasCheckedAgreement(checked === true)}
+                  onCheckedChange={(checked) => {
+                    console.log("Checkbox clicked", checked);
+                    setHasCheckedAgreement(checked === true);
+                  }}
                   disabled={!hasScrolledToBottom}
-                  className={cn("cursor-pointer", !hasScrolledToBottom && "opacity-50")}
+                  className={cn(
+                    !hasScrolledToBottom ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                  )}
                 />
                 <label
                   htmlFor="agreement"
                   className={cn(
-                    "text-sm font-medium leading-none peer-disabled:cursor-not-allowed cursor-pointer",
-                    !hasScrolledToBottom ? "text-muted-foreground opacity-50" : ""
+                    "text-sm font-medium leading-none peer-disabled:cursor-not-allowed",
+                    !hasScrolledToBottom ? "text-muted-foreground opacity-50 cursor-not-allowed" : "cursor-pointer"
                   )}
+                  onClick={() => {
+                    if (hasScrolledToBottom) {
+                      setHasCheckedAgreement(!hasCheckedAgreement);
+                    }
+                  }}
                 >
                   I have read and agree to the service agreement
                 </label>
@@ -334,6 +352,17 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
               </Button>
             )}
+            
+            {currentStep < walkthroughSteps.length - 1 && (
+              <Button 
+                variant="outline" 
+                onClick={onClose} 
+                type="button"
+              >
+                Skip
+              </Button>
+            )}
+            
             {isLastStep ? (
               <Button 
                 onClick={handleNext} 
@@ -346,7 +375,7 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
                 onClick={handleNext} 
                 disabled={!canProceed()}
                 className={cn(
-                  !canProceed() ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                  !canProceed() ? "opacity-50 cursor-not-allowed" : ""
                 )}
                 type="button"
               >
