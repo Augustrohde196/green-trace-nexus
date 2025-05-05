@@ -36,7 +36,7 @@ export function AppHeader() {
             size="icon"
             onClick={() => startWalkthrough()}
             title="Start walkthrough guide"
-            className="rounded-full hover:bg-muted transition-colors border-none"
+            className="rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors border-blue-100 dark:border-blue-800"
           >
             <HelpCircle size={18} className="text-blue-500" />
           </Button>
