@@ -34,9 +34,10 @@ export function AppHeader() {
           <Button 
             variant="outline" 
             size="icon"
-            onClick={() => startWalkthrough()}
+            onClick={startWalkthrough}
             title="Start walkthrough guide"
-            className="rounded-full hover:bg-muted transition-colors border-none"
+            className="rounded-full hover:bg-muted transition-colors border-none cursor-pointer"
+            type="button"
           >
             <HelpCircle size={18} className="text-blue-500" />
           </Button>
@@ -46,7 +47,8 @@ export function AppHeader() {
             size="icon" 
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            className="rounded-full hover:bg-muted transition-colors border-none"
+            className="rounded-full hover:bg-muted transition-colors border-none cursor-pointer"
+            type="button"
           >
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </Button>
@@ -54,7 +56,8 @@ export function AppHeader() {
           <Button 
             variant="outline" 
             size="icon"
-            className="rounded-full hover:bg-muted transition-colors border-none relative"
+            className="rounded-full hover:bg-muted transition-colors border-none relative cursor-pointer"
+            type="button"
           >
             <Bell size={18} />
             <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-red-500"></span>
@@ -65,7 +68,8 @@ export function AppHeader() {
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="rounded-full bg-primary/10 hover:bg-primary/20 transition-colors border-none"
+                className="rounded-full bg-primary/10 hover:bg-primary/20 transition-colors border-none cursor-pointer"
+                type="button"
               >
                 <User size={18} />
               </Button>

@@ -1,5 +1,5 @@
 
-import { useState, createContext, useContext, useEffect } from "react";
+import { useState, createContext, useContext } from "react";
 import { WalkthroughDialog } from "@/components/walkthrough/walkthrough-dialog";
 import { useToast } from "@/components/ui/use-toast";
 

@@ -249,12 +249,18 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
   }, [currentStep]);
   
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={() => onClose()}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle>{step.title}</DialogTitle>
-            <Button variant="ghost" size="icon" onClick={onClose} className="h-6 w-6 rounded-full p-0">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => onClose()} 
+              className="h-6 w-6 rounded-full p-0"
+              type="button"
+            >
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -276,11 +282,12 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
                   checked={hasCheckedAgreement} 
                   onCheckedChange={(checked) => setHasCheckedAgreement(checked === true)}
                   disabled={!hasScrolledToBottom}
+                  className="cursor-pointer"
                 />
                 <label
                   htmlFor="agreement"
                   className={cn(
-                    "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+                    "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer",
                     !hasScrolledToBottom && "text-muted-foreground"
                   )}
                 >
@@ -308,18 +315,19 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
           </div>
           <div className="flex gap-2">
             {!isFirstStep && (
-              <Button variant="outline" onClick={handlePrevious}>
+              <Button variant="outline" onClick={handlePrevious} type="button">
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
               </Button>
             )}
             {isLastStep ? (
-              <Button onClick={handleNext}>
+              <Button onClick={handleNext} type="button">
                 Finish <Check className="ml-2 h-4 w-4" />
               </Button>
             ) : (
               <Button 
                 onClick={handleNext} 
                 disabled={!canProceed()}
+                type="button"
               >
                 Next <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
