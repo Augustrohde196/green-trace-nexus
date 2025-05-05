@@ -44,7 +44,7 @@ export const walkthroughSteps: WalkthroughStep[] = [
     id: "charts",
     title: "Performance Charts",
     description: "These charts provide detailed insights into your energy production, energy mix distribution, and future projections. You can filter time ranges and download reports.",
-    spotlight: "dashboard-charts", // This will now be handled specially in the dialog component
+    spotlight: "dashboard-charts", 
     placement: "bottom"
   },
   {

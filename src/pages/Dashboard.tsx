@@ -22,7 +22,9 @@ const Dashboard = () => {
     >
       <DashboardHeader />
       
-      <DashboardMetricsCards metrics={metrics} />
+      <div id="dashboard-metrics-cards">
+        <DashboardMetricsCards metrics={metrics} />
+      </div>
 
       <motion.div 
         className="flex flex-col md:flex-row gap-4"

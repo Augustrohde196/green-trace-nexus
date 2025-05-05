@@ -44,10 +44,10 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
     clearAllHighlights();
     
     if (open && currentStep?.spotlight) {
-      // Create semi-transparent overlay
+      // Create semi-transparent overlay - reducing opacity to make background more visible
       const overlay = document.createElement('div');
       overlay.id = 'walkthrough-overlay';
-      overlay.className = 'fixed inset-0 bg-black/60 pointer-events-none z-40';
+      overlay.className = 'fixed inset-0 bg-black/30 backdrop-blur-sm pointer-events-none z-40';
       document.body.appendChild(overlay);
       
       // Handle spotlight on multiple elements for menu walkthrough

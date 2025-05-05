@@ -38,6 +38,7 @@ export const WalkthroughProvider = ({ children }: { children: React.ReactNode })
   }, []);
 
   const startWalkthrough = useCallback(() => {
+    // Always start from the beginning when opening walkthrough
     setIsWalkthroughOpen(true);
   }, []);
 
