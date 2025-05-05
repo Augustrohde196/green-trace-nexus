@@ -27,7 +27,7 @@ export const WalkthroughProvider = ({ children }: { children: React.ReactNode })
     setIsWalkthroughOpen(false);
     toast({
       title: "Walkthrough closed",
-      description: "You can restart the walkthrough anytime from the help icon in the header.",
+      description: "You can restart the walkthrough anytime from the notification icon in the header.",
       duration: 3000,
     });
   };

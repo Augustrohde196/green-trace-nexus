@@ -1,396 +1,146 @@
 
-import { useState, useEffect, useRef } from "react";
-import { X, ArrowRight, ArrowLeft, Check } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X, ArrowRight, ArrowLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { walkthroughSteps, WalkthroughStep } from "./walkthrough-steps";
 
 interface WalkthroughDialogProps {
   open: boolean;
   onClose: () => void;
 }
 
-const walkthroughSteps = [
-  {
-    title: "Welcome to Renuw",
-    description: "Please review and sign the service agreement to get started.",
-    content: (
-      <>
-        <div className="mb-4">
-          <h3 className="font-semibold mb-2">Service Agreement</h3>
-          <ScrollArea className="h-[240px] border rounded-md p-4 bg-muted/20" id="agreement-scroll-area">
-            <div className="text-sm text-muted-foreground pr-4">
-              <p className="mb-3"><strong>RENUW SERVICE AGREEMENT</strong></p>
-              <p className="mb-3">This Service Agreement ("Agreement") is entered into by and between Renuw Energy Solutions ("Renuw") and the user ("User") of Renuw's renewable energy management platform.</p>
-              <p className="mb-3"><strong>1. SERVICES</strong></p>
-              <p className="mb-3">Renuw provides a digital platform for managing, tracking, and optimizing renewable energy assets, certificates, and energy consumption data. Services include but are not limited to asset management, certificate tracking, portfolio optimization, and sustainability reporting.</p>
-              <p className="mb-3"><strong>2. USER RESPONSIBILITIES</strong></p>
-              <p className="mb-3">User agrees to provide accurate information, maintain account security, comply with applicable laws and regulations, and use the platform in accordance with its intended purpose.</p>
-              <p className="mb-3"><strong>3. TERM AND TERMINATION</strong></p>
-              <p className="mb-3">This Agreement commences upon User's acceptance and continues until terminated. Either party may terminate with 30 days written notice. Renuw may terminate immediately if User violates this Agreement.</p>
-              <p className="mb-3"><strong>4. CONFIDENTIALITY</strong></p>
-              <p className="mb-3">Both parties agree to maintain the confidentiality of proprietary information shared during the course of using the platform.</p>
-              <p className="mb-3"><strong>5. DATA PRIVACY</strong></p>
-              <p className="mb-3">Renuw collects and processes data in accordance with its Privacy Policy and applicable data protection laws. User consents to such collection and processing for the purpose of providing the services.</p>
-              <p className="mb-3"><strong>6. INTELLECTUAL PROPERTY</strong></p>
-              <p className="mb-3">All intellectual property rights in the platform belong to Renuw. User is granted a non-exclusive, non-transferable license to use the platform for the duration of this Agreement.</p>
-              <p className="mb-3"><strong>7. LIMITATION OF LIABILITY</strong></p>
-              <p className="mb-3">Renuw's liability is limited to the fees paid by User in the preceding 12 months. Renuw is not liable for indirect, consequential, or incidental damages.</p>
-              <p className="mb-3"><strong>8. WARRANTY DISCLAIMER</strong></p>
-              <p className="mb-3">The platform is provided "as is" without warranties of any kind, either express or implied.</p>
-              <p className="mb-3"><strong>9. GOVERNING LAW</strong></p>
-              <p className="mb-3">This Agreement is governed by the laws of Denmark without regard to its conflict of law provisions.</p>
-              <p className="mb-3"><strong>10. ENTIRE AGREEMENT</strong></p>
-              <p className="mb-3">This Agreement constitutes the entire agreement between the parties regarding the subject matter hereof.</p>
-            </div>
-          </ScrollArea>
-        </div>
-      </>
-    ),
-    requiresScroll: true,
-    requiresCheck: true
-  },
-  {
-    title: "Dashboard Overview",
-    description: "Your dashboard provides a centralized view of your renewable energy assets.",
-    content: (
-      <div className="space-y-4">
-        <div className="rounded-lg border p-4 bg-muted/20">
-          <h3 className="font-semibold mb-2 flex items-center gap-2">
-            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 text-white text-xs">1</span>
-            Energy Portfolio Overview
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            View your total capacity, production metrics, and availability at a glance.
-          </p>
-        </div>
-        <div className="rounded-lg border p-4 bg-muted/20">
-          <h3 className="font-semibold mb-2 flex items-center gap-2">
-            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 text-white text-xs">2</span>
-            Production Charts
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Track production trends, energy mix distribution, and future projections.
-          </p>
-        </div>
-        <div className="rounded-lg border p-4 bg-muted/20">
-          <h3 className="font-semibold mb-2 flex items-center gap-2">
-            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 text-white text-xs">3</span>
-            Customer Insights
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Monitor corporate customer metrics and matching scores for efficient energy allocation.
-          </p>
-        </div>
-      </div>
-    ),
-    requiresScroll: false,
-    requiresCheck: false
-  },
-  {
-    title: "Sidebar Navigation",
-    description: "Explore different sections of the portal through the sidebar.",
-    content: (
-      <div className="space-y-4">
-        <div className="rounded-lg border p-4 bg-muted/20">
-          <h3 className="font-semibold mb-2">Main Navigation</h3>
-          <p className="text-sm text-muted-foreground">
-            Use the sidebar to navigate between different sections of the portal, including Dashboard, Assets, Customers, Analytics, and more.
-          </p>
-        </div>
-        <div className="rounded-lg border p-4 bg-muted/20">
-          <h3 className="font-semibold mb-2">Quick Access</h3>
-          <p className="text-sm text-muted-foreground">
-            The sidebar provides quick access to all important features of the platform, allowing you to efficiently manage your renewable energy portfolio.
-          </p>
-        </div>
-      </div>
-    ),
-    requiresScroll: false,
-    requiresCheck: false
-  },
-  {
-    title: "Asset Management",
-    description: "Explore and manage your renewable energy assets with ease.",
-    content: (
-      <div className="space-y-4">
-        <div className="rounded-lg border p-4 bg-muted/20">
-          <h3 className="font-semibold mb-2">Asset Overview</h3>
-          <p className="text-sm text-muted-foreground">
-            View all renewable assets in your portfolio, including production metrics, location data, and status information.
-          </p>
-        </div>
-        <div className="rounded-lg border p-4 bg-muted/20">
-          <h3 className="font-semibold mb-2">Asset Map</h3>
-          <p className="text-sm text-muted-foreground">
-            Geographically visualize your assets across regions and monitor their performance in real-time.
-          </p>
-        </div>
-      </div>
-    ),
-    requiresScroll: false,
-    requiresCheck: false
-  },
-  {
-    title: "Customer Management",
-    description: "Manage corporate customers and their renewable energy needs.",
-    content: (
-      <div className="space-y-4">
-        <div className="rounded-lg border p-4 bg-muted/20">
-          <h3 className="font-semibold mb-2">Customer Directory</h3>
-          <p className="text-sm text-muted-foreground">
-            Access your customer portfolio with detailed information on energy consumption, certificate allocation, and matching scores.
-          </p>
-        </div>
-        <div className="rounded-lg border p-4 bg-muted/20">
-          <h3 className="font-semibold mb-2">Customer Analytics</h3>
-          <p className="text-sm text-muted-foreground">
-            Analyze customer energy needs, consumption patterns, and certificate requirements to optimize allocation strategies.
-          </p>
-        </div>
-      </div>
-    ),
-    requiresScroll: false,
-    requiresCheck: false
-  },
-  {
-    title: "Onboarding Complete",
-    description: "You're all set to use the Renuw platform!",
-    content: (
-      <div className="flex flex-col items-center justify-center py-6">
-        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-          <Check className="h-8 w-8 text-green-600" />
-        </div>
-        <h3 className="text-xl font-semibold mb-2">Ready to Go!</h3>
-        <div className="space-y-2 w-full max-w-md">
-          <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-600" />
-            <p className="text-sm">Agreement signed</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-600" />
-            <p className="text-sm">Dashboard walkthrough completed</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-600" />
-            <p className="text-sm">Portal features explored</p>
-          </div>
-          <p className="text-sm text-muted-foreground mt-4">
-            You can restart this walkthrough anytime by clicking the help icon in the header.
-          </p>
-        </div>
-      </div>
-    ),
-    requiresScroll: false,
-    requiresCheck: false
-  }
-];
-
 export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
-  const [hasCheckedAgreement, setHasCheckedAgreement] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [hasAgreed, setHasAgreed] = useState(false);
   
-  const step = walkthroughSteps[currentStep];
-  const isFirstStep = currentStep === 0;
-  const isLastStep = currentStep === walkthroughSteps.length - 1;
-  const progress = ((currentStep + 1) / walkthroughSteps.length) * 100;
+  const currentStep = walkthroughSteps[currentStepIndex];
   
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    if (step.requiresScroll) {
-      const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-      const bottom = scrollHeight - clientHeight;
-      const scrollPercentage = bottom > 0 ? (scrollTop / bottom) * 100 : 100;
-      
-      setScrollProgress(Math.min(scrollPercentage, 100));
-      
-      // Detect if scrolled to bottom (with a small tolerance)
-      if (scrollTop + clientHeight >= scrollHeight - 10) {
-        if (!hasScrolledToBottom) {
-          console.log("Scrolled to bottom");
-          setHasScrolledToBottom(true);
-        }
-      }
-    }
-  };
-  
-  const canProceed = () => {
-    if (step.requiresScroll && !hasScrolledToBottom) return false;
-    if (step.requiresCheck && !hasCheckedAgreement) return false;
-    return true;
-  };
-  
-  const handleNext = () => {
-    if (canProceed()) {
-      if (isLastStep) {
-        onClose();
-      } else {
-        setCurrentStep(prev => prev + 1);
-      }
-    }
-  };
-  
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
-    }
-  };
-  
-  const handleCheckboxChange = (checked: boolean | "indeterminate") => {
-    if (checked === true) {
-      setHasCheckedAgreement(true);
-    } else {
-      setHasCheckedAgreement(false);
-    }
-  };
-
-  // Reset state when moving between steps or opening dialog
+  // For highlighting UI elements
   useEffect(() => {
-    setHasScrolledToBottom(false);
-    setScrollProgress(0);
-    
-    if (step.requiresCheck) {
-      setHasCheckedAgreement(false);
-    } else {
-      setHasCheckedAgreement(true); // No checkbox required, so auto-enable next button
-    }
-    
-    // Reset scroll position when changing steps
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollContainer) {
-        scrollContainer.scrollTop = 0;
+    if (open && currentStep?.spotlight) {
+      const element = document.getElementById(currentStep.spotlight);
+      if (element) {
+        // Highlight logic - add pulse animation and border
+        element.classList.add("ring-2", "ring-primary", "ring-offset-2", "transition-all");
+        
+        // Scroll to element if needed
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        
+        return () => {
+          // Clean up highlight
+          element.classList.remove("ring-2", "ring-primary", "ring-offset-2", "transition-all");
+        };
       }
     }
-  }, [currentStep, step.requiresCheck, step.requiresScroll, open]);
-
+  }, [open, currentStep]);
+  
+  const nextStep = () => {
+    // For first step, require agreement
+    if (currentStepIndex === 0) {
+      const agreeCheckbox = document.getElementById("agree-checkbox") as HTMLInputElement;
+      if (agreeCheckbox && !agreeCheckbox.checked) {
+        setHasAgreed(false);
+        // Animation to indicate required checkbox
+        agreeCheckbox.classList.add("animate-pulse");
+        setTimeout(() => {
+          agreeCheckbox.classList.remove("animate-pulse");
+        }, 1000);
+        return;
+      }
+      setHasAgreed(true);
+    }
+    
+    if (currentStepIndex < walkthroughSteps.length - 1) {
+      setCurrentStepIndex(currentStepIndex + 1);
+    } else {
+      // Close on last step
+      onClose();
+    }
+  };
+  
+  const prevStep = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(currentStepIndex - 1);
+    }
+  };
+  
+  const handleSkip = () => {
+    onClose();
+  };
+  
   return (
-    <Dialog open={open} onOpenChange={(openState) => {
-      if (!openState) onClose();
-    }}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>{step.title}</DialogTitle>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={onClose} 
-              className="h-6 w-6 rounded-full p-0"
-              type="button"
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </Button>
-          </div>
-          <DialogDescription>{step.description}</DialogDescription>
-          <Progress value={progress} className="h-1 mt-2" />
-        </DialogHeader>
-        
-        <div className="flex-1 overflow-hidden my-4">
-          {step.requiresScroll ? (
-            <div ref={scrollAreaRef} className="relative">
-              <ScrollArea 
-                className="pr-1 h-[240px]" 
-                onScroll={handleScroll}
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="p-0 gap-0 max-w-md border-0 shadow-lg overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentStep.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col"
+          >
+            <div className="relative bg-gradient-to-r from-purple-500 to-blue-500 p-6 pt-12 text-white">
+              <div 
+                className="absolute top-2 right-2 cursor-pointer rounded-full hover:bg-white/20 p-1"
+                onClick={onClose}
               >
-                {step.content}
-              </ScrollArea>
+                <X size={16} />
+              </div>
+              <h2 className="text-xl font-bold">{currentStep.title}</h2>
+              <div className="flex mt-4">
+                {walkthroughSteps.map((_, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`h-1 flex-1 mx-0.5 rounded-full ${idx === currentStepIndex ? "bg-white" : "bg-white/30"}`}
+                  />
+                ))}
+              </div>
             </div>
-          ) : (
-            <div className="pr-1 max-h-[400px] overflow-auto">
-              {step.content}
-            </div>
-          )}
-        </div>
-        
-        {step.requiresScroll && !hasScrolledToBottom && (
-          <div className="mb-2 mt-1 text-center">
-            <Progress value={scrollProgress} className="h-1 mb-1" />
-            <p className="text-xs text-muted-foreground">
-              {scrollProgress < 100 ? "Please scroll to read the full agreement" : "You can now check the agreement box below"}
-            </p>
-          </div>
-        )}
-        
-        {step.requiresCheck && (
-          <div className="flex items-center space-x-2 mt-2 mb-4 border-t pt-4">
-            <Checkbox 
-              id="agreement" 
-              checked={hasCheckedAgreement} 
-              onCheckedChange={handleCheckboxChange}
-              disabled={!hasScrolledToBottom}
-              className={cn(
-                !hasScrolledToBottom ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-              )}
-            />
-            <label
-              htmlFor="agreement"
-              className={cn(
-                "text-sm font-medium leading-none select-none",
-                !hasScrolledToBottom ? "text-muted-foreground opacity-50 cursor-not-allowed" : "cursor-pointer"
-              )}
-            >
-              I have read and agree to the service agreement
-            </label>
-          </div>
-        )}
-        
-        <DialogFooter className="flex justify-between items-center mt-4 gap-2">
-          <div>
-            <span className="text-xs text-muted-foreground">
-              Step {currentStep + 1} of {walkthroughSteps.length}
-            </span>
-          </div>
-          <div className="flex gap-2 items-center">
-            {!isFirstStep && (
-              <Button 
-                variant="outline" 
-                onClick={handlePrevious} 
-                type="button"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-              </Button>
-            )}
             
-            {currentStep < walkthroughSteps.length - 1 && (
-              <Button 
-                variant="outline" 
-                onClick={onClose} 
-                type="button"
+            <div className="p-6">
+              <div className="text-sm text-gray-700 dark:text-gray-300">
+                {currentStep.description}
+              </div>
+            </div>
+            
+            <div className="p-4 bg-gray-50 dark:bg-gray-900 flex justify-between items-center border-t">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSkip}
               >
                 Skip
               </Button>
-            )}
-            
-            <Button 
-              onClick={handleNext} 
-              disabled={!canProceed()}
-              className={cn(
-                !canProceed() ? "opacity-50" : ""
-              )}
-              type="button"
-            >
-              {isLastStep ? (
-                <>Finish <Check className="ml-2 h-4 w-4" /></>
-              ) : (
-                <>Next <ArrowRight className="ml-2 h-4 w-4" /></>
-              )}
-            </Button>
-          </div>
-        </DialogFooter>
+              
+              <div className="flex gap-2">
+                {currentStepIndex > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={prevStep}
+                    className="gap-1"
+                  >
+                    <ArrowLeft size={16} />
+                    Back
+                  </Button>
+                )}
+                
+                <Button
+                  onClick={nextStep}
+                  size="sm"
+                  className="gap-1"
+                  disabled={currentStepIndex === 0 && !hasAgreed}
+                >
+                  {currentStepIndex === walkthroughSteps.length - 1 ? "Finish" : "Next"}
+                  {currentStepIndex < walkthroughSteps.length - 1 && <ArrowRight size={16} />}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </DialogContent>
     </Dialog>
   );

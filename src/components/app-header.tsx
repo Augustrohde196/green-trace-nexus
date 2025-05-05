@@ -1,5 +1,5 @@
 
-import { Bell, User, Settings, Moon, Sun, LogOut, HelpCircle } from "lucide-react";
+import { Bell, User, Settings, Moon, Sun, LogOut, BellDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
@@ -42,26 +42,6 @@ export function AppHeader() {
               <TooltipTrigger asChild>
                 <Button 
                   variant="outline" 
-                  size="icon"
-                  onClick={() => startWalkthrough()}
-                  className="rounded-full hover:bg-muted transition-colors border-none cursor-pointer"
-                  type="button"
-                  aria-label="Start walkthrough"
-                >
-                  <HelpCircle size={18} className="text-blue-500" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Start onboarding walkthrough</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
-          <TooltipProvider delayDuration={300}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="outline" 
                   size="icon" 
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                   title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
@@ -85,13 +65,15 @@ export function AppHeader() {
                   size="icon"
                   className="rounded-full hover:bg-muted transition-colors border-none relative cursor-pointer"
                   type="button"
+                  onClick={startWalkthrough}
+                  id="notification-bell"
                 >
-                  <Bell size={18} />
+                  <BellDot size={18} className="text-blue-500" />
                   <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-red-500"></span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Notifications</p>
+                <p>Notifications & Walkthrough</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
