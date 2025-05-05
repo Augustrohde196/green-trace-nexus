@@ -32,6 +32,7 @@ export function DashboardMetricsCards({ metrics }: DashboardMetricsProps) {
           value={`${metrics.totalCapacity} MW`}
           description={`${metrics.totalAssets} assets in portfolio`}
           icon={BarChart3}
+          iconColor="text-blue-500"
         />
       </motion.div>
       <motion.div variants={fadeInUp}>
@@ -40,6 +41,7 @@ export function DashboardMetricsCards({ metrics }: DashboardMetricsProps) {
           value={`${metrics.totalProduction} GWh`}
           description="Annual renewable energy production"
           icon={LightbulbIcon}
+          iconColor="text-amber-500"
         />
       </motion.div>
       <motion.div variants={fadeInUp}>
@@ -48,6 +50,7 @@ export function DashboardMetricsCards({ metrics }: DashboardMetricsProps) {
           value={`${metrics.availableCapacity} MW`}
           description={`${Math.round((metrics.availableCapacity / metrics.totalCapacity) * 100)}% of total capacity`}
           icon={Battery}
+          iconColor="text-green-500"
         />
       </motion.div>
       <motion.div variants={fadeInUp}>
@@ -61,6 +64,7 @@ export function DashboardMetricsCards({ metrics }: DashboardMetricsProps) {
             </div>
           }
           icon={Users}
+          iconColor="text-purple-500"
         />
       </motion.div>
     </motion.div>
