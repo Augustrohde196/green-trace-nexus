@@ -1,13 +1,13 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppLayout } from "@/components/layout/app-layout";
 import { CorporateLayout } from "@/components/layout/corporate-layout";
 import { AuthLayout } from "@/components/layout/auth-layout";
-import { SignInPage } from "@/pages/auth/SignInPage";
-import { SignUpPage } from "@/pages/auth/SignUpPage";
-import { ResetPasswordPage } from "@/pages/auth/ResetPasswordPage";
-import { CorporateOnboarding } from "@/pages/corporate/CorporateOnboarding";
+import SignInPage from "@/pages/auth/SignInPage";
+import SignUpPage from "@/pages/auth/SignUpPage";
+import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
+import CorporateOnboarding from "@/pages/corporate/CorporateOnboarding";
 import { WalkthroughProvider } from "@/hooks/use-walkthrough";
 
 // Utility Portal Routes
@@ -22,13 +22,13 @@ import Settings from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
 
 // Corporate Portal Routes
-import { CorporateDashboard } from "@/pages/corporate/CorporateDashboard";
-import { CorporatePortfolio } from "@/pages/corporate/CorporatePortfolio";
-import { CorporateCertificates } from "@/pages/corporate/CorporateCertificates";
-import { CorporateConsumption } from "@/pages/corporate/CorporateConsumption";
-import { CorporateTracing } from "@/pages/corporate/CorporateTracing";
-import { CorporateAnalytics } from "@/pages/corporate/CorporateAnalytics";
-import { CorporateBilling } from "@/pages/corporate/CorporateBilling";
+import CorporateDashboard from "@/pages/corporate/CorporateDashboard";
+import CorporatePortfolio from "@/pages/corporate/CorporatePortfolio";
+import CorporateCertificates from "@/pages/corporate/CorporateCertificates";
+import CorporateConsumption from "@/pages/corporate/CorporateConsumption";
+import CorporateTracing from "@/pages/corporate/CorporateTracing";
+import CorporateAnalytics from "@/pages/corporate/CorporateAnalytics";
+import CorporateBilling from "@/pages/corporate/CorporateBilling";
 
 import { Toaster } from "@/components/ui/toaster";
 import "./App.css";
@@ -40,7 +40,7 @@ function App() {
         <Router>
           <Routes>
             {/* Utility Portal Routes */}
-            <Route element={<AppLayout />}>
+            <Route element={<AppLayout><Outlet /></AppLayout>}>
               <Route path="/" element={<Index />} />
               <Route path="/assets" element={<Assets />} />
               <Route path="/customers" element={<Customers />} />
@@ -52,7 +52,7 @@ function App() {
             </Route>
             
             {/* Corporate Portal Routes */}
-            <Route element={<CorporateLayout />}>
+            <Route element={<CorporateLayout><Outlet /></CorporateLayout>}>
               <Route path="/corporate" element={<CorporateDashboard />} />
               <Route path="/corporate/portfolio" element={<CorporatePortfolio />} />
               <Route path="/corporate/certificates" element={<CorporateCertificates />} />
@@ -66,7 +66,7 @@ function App() {
             <Route path="/corporate/onboarding" element={<CorporateOnboarding />} />
             
             {/* Auth Routes */}
-            <Route element={<AuthLayout />}>
+            <Route element={<AuthLayout><Outlet /></AuthLayout>}>
               <Route path="/auth/signin" element={<SignInPage />} />
               <Route path="/auth/signup" element={<SignUpPage />} />
               <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
