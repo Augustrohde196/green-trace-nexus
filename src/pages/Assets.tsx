@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { 
   Card, 
@@ -39,6 +38,7 @@ import {
   Trash2,
   Check,
   Edit,
+  X
 } from "lucide-react";
 import { mockAssets } from "@/data/mock-data";
 import { Asset } from "@/data/models";
