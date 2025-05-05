@@ -79,7 +79,7 @@ export function ProductionChart({ data, timeRange, setTimeRange }: ProductionCha
   const energyUnit = timeRange === "year" ? "GWh" : "MWh";
 
   return (
-    <Card className="flex-1 w-full md:w-[70%]">
+    <Card className="flex-1 w-full md:w-[70%] production-chart-container">
       <CardHeader>
         <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 justify-between items-start">
           <div>

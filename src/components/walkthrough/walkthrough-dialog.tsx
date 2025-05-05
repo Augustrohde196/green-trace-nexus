@@ -18,24 +18,85 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
   
   const currentStep = walkthroughSteps[currentStepIndex];
   
+  // Reset to first step when reopening
+  useEffect(() => {
+    if (open) {
+      setCurrentStepIndex(0);
+      setHasAgreed(false);
+    }
+  }, [open]);
+  
   // For highlighting UI elements
   useEffect(() => {
+    // Remove highlights from all elements first
+    const clearAllHighlights = () => {
+      document.querySelectorAll('.walkthrough-highlight').forEach(el => {
+        el.classList.remove('walkthrough-highlight', 'ring-2', 'ring-primary', 'ring-offset-2', 'transition-all', 'z-50');
+      });
+      
+      // Remove overlay
+      const existingOverlay = document.getElementById('walkthrough-overlay');
+      if (existingOverlay) {
+        existingOverlay.remove();
+      }
+    };
+    
+    clearAllHighlights();
+    
     if (open && currentStep?.spotlight) {
-      const element = document.getElementById(currentStep.spotlight);
-      if (element) {
-        // Highlight logic - add pulse animation and border
-        element.classList.add("ring-2", "ring-primary", "ring-offset-2", "transition-all");
+      // Create semi-transparent overlay
+      const overlay = document.createElement('div');
+      overlay.id = 'walkthrough-overlay';
+      overlay.className = 'fixed inset-0 bg-black/60 pointer-events-none z-40';
+      document.body.appendChild(overlay);
+      
+      // Handle spotlight on multiple elements for menu walkthrough
+      if (currentStep.id === 'sidebar') {
+        // For the navigation menu step, highlight menu items one by one
+        const menuItemIndices = [1, 2, 3, 4, 5, 6]; // Skipping Dashboard (index 0)
+        const menuItemIndex = currentStep.subIndex || 0;
         
-        // Scroll to element if needed
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (menuItemIndex < menuItemIndices.length) {
+          const menuItems = document.querySelectorAll('.sidebar-menu-item');
+          if (menuItems && menuItems[menuItemIndices[menuItemIndex]]) {
+            const element = menuItems[menuItemIndices[menuItemIndex]] as HTMLElement;
+            element.classList.add('walkthrough-highlight', 'ring-2', 'ring-primary', 'ring-offset-2', 'transition-all', 'z-50');
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+      }
+      else if (currentStep.id === 'charts') {
+        // For charts step, highlight both charts
+        const productionChart = document.querySelector('.production-chart-container');
+        const energyMixChart = document.querySelector('.energy-mix-chart-container');
         
-        return () => {
-          // Clean up highlight
-          element.classList.remove("ring-2", "ring-primary", "ring-offset-2", "transition-all");
-        };
+        if (productionChart) {
+          productionChart.classList.add('walkthrough-highlight', 'ring-2', 'ring-primary', 'ring-offset-2', 'transition-all', 'z-50');
+        }
+        
+        if (energyMixChart) {
+          energyMixChart.classList.add('walkthrough-highlight', 'ring-2', 'ring-primary', 'ring-offset-2', 'transition-all', 'z-50');
+        }
+        
+        // Scroll to the first chart
+        if (productionChart) {
+          productionChart.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+      else {
+        // For other steps, use the spotlight ID
+        const element = document.getElementById(currentStep.spotlight);
+        if (element) {
+          element.classList.add('walkthrough-highlight', 'ring-2', 'ring-primary', 'ring-offset-2', 'transition-all', 'z-50');
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
       }
     }
-  }, [open, currentStep]);
+    
+    return () => {
+      clearAllHighlights();
+    };
+  }, [open, currentStep, currentStep?.subIndex]);
   
   // Handle checkbox change for agreement
   const handleCheckboxChange = (checked: boolean) => {
@@ -56,6 +117,17 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
       return;
     }
     
+    // For navigation menu step, cycle through menu items
+    if (currentStep.id === 'sidebar') {
+      const nextSubIndex = (currentStep.subIndex || 0) + 1;
+      if (nextSubIndex < 6) { // We have 6 menu items to highlight
+        walkthroughSteps[currentStepIndex].subIndex = nextSubIndex;
+        // Force a re-render
+        setCurrentStepIndex(currentStepIndex);
+        return;
+      }
+    }
+    
     if (currentStepIndex < walkthroughSteps.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
     } else {
@@ -65,6 +137,14 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
   };
   
   const prevStep = () => {
+    // For navigation menu step, cycle back through menu items
+    if (currentStep.id === 'sidebar' && currentStep.subIndex && currentStep.subIndex > 0) {
+      walkthroughSteps[currentStepIndex].subIndex = currentStep.subIndex - 1;
+      // Force a re-render
+      setCurrentStepIndex(currentStepIndex);
+      return;
+    }
+    
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1);
     }
@@ -92,13 +172,29 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
     }
     return null;
   };
+
+  // Determine button label based on current step
+  const getNextButtonLabel = () => {
+    if (currentStepIndex === walkthroughSteps.length - 1) {
+      return "Finish";
+    }
+    
+    if (currentStep.id === 'sidebar') {
+      const subIndex = currentStep.subIndex || 0;
+      if (subIndex < 5) { // If not on the last menu item
+        return "Next Item";
+      }
+    }
+    
+    return "Next";
+  };
   
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="p-0 gap-0 max-w-md border-0 shadow-lg overflow-hidden">
+      <DialogContent className="p-0 gap-0 max-w-md border-0 shadow-lg overflow-hidden z-50">
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentStep.id}
+            key={`${currentStep.id}-${currentStep.subIndex || 0}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
@@ -140,7 +236,7 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
               </Button>
               
               <div className="flex gap-2">
-                {currentStepIndex > 0 && (
+                {(currentStepIndex > 0 || (currentStep.id === 'sidebar' && (currentStep.subIndex || 0) > 0)) && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -158,7 +254,7 @@ export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
                   className="gap-1"
                   disabled={currentStepIndex === 0 && !hasAgreed}
                 >
-                  {currentStepIndex === walkthroughSteps.length - 1 ? "Finish" : "Next"}
+                  {getNextButtonLabel()}
                   {currentStepIndex < walkthroughSteps.length - 1 && <ArrowRight size={16} />}
                 </Button>
               </div>

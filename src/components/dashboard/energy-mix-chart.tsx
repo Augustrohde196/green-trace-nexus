@@ -52,7 +52,7 @@ export function EnergyMixChart({ data }: EnergyMixChartProps) {
   };
 
   return (
-    <Card className="flex-none w-full md:w-[30%] group hover:border-primary/50 transition-colors">
+    <Card className="flex-none w-full md:w-[30%] energy-mix-chart-container group hover:border-primary/50 transition-colors">
       <CardHeader>
         <CardTitle>Energy Mix</CardTitle>
       </CardHeader>

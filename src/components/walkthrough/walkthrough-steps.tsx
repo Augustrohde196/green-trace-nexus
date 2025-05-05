@@ -7,6 +7,7 @@ export type WalkthroughStep = {
   description: ReactNode;
   spotlight?: string; // Element ID to spotlight
   placement?: "top" | "bottom" | "left" | "right";
+  subIndex?: number; // For steps that have multiple sub-steps, like sidebar navigation
 }
 
 export const walkthroughSteps: WalkthroughStep[] = [
@@ -43,26 +44,27 @@ export const walkthroughSteps: WalkthroughStep[] = [
     id: "charts",
     title: "Performance Charts",
     description: "These charts provide detailed insights into your energy production, energy mix distribution, and future projections. You can filter time ranges and download reports.",
-    spotlight: "dashboard-header",
+    spotlight: "dashboard-charts", // This will now be handled specially in the dialog component
     placement: "bottom"
   },
   {
     id: "notification",
     title: "Notifications",
-    description: "Click here to view important updates, alerts, and messages related to your portfolio and the platform.",
+    description: "Click here to view important updates, alerts, and messages related to your portfolio and the platform. You can also restart this walkthrough anytime by clicking this notification bell.",
     spotlight: "notification-bell",
     placement: "bottom"
   },
   {
     id: "sidebar",
     title: "Navigation Menu",
-    description: "Use the sidebar to navigate between different sections of the portal, including Dashboard, Assets, Customers, Billing, and more.",
-    placement: "right"
+    description: "Use the sidebar to navigate between different sections of the portal. We'll highlight each section one by one. Click 'Next Item' to see each section.",
+    placement: "right",
+    subIndex: 0 // Start with the first item (Assets)
   },
   {
     id: "complete",
     title: "You're All Set!",
-    description: "You've completed the onboarding walkthrough. Feel free to explore the portal, and if you need this guide again, click the notification bell and select 'Restart Walkthrough'.",
+    description: "You've completed the onboarding walkthrough. Feel free to explore the portal, and if you need this guide again, click the notification bell in the header.",
     placement: "bottom"
   }
 ];

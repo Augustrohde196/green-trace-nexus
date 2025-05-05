@@ -65,7 +65,7 @@ export function AppSidebar() {
                             (item.url !== '/' && location.pathname.startsWith(item.url));
             
             return (
-              <SidebarMenuItem key={item.title}>
+              <SidebarMenuItem key={item.title} className="sidebar-menu-item">
                 <SidebarMenuButton 
                   className={`transition-all duration-200 ${isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground/90"}`}
                   asChild
