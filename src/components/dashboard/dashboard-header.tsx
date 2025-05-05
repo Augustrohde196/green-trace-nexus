@@ -8,6 +8,7 @@ export function DashboardHeader() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
+      id="dashboard-header"
     >
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>

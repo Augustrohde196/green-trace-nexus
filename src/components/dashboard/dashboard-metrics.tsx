@@ -25,6 +25,7 @@ export function DashboardMetricsCards({ metrics }: DashboardMetricsProps) {
       }}
       initial="hidden"
       animate="visible"
+      id="dashboard-metrics-cards"
     >
       <motion.div variants={fadeInUp}>
         <DashboardCard

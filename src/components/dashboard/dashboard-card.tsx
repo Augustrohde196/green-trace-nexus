@@ -25,6 +25,7 @@ export function DashboardCard({
     <motion.div
       whileHover={{ y: -2, transition: { duration: 0.2 } }}
       transition={{ duration: 0.2 }}
+      id={`dashboard-card-${title.toLowerCase().replace(/\s+/g, '-')}`}
     >
       <Card className={`group overflow-hidden border hover:border-primary/50 hover:shadow-sm transition-all ${className}`}>
         <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
