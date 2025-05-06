@@ -227,14 +227,13 @@ const certificates = [
 const CorporateTracing = () => {
   const { toast } = useToast();
   const [allocatedGOs, setAllocatedGOs] = useState<GuaranteeOfOrigin[]>([]);
-  const [viewMode, setViewMode] = useState<"map" | "list">("map");
+  const [viewMode, setViewMode] = useState<"map" | "list">("list");
   const [loading, setLoading] = useState(true);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<"origin" | "certificates">("origin");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAsset, setSelectedAsset] = useState<GuaranteeOfOrigin | null>(null);
   const [isAssetDialogOpen, setIsAssetDialogOpen] = useState(false);
-  // Change default value to true to show hourly matching by default
   const [showHourlyMatching, setShowHourlyMatching] = useState(true);
   
   const currentDate = new Date();

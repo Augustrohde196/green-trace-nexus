@@ -23,7 +23,8 @@ import {
   FileText, 
   Download, 
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  ExternalLink
 } from "lucide-react";
 import { mockCustomers } from "@/data/mock-data";
 import { motion } from "framer-motion";
@@ -61,6 +62,11 @@ export default function Settings() {
       new: "",
       confirm: "",
     });
+  };
+  
+  const handleEnerginetConnect = () => {
+    // Open a new window to the Energinet authorization URL
+    window.open('https://energinet.dk/authorize', '_blank');
   };
 
   return (
@@ -320,6 +326,32 @@ export default function Settings() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* New Energinet banner for non-connected state */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-blue-800 dark:text-blue-400">Your account is not yet linked to Energinet</h3>
+                      <p className="text-sm text-blue-700/80 dark:text-blue-500/80">
+                        Connect to Energinet to enable automated data updates for:
+                      </p>
+                      <ul className="text-sm text-blue-700/80 dark:text-blue-500/80 list-disc pl-5">
+                        <li>Official meter readings</li>
+                        <li>Certificate handling</li>
+                      </ul>
+                      <p className="text-xs text-blue-700/80 dark:text-blue-500/80">
+                        You'll need to use your MitID (national digital ID) to grant Renuw access.
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={handleEnerginetConnect} 
+                      className="gap-2 whitespace-nowrap"
+                    >
+                      Connect Now
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                
                 <div className="space-y-2">
                   <div className="flex justify-between items-center mb-1">
                     <div className="text-sm font-medium">Integration Status</div>
