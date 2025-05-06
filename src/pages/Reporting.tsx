@@ -25,21 +25,35 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileText, Download, FileCheck, FileSpreadsheet, Calendar, CalendarClock, CheckCircle } from "lucide-react";
+import { 
+  FileText, Download, FileCheck, FileSpreadsheet, Calendar, CalendarClock, 
+  CheckCircle, BarChart3, PieChart, LineChart, ChevronDown
+} from "lucide-react";
 import { mockCustomers } from "@/data/mock-data";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 
 export default function Reporting() {
   const [reportType, setReportType] = useState<string>("allocation");
   const [timeframe, setTimeframe] = useState<string>("month");
   const [generatingReport, setGeneratingReport] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState("allocation");
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<any>(null);
   
   const handleGenerateReport = () => {
     setGeneratingReport(true);
     setTimeout(() => {
       setGeneratingReport(false);
     }, 2000);
+  };
+  
+  const handleViewReport = (report: any) => {
+    setSelectedReport(report);
+    setReportDialogOpen(true);
   };
   
   // Mock report data
@@ -51,6 +65,21 @@ export default function Reporting() {
       type: "allocation",
       status: "complete",
       customers: 8,
+      description: "Monthly summary of GO allocations across all customers for April 2025",
+      charts: [
+        { type: "bar", title: "Customer Allocation Breakdown" },
+        { type: "pie", title: "Energy Source Distribution" }
+      ],
+      metrics: {
+        totalVolume: "324.5 MWh",
+        timeMatchingScore: "83%",
+        customerCount: 8,
+        averageAllocation: "40.6 MWh"
+      },
+      data: {
+        customers: ["Customer A", "Customer B", "Customer C", "Customer D", "Customer E", "Customer F", "Customer G", "Customer H"],
+        allocations: [45, 42, 38, 35, 29, 22, 18, 11]
+      }
     },
     {
       id: "rep002",
@@ -59,6 +88,17 @@ export default function Reporting() {
       type: "allocation",
       status: "complete",
       customers: 7,
+      description: "Monthly summary of GO allocations across all customers for March 2025",
+      charts: [
+        { type: "bar", title: "Customer Allocation Breakdown" },
+        { type: "pie", title: "Energy Source Distribution" }
+      ],
+      metrics: {
+        totalVolume: "298.2 MWh",
+        timeMatchingScore: "79%",
+        customerCount: 7,
+        averageAllocation: "42.6 MWh"
+      }
     },
     {
       id: "rep003",
@@ -67,6 +107,17 @@ export default function Reporting() {
       type: "allocation",
       status: "complete",
       customers: 7,
+      description: "Quarterly summary of GO allocations across all customers for Q1 2025",
+      charts: [
+        { type: "bar", title: "Customer Allocation Breakdown" },
+        { type: "line", title: "Monthly Allocation Trend" }
+      ],
+      metrics: {
+        totalVolume: "876.4 MWh",
+        timeMatchingScore: "81%",
+        customerCount: 7,
+        averageAllocation: "125.2 MWh"
+      }
     },
   ];
   
@@ -78,6 +129,17 @@ export default function Reporting() {
       type: "traceability",
       status: "complete",
       assets: 1,
+      description: "Detailed traceability report for Wind Farm A showing all customer allocations",
+      charts: [
+        { type: "pie", title: "Customer Distribution" },
+        { type: "bar", title: "Hourly Production" }
+      ],
+      metrics: {
+        totalProduction: "186.2 MWh",
+        customerCount: 5,
+        averageAllocationScore: "88%",
+        peakProduction: "12.4 MWh/h"
+      }
     },
     {
       id: "rep005",
@@ -86,6 +148,17 @@ export default function Reporting() {
       type: "traceability",
       status: "complete",
       assets: 1,
+      description: "Detailed traceability report for Solar Park B showing all customer allocations",
+      charts: [
+        { type: "pie", title: "Customer Distribution" },
+        { type: "bar", title: "Daily Production" }
+      ],
+      metrics: {
+        totalProduction: "138.3 MWh",
+        customerCount: 6,
+        averageAllocationScore: "79%",
+        peakProduction: "9.2 MWh/h"
+      }
     },
     {
       id: "rep006",
@@ -94,6 +167,17 @@ export default function Reporting() {
       type: "traceability",
       status: "complete",
       assets: 5,
+      description: "Quarterly summary of all renewable assets and their customer allocations for Q1 2025",
+      charts: [
+        { type: "pie", title: "Asset Type Distribution" },
+        { type: "line", title: "Monthly Production Trend" }
+      ],
+      metrics: {
+        totalProduction: "742.8 MWh",
+        assetCount: 5,
+        averageAllocationScore: "82%",
+        customerCount: 9
+      }
     },
   ];
   
@@ -104,6 +188,12 @@ export default function Reporting() {
       date: "2025-04-30",
       type: "compliance",
       status: "complete",
+      description: "Monthly regulatory compliance report for April 2025 with all GO certificates",
+      metrics: {
+        totalCertificates: 32,
+        totalVolume: "324.5 MWh",
+        complianceScore: "100%"
+      }
     },
     {
       id: "rep008",
@@ -111,9 +201,32 @@ export default function Reporting() {
       date: "2025-03-31",
       type: "compliance",
       status: "complete",
+      description: "Quarterly regulatory compliance report for Q1 2025 with all GO certificates",
+      metrics: {
+        totalCertificates: 87,
+        totalVolume: "876.4 MWh",
+        complianceScore: "100%"
+      }
     },
   ];
 
+  const timePeriods = [
+    { label: "Current Month", value: "month" },
+    { label: "Last Quarter", value: "quarter" },
+    { label: "Year to Date", value: "ytd" },
+    { label: "Custom Range", value: "custom" },
+  ];
+  
+  const reportsByType = {
+    allocation: allocationReports,
+    traceability: traceabilityReports,
+    compliance: complianceReports,
+  };
+  
+  const getReportsByTab = (tabValue: string) => {
+    return reportsByType[tabValue as keyof typeof reportsByType] || [];
+  };
+  
   return (
     <div className="space-y-6">
       <motion.div 
@@ -129,12 +242,12 @@ export default function Reporting() {
       </motion.div>
 
       <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        className="grid grid-cols-1 md:grid-cols-12 gap-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        <Card>
+        <Card className="md:col-span-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
@@ -142,7 +255,7 @@ export default function Reporting() {
             </CardTitle>
             <CardDescription>Create new reports for download</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="grid md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Report Type</label>
               <Select value={reportType} onValueChange={setReportType}>
@@ -158,11 +271,26 @@ export default function Reporting() {
                 </SelectContent>
               </Select>
               
-              <div className="text-xs text-muted-foreground mt-1">
-                {reportType === "allocation" && "Shows consumption vs. supply and time-matching score for each customer"}
-                {reportType === "traceability" && "Maps which customers receive energy from each asset and how much"}
-                {reportType === "compliance" && "Export GO allocation data with timestamps for regulatory audit"}
-              </div>
+              {reportType === "allocation" && (
+                <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                  <BarChart3 className="h-3.5 w-3.5 text-primary" />
+                  <span>Shows consumption vs. supply and time-matching score for each customer</span>
+                </div>
+              )}
+              
+              {reportType === "traceability" && (
+                <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                  <LineChart className="h-3.5 w-3.5 text-primary" />
+                  <span>Maps which customers receive energy from each asset and how much</span>
+                </div>
+              )}
+              
+              {reportType === "compliance" && (
+                <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                  <CheckCircle className="h-3.5 w-3.5 text-primary" />
+                  <span>Export GO allocation data with timestamps for regulatory audit</span>
+                </div>
+              )}
             </div>
             
             <div className="space-y-2">
@@ -173,95 +301,99 @@ export default function Reporting() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="month">Current Month</SelectItem>
-                    <SelectItem value="quarter">Current Quarter</SelectItem>
-                    <SelectItem value="year">Current Year</SelectItem>
-                    <SelectItem value="custom">Custom Range</SelectItem>
+                    {timePeriods.map(period => (
+                      <SelectItem key={period.value} value={period.value}>{period.label}</SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
+              
+              <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <CalendarClock className="h-3.5 w-3.5 text-primary" />
+                <span>
+                  {timeframe === 'month' && 'Data from the current calendar month'}
+                  {timeframe === 'quarter' && 'Data from the current quarter'}
+                  {timeframe === 'ytd' && 'All data from January 1st until now'}
+                  {timeframe === 'custom' && 'Select a custom date range'}
+                </span>
+              </div>
             </div>
             
-            <div className="flex flex-col sm:flex-row pt-4 gap-3">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Format & Delivery</label>
+              <Select defaultValue="pdf">
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a format" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="pdf">PDF Report</SelectItem>
+                    <SelectItem value="csv">CSV Export</SelectItem>
+                    <SelectItem value="excel">Excel Workbook</SelectItem>
+                    <SelectItem value="both">PDF + Raw Data</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              
+              <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <FileCheck className="h-3.5 w-3.5 text-primary" />
+                <span>Reports are also saved to your account</span>
+              </div>
+            </div>
+            
+            <div className="md:col-span-3 pt-4">
               <Button 
                 onClick={handleGenerateReport} 
                 disabled={generatingReport}
-                className="flex-1 gap-2"
+                className="w-full"
               >
-                <FileText size={16} />
-                {generatingReport ? "Generating..." : "Generate Report"}
+                {generatingReport ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Generating Report...
+                  </>
+                ) : (
+                  <>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Generate Report
+                  </>
+                )}
               </Button>
-              
-              <div className="flex gap-2 flex-1 sm:justify-end">
-                <Button variant="outline" disabled={generatingReport} className="gap-2">
-                  <FileSpreadsheet size={16} />
-                  CSV
-                </Button>
-                <Button variant="outline" disabled={generatingReport} className="gap-2">
-                  <FileCheck size={16} />
-                  PDF
-                </Button>
-              </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="md:col-span-4">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Download className="h-5 w-5 text-primary" />
-              Download Formats
+              <ChevronDown className="h-5 w-5 text-primary" />
+              Recent Reports
             </CardTitle>
-            <CardDescription>Available export options for your reports</CardDescription>
+            <CardDescription>Quick access to your latest reports</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="border rounded-md p-4 hover:border-primary/50 transition-colors">
-                <div className="flex items-center gap-3 mb-2">
-                  <FileCheck size={24} className="text-blue-600" />
-                  <div className="font-medium">PDF Export</div>
+          <CardContent className="space-y-4">
+            {allocationReports.slice(0, 3).map((report) => (
+              <div key={report.id} className="flex items-center justify-between gap-4 p-2 hover:bg-muted/40 rounded-md -mx-2 transition-colors">
+                <div className="flex items-center gap-3">
+                  {report.type === 'allocation' && <BarChart3 className="h-8 w-8 text-blue-500 bg-blue-100/60 p-1.5 rounded" />}
+                  {report.type === 'traceability' && <LineChart className="h-8 w-8 text-green-500 bg-green-100/60 p-1.5 rounded" />}
+                  {report.type === 'compliance' && <CheckCircle className="h-8 w-8 text-purple-500 bg-purple-100/60 p-1.5 rounded" />}
+                  <div>
+                    <div className="font-medium truncate max-w-[150px]">{report.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(report.date).toLocaleDateString()}
+                    </div>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Formatted PDF with charts and visualizations, ideal for business presentations and regulatory submissions.
-                </p>
+                <Button variant="ghost" size="sm" onClick={() => handleViewReport(report)} className="gap-1">
+                  <FileText size={14} />
+                  View
+                </Button>
               </div>
-              
-              <div className="border rounded-md p-4 hover:border-primary/50 transition-colors">
-                <div className="flex items-center gap-3 mb-2">
-                  <FileSpreadsheet size={24} className="text-green-600" />
-                  <div className="font-medium">CSV Export</div>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Raw data in CSV format for detailed analysis in spreadsheet applications.
-                </p>
-              </div>
-            </div>
-            
-            <div className="bg-muted/50 p-4 rounded-md">
-              <h4 className="text-sm font-medium mb-2">Report Contents</h4>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-500 mt-0.5" />
-                  <span>Customer consumption vs. renewable supply</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-500 mt-0.5" />
-                  <span>Energy mix visualization (wind/solar proportion)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-500 mt-0.5" />
-                  <span>Time-matching scores and analysis</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-500 mt-0.5" />
-                  <span>Asset-to-customer flow mapping</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-500 mt-0.5" />
-                  <span>GO retirement status and verification</span>
-                </li>
-              </ul>
-            </div>
+            ))}
           </CardContent>
         </Card>
       </motion.div>
@@ -271,170 +403,333 @@ export default function Reporting() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <Tabs defaultValue="allocation">
-          <TabsList className="w-full md:w-auto">
-            <TabsTrigger value="allocation">Allocation Reports</TabsTrigger>
-            <TabsTrigger value="traceability">Traceability Reports</TabsTrigger>
-            <TabsTrigger value="compliance">Compliance Data</TabsTrigger>
-          </TabsList>
+        <Tabs 
+          defaultValue="allocation" 
+          value={activeTab} 
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
+          <div className="flex justify-between items-center mb-4">
+            <TabsList className="w-full md:w-auto">
+              <TabsTrigger value="allocation" className="flex items-center gap-1">
+                <BarChart3 className="h-4 w-4" />
+                Allocation Reports
+              </TabsTrigger>
+              <TabsTrigger value="traceability" className="flex items-center gap-1">
+                <LineChart className="h-4 w-4" />
+                Traceability Reports
+              </TabsTrigger>
+              <TabsTrigger value="compliance" className="flex items-center gap-1">
+                <CheckCircle className="h-4 w-4" />
+                Compliance Data
+              </TabsTrigger>
+            </TabsList>
+            
+            <div className="hidden md:flex items-center gap-2">
+              <Input 
+                placeholder="Search reports..." 
+                className="w-[200px]" 
+              />
+              <Button variant="outline" size="sm">
+                Search
+              </Button>
+            </div>
+          </div>
           
-          <TabsContent value="allocation" className="mt-6">
-            <Card>
+          <TabsContent value="allocation" className="mt-0">
+            <Card className="overflow-hidden">
               <CardHeader>
                 <CardTitle>GO Allocation Summary Reports</CardTitle>
                 <CardDescription>Monthly and quarterly summaries of GO allocations to customers</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Report Name</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Customers</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {allocationReports.map((report) => (
-                      <TableRow key={report.id}>
-                        <TableCell className="font-medium">{report.name}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <Calendar size={14} className="mr-2 text-muted-foreground" />
-                            {new Date(report.date).toLocaleDateString()}
-                          </div>
-                        </TableCell>
-                        <TableCell>{report.customers}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                            <CheckCircle size={12} className="mr-1" />
-                            Complete
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex gap-2 justify-end">
-                            <Button variant="outline" size="sm" className="gap-1">
-                              <FileCheck size={14} />
-                              PDF
-                            </Button>
-                            <Button variant="outline" size="sm" className="gap-1">
-                              <FileSpreadsheet size={14} />
-                              CSV
-                            </Button>
-                          </div>
-                        </TableCell>
+              <CardContent className="p-0">
+                <div className="rounded-md overflow-hidden">
+                  <Table>
+                    <TableHeader className="bg-muted/50">
+                      <TableRow>
+                        <TableHead>Report Name</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Customers</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {allocationReports.map((report) => (
+                        <TableRow key={report.id} className="hover:bg-muted/20">
+                          <TableCell className="font-medium">{report.name}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center">
+                              <Calendar size={14} className="mr-2 text-muted-foreground" />
+                              {new Date(report.date).toLocaleDateString()}
+                            </div>
+                          </TableCell>
+                          <TableCell>{report.customers}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                              <CheckCircle size={12} className="mr-1" />
+                              Complete
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex gap-2 justify-end">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="gap-1"
+                                onClick={() => handleViewReport(report)}
+                              >
+                                <FileText size={14} />
+                                View
+                              </Button>
+                              <Button variant="ghost" size="sm" className="gap-1">
+                                <FileCheck size={14} />
+                                PDF
+                              </Button>
+                              <Button variant="ghost" size="sm" className="gap-1">
+                                <FileSpreadsheet size={14} />
+                                CSV
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
           
-          <TabsContent value="traceability" className="mt-6">
-            <Card>
+          <TabsContent value="traceability" className="mt-0">
+            <Card className="overflow-hidden">
               <CardHeader>
                 <CardTitle>Asset-to-Customer Traceability Reports</CardTitle>
                 <CardDescription>Detailed traceability mapping between assets and customers</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Report Name</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Assets</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {traceabilityReports.map((report) => (
-                      <TableRow key={report.id}>
-                        <TableCell className="font-medium">{report.name}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <Calendar size={14} className="mr-2 text-muted-foreground" />
-                            {new Date(report.date).toLocaleDateString()}
-                          </div>
-                        </TableCell>
-                        <TableCell>{report.assets}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                            <CheckCircle size={12} className="mr-1" />
-                            Complete
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex gap-2 justify-end">
-                            <Button variant="outline" size="sm" className="gap-1">
-                              <FileCheck size={14} />
-                              PDF
-                            </Button>
-                            <Button variant="outline" size="sm" className="gap-1">
-                              <FileSpreadsheet size={14} />
-                              CSV
-                            </Button>
-                          </div>
-                        </TableCell>
+              <CardContent className="p-0">
+                <div className="rounded-md overflow-hidden">
+                  <Table>
+                    <TableHeader className="bg-muted/50">
+                      <TableRow>
+                        <TableHead>Report Name</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Assets</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {traceabilityReports.map((report) => (
+                        <TableRow key={report.id} className="hover:bg-muted/20">
+                          <TableCell className="font-medium">{report.name}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center">
+                              <Calendar size={14} className="mr-2 text-muted-foreground" />
+                              {new Date(report.date).toLocaleDateString()}
+                            </div>
+                          </TableCell>
+                          <TableCell>{report.assets}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                              <CheckCircle size={12} className="mr-1" />
+                              Complete
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex gap-2 justify-end">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="gap-1"
+                                onClick={() => handleViewReport(report)}
+                              >
+                                <FileText size={14} />
+                                View
+                              </Button>
+                              <Button variant="ghost" size="sm" className="gap-1">
+                                <FileCheck size={14} />
+                                PDF
+                              </Button>
+                              <Button variant="ghost" size="sm" className="gap-1">
+                                <FileSpreadsheet size={14} />
+                                CSV
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
           
-          <TabsContent value="compliance" className="mt-6">
-            <Card>
+          <TabsContent value="compliance" className="mt-0">
+            <Card className="overflow-hidden">
               <CardHeader>
                 <CardTitle>Regulatory Compliance Data</CardTitle>
                 <CardDescription>Exports for regulatory audit purposes</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Report Name</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {complianceReports.map((report) => (
-                      <TableRow key={report.id}>
-                        <TableCell className="font-medium">{report.name}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <Calendar size={14} className="mr-2 text-muted-foreground" />
-                            {new Date(report.date).toLocaleDateString()}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                            <CheckCircle size={12} className="mr-1" />
-                            Complete
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex gap-2 justify-end">
-                            <Button variant="outline" size="sm" className="gap-1">
-                              <FileSpreadsheet size={14} />
-                              CSV
-                            </Button>
-                          </div>
-                        </TableCell>
+              <CardContent className="p-0">
+                <div className="rounded-md overflow-hidden">
+                  <Table>
+                    <TableHeader className="bg-muted/50">
+                      <TableRow>
+                        <TableHead>Report Name</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {complianceReports.map((report) => (
+                        <TableRow key={report.id} className="hover:bg-muted/20">
+                          <TableCell className="font-medium">{report.name}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center">
+                              <Calendar size={14} className="mr-2 text-muted-foreground" />
+                              {new Date(report.date).toLocaleDateString()}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                              <CheckCircle size={12} className="mr-1" />
+                              Complete
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex gap-2 justify-end">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="gap-1"
+                                onClick={() => handleViewReport(report)}
+                              >
+                                <FileText size={14} />
+                                View
+                              </Button>
+                              <Button variant="ghost" size="sm" className="gap-1">
+                                <FileSpreadsheet size={14} />
+                                CSV
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </motion.div>
+
+      {/* Report Viewer Dialog */}
+      <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{selectedReport?.name || "Report Preview"}</DialogTitle>
+            <DialogDescription>
+              {selectedReport?.description || "Detailed report information"}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedReport && (
+            <div className="space-y-8 py-4">
+              {/* Report Header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">{selectedReport.name}</h3>
+                  <p className="text-sm text-muted-foreground">Generated on {new Date(selectedReport.date).toLocaleDateString()}</p>
+                </div>
+                <Badge variant="outline" className="bg-green-100 text-green-800">
+                  <CheckCircle size={14} className="mr-1" />
+                  Complete
+                </Badge>
+              </div>
+              
+              <Separator />
+              
+              {/* Key Metrics */}
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-3">Key Metrics</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {selectedReport.metrics && Object.entries(selectedReport.metrics).map(([key, value]) => (
+                    <Card key={key} className="bg-muted/30">
+                      <CardContent className="p-4">
+                        <div className="text-sm text-muted-foreground capitalize">
+                          {key.replace(/([A-Z])/g, ' $1').trim()}
+                        </div>
+                        <div className="text-xl font-bold mt-1">{value}</div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Chart Placeholders */}
+              {selectedReport.charts && selectedReport.charts.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Charts & Visualizations</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {selectedReport.charts.map((chart: any, index: number) => (
+                      <Card key={index}>
+                        <CardContent className="p-4">
+                          <div className="font-medium mb-2">{chart.title}</div>
+                          <div className="h-[200px] bg-muted/40 rounded-md flex items-center justify-center">
+                            {chart.type === 'bar' && <BarChart3 className="h-12 w-12 text-muted-foreground/50" />}
+                            {chart.type === 'pie' && <PieChart className="h-12 w-12 text-muted-foreground/50" />}
+                            {chart.type === 'line' && <LineChart className="h-12 w-12 text-muted-foreground/50" />}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Example Data Table */}
+              {selectedReport.data && selectedReport.data.customers && (
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Data Summary</h4>
+                  <div className="border rounded-md overflow-hidden">
+                    <Table>
+                      <TableHeader className="bg-muted/50">
+                        <TableRow>
+                          <TableHead>Customer</TableHead>
+                          <TableHead className="text-right">Allocation (MWh)</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {selectedReport.data.customers.map((customer: string, index: number) => (
+                          <TableRow key={customer}>
+                            <TableCell>{customer}</TableCell>
+                            <TableCell className="text-right">{selectedReport.data.allocations[index]}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" className="gap-2">
+                  <FileCheck className="h-4 w-4" />
+                  Download PDF
+                </Button>
+                <Button variant="outline" className="gap-2">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  Download CSV
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

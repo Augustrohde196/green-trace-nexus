@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { User, Lock, Database, Save, ExternalLink, AlertTriangle, Check } from "lucide-react";
 import { motion } from "framer-motion";
@@ -84,31 +83,34 @@ const CorporateSettings = () => {
         </TabsList>
         
         <TabsContent value="profile">
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
+          <Card className="border border-border/40 shadow-sm">
+            <CardHeader className="bg-muted/30">
+              <CardTitle className="text-xl flex items-center gap-2">
+                <User className="h-5 w-5 text-primary" />
+                Profile Information
+              </CardTitle>
               <CardDescription>Update your account details</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 pt-6">
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="first-name">First Name</Label>
-                  <Input id="first-name" defaultValue="Alex" />
+                  <Input id="first-name" defaultValue="Alex" className="border-border/60" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="last-name">Last Name</Label>
-                  <Input id="last-name" defaultValue="Nielsen" />
+                  <Input id="last-name" defaultValue="Nielsen" className="border-border/60" />
                 </div>
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" defaultValue="alex.nielsen@ecotech.dk" />
+                <Input id="email" type="email" defaultValue="alex.nielsen@ecotech.dk" className="border-border/60" />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="company">Company</Label>
-                <Input id="company" defaultValue="EcoTech Solutions" disabled />
+                <Input id="company" defaultValue="EcoTech Solutions" disabled className="bg-muted/30 border-border/60" />
                 <p className="text-xs text-muted-foreground mt-1">
                   Company name cannot be changed. Contact support for assistance.
                 </p>
@@ -116,91 +118,67 @@ const CorporateSettings = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="job-title">Job Title</Label>
-                <Input id="job-title" defaultValue="Sustainability Manager" />
+                <Input id="job-title" defaultValue="Sustainability Manager" className="border-border/60" />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" defaultValue="+45 12 34 56 78" />
+                <Input id="phone" defaultValue="+45 12 34 56 78" className="border-border/60" />
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="border-t bg-muted/20 flex justify-between">
+              <Button variant="outline">Cancel</Button>
               <Button onClick={handleSaveProfile}>
                 <Save className="mr-2 h-4 w-4" />
                 Save Changes
               </Button>
             </CardFooter>
           </Card>
-          
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
-              <CardDescription>Manage how we communicate with you</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="email-notifications">Email Notifications</Label>
-                  <p className="text-sm text-muted-foreground">Receive important updates via email</p>
-                </div>
-                <Switch id="email-notifications" defaultChecked />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="marketing-emails">Marketing Communications</Label>
-                  <p className="text-sm text-muted-foreground">Receive newsletters and promotional content</p>
-                </div>
-                <Switch id="marketing-emails" />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="report-notifications">Report Notifications</Label>
-                  <p className="text-sm text-muted-foreground">Get notified when new reports are available</p>
-                </div>
-                <Switch id="report-notifications" defaultChecked />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button onClick={() => toast({ title: "Preferences saved", description: "Your notification preferences have been updated." })}>
-                Save Preferences
-              </Button>
-            </CardFooter>
-          </Card>
         </TabsContent>
         
         <TabsContent value="security">
-          <Card>
-            <CardHeader>
-              <CardTitle>Change Password</CardTitle>
+          <Card className="border border-border/40 shadow-sm">
+            <CardHeader className="bg-muted/30">
+              <CardTitle className="text-xl flex items-center gap-2">
+                <Lock className="h-5 w-5 text-primary" />
+                Change Password
+              </CardTitle>
               <CardDescription>Update your account password</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-6">
               <div className="space-y-2">
                 <Label htmlFor="current-password">Current Password</Label>
-                <Input id="current-password" type="password" />
+                <Input id="current-password" type="password" className="border-border/60" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="new-password">New Password</Label>
-                <Input id="new-password" type="password" />
+                <Input id="new-password" type="password" className="border-border/60" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirm-password">Confirm New Password</Label>
-                <Input id="confirm-password" type="password" />
+                <Input id="confirm-password" type="password" className="border-border/60" />
+                <div className="text-xs text-muted-foreground mt-1">
+                  Password must be at least 8 characters and include a number, uppercase and special character.
+                </div>
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="border-t bg-muted/20 flex justify-between">
+              <Button variant="outline">Cancel</Button>
               <Button onClick={handleSavePassword}>Update Password</Button>
             </CardFooter>
           </Card>
           
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Two-Factor Authentication</CardTitle>
+          <Card className="mt-6 border border-border/40 shadow-sm">
+            <CardHeader className="bg-muted/30">
+              <CardTitle className="text-xl flex items-center gap-2">
+                <div className="h-5 w-5 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M8 11h8"/></svg>
+                </div>
+                Two-Factor Authentication
+              </CardTitle>
               <CardDescription>Add an extra layer of security to your account</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">Two-Factor Authentication</div>
@@ -217,49 +195,16 @@ const CorporateSettings = () => {
                 </p>
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="border-t bg-muted/20">
               <Button variant="outline">Configure Two-Factor Authentication</Button>
-            </CardFooter>
-          </Card>
-          
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Login History</CardTitle>
-              <CardDescription>Recent account access</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b pb-3">
-                  <div>
-                    <div className="font-medium">Today at 10:45 AM</div>
-                    <div className="text-sm text-muted-foreground">Copenhagen, Denmark</div>
-                  </div>
-                  <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Current Session</Badge>
-                </div>
-                <div className="flex items-center justify-between border-b pb-3">
-                  <div>
-                    <div className="font-medium">Yesterday at 2:30 PM</div>
-                    <div className="text-sm text-muted-foreground">Copenhagen, Denmark</div>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between border-b pb-3">
-                  <div>
-                    <div className="font-medium">May 3, 2025 at 9:15 AM</div>
-                    <div className="text-sm text-muted-foreground">Copenhagen, Denmark</div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline">View Full Login History</Button>
             </CardFooter>
           </Card>
         </TabsContent>
         
         <TabsContent value="integration">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <Card className="border border-border/40 shadow-sm">
+            <CardHeader className="bg-muted/30">
+              <CardTitle className="text-xl flex items-center gap-2">
                 <div className="bg-blue-100 text-blue-800 p-1.5 rounded-md">
                   <img 
                     src="https://energinet.dk/-/media/ADFDE60B8424451F83D4E04D37A54811.png" 
@@ -273,7 +218,7 @@ const CorporateSettings = () => {
                 Authorize Renuw to fetch your energy data from Energinet's systems
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 pt-6">
               <div className="bg-muted/30 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <InfoIcon className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
@@ -394,53 +339,15 @@ const CorporateSettings = () => {
                 </div>
               )}
             </CardContent>
-            <CardFooter className="flex flex-col items-start">
-              <p className="text-sm text-muted-foreground mb-4">
-                Note: Authorization requires MitID authentication through Energinet's official website. 
-                When you click "Connect to Energinet", you will be redirected to complete the authentication process.
+            <CardFooter className="border-t bg-muted/20">
+              <p className="text-sm text-muted-foreground mr-auto">
+                Authorization requires MitID authentication through Energinet's official website.
               </p>
               {isConnectedToEnergiNet && (
                 <Button variant="outline" onClick={() => toast({ title: "Data refreshed", description: "Your Energinet data has been manually refreshed." })}>
                   Refresh Data Now
                 </Button>
               )}
-            </CardFooter>
-          </Card>
-          
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Data Permissions</CardTitle>
-              <CardDescription>Manage how your data is processed</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="analytics-permission">Analytics Processing</Label>
-                  <p className="text-sm text-muted-foreground">Allow processing of your data for analytics and insights</p>
-                </div>
-                <Switch id="analytics-permission" defaultChecked />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="third-party-sharing">Third-Party Data Sharing</Label>
-                  <p className="text-sm text-muted-foreground">Allow sharing data with third-party services when necessary</p>
-                </div>
-                <Switch id="third-party-sharing" defaultChecked />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="data-export">Data Export</Label>
-                  <p className="text-sm text-muted-foreground">Allow exporting your data for your own use</p>
-                </div>
-                <Switch id="data-export" defaultChecked />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button onClick={() => toast({ title: "Data permissions updated", description: "Your data handling preferences have been updated." })}>
-                Save Preferences
-              </Button>
             </CardFooter>
           </Card>
         </TabsContent>

@@ -5,12 +5,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GOTrackingTable } from "@/components/go/go-tracking-table";
 import { AssetMap } from "@/components/map/asset-map";
 import { Button } from "@/components/ui/button";
-import { Calendar, Download, Map, List, FileDown, Filter, FileText, Award, Search, MapPin } from "lucide-react";
+import { Calendar, Download, Map, List, FileDown, Filter, FileText, Award, Search, MapPin, BarChart3, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { GuaranteeOfOrigin } from "@/data/go-models";
 import { useToast } from "@/components/ui/use-toast";
 import html2canvas from "html2canvas";
 import { motion } from "framer-motion";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { HourlyMatchingView } from "@/components/tracing/hourly-matching-view";
 
 const DENMARK_COORDINATES = [
   { region: "Capital Region", name: "Copenhagen", lat: 55.676, lng: 12.568 },
@@ -50,6 +54,52 @@ const GRID_AREAS = [
   "KBH - Copenhagen", "SJL - South Jutland", "MJL - Mid Jutland",
   "ZEA - Zealand", "BOR - Bornholm", "NOR - Northern Zealand"
 ];
+
+const ASSET_DESCRIPTIONS = {
+  "Anholt Offshore Wind Farm": "111 turbines with a total capacity of 400 MW, located between Anholt and Djursland",
+  "Kriegers Flak Wind Farm": "72 turbines with a total capacity of 605 MW, Denmark's largest offshore wind farm",
+  "Horns Rev 3": "49 turbines with a total capacity of 406.7 MW, located in the North Sea",
+  "Middelgrunden Wind Farm": "20 turbines with a total capacity of 40 MW, located in the Øresund",
+  "Rødsand Wind Farm": "72 turbines with a total capacity of 207 MW, located south of Lolland",
+  "Vesterhav Nord": "21 turbines with a total capacity of 180 MW, located off the west coast of Jutland",
+  "Nissum Bredning Wave Energy": "Wave energy converters with a total capacity of 1.5 MW",
+  "Nordjylland Solar Park": "Solar panels with a total capacity of 75 MW",
+  "Nørhede Wind Park": "13 turbines with a total capacity of 39 MW",
+  "Tjæreborg Wind Farm": "8 turbines with a total capacity of 24 MW",
+  "Zealand Solar Array": "Solar panels with a total capacity of 50 MW",
+  "Holstebro Solar Park": "Solar panels with a total capacity of 60 MW",
+  "Copenhagen Energy Community": "Rooftop solar installations with a total capacity of 2.5 MW",
+  "Samsø Renewable Energy Island": "11 turbines with a total capacity of 22.5 MW",
+  "Bornholm Green Energy": "Mixed renewable sources with a total capacity of 35 MW",
+  "Djursland Wind Collective": "Community-owned wind turbines with a capacity of 12 MW",
+  "Hvide Sande Harbor Wind": "3 turbines with a total capacity of 9 MW",
+  "Ringkøbing Solar Field": "Solar panels with a total capacity of 40 MW",
+  "Lolland Community Energy": "Mixed renewable sources with a total capacity of 15 MW",
+  "Hirsholm Island Offshore": "5 turbines with a total capacity of 20 MW"
+};
+
+const ASSET_OPERATORS = {
+  "Anholt Offshore Wind Farm": "Ørsted A/S",
+  "Kriegers Flak Wind Farm": "Vattenfall",
+  "Horns Rev 3": "Vattenfall",
+  "Middelgrunden Wind Farm": "Middelgrundens Vindmøllelaug",
+  "Rødsand Wind Farm": "E.ON",
+  "Vesterhav Nord": "Vattenfall",
+  "Nissum Bredning Wave Energy": "Wavestar ApS",
+  "Nordjylland Solar Park": "Better Energy",
+  "Nørhede Wind Park": "Vestas Wind Systems A/S",
+  "Tjæreborg Wind Farm": "Ørsted A/S",
+  "Zealand Solar Array": "European Energy",
+  "Holstebro Solar Park": "Better Energy",
+  "Copenhagen Energy Community": "Copenhagen Municipality",
+  "Samsø Renewable Energy Island": "Samsø Energy Academy",
+  "Bornholm Green Energy": "Bornholms Energi & Forsyning",
+  "Djursland Wind Collective": "Wind People ApS",
+  "Hvide Sande Harbor Wind": "Hvide Sande Community Fund",
+  "Ringkøbing Solar Field": "European Energy",
+  "Lolland Community Energy": "Lolland Municipality",
+  "Hirsholm Island Offshore": "Ørsted A/S"
+};
 
 const getRandomDate = () => {
   const now = new Date();
@@ -112,7 +162,7 @@ const certificates = [
     id: "GH-23985-A", 
     type: "Wind", 
     asset: "Vestas Wind Farm, Denmark", 
-    period: "Q1 2024", 
+    period: "Q1 2025", 
     volume: "45.2 GWh",
     status: "active"
   },
@@ -120,7 +170,7 @@ const certificates = [
     id: "GH-23765-B", 
     type: "Wind", 
     asset: "Vestas Wind Farm, Sweden", 
-    period: "Q1 2024", 
+    period: "Q1 2025", 
     volume: "32.8 GWh",
     status: "active"
   },
@@ -128,7 +178,7 @@ const certificates = [
     id: "GH-24001-C", 
     type: "Solar", 
     asset: "SolarEdge Farm, Spain", 
-    period: "Q1 2024", 
+    period: "Q1 2025", 
     volume: "18.5 GWh",
     status: "active"
   },
@@ -179,11 +229,12 @@ const CorporateTracing = () => {
   const [allocatedGOs, setAllocatedGOs] = useState<GuaranteeOfOrigin[]>([]);
   const [viewMode, setViewMode] = useState<"map" | "list">("map");
   const [loading, setLoading] = useState(true);
-  const [selectedPeriod, setSelectedPeriod] = useState("current");
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<"origin" | "certificates">("origin");
-  // Certificate search state
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedAsset, setSelectedAsset] = useState<GuaranteeOfOrigin | null>(null);
+  const [isAssetDialogOpen, setIsAssetDialogOpen] = useState(false);
+  const [showHourlyMatching, setShowHourlyMatching] = useState(false);
   
   const currentDate = new Date();
   const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
@@ -206,6 +257,11 @@ const CorporateTracing = () => {
   
   const uniqueAssetCount = new Set(allocatedGOs.map(go => go.assetId)).size;
   
+  const handleAssetClick = (asset: GuaranteeOfOrigin) => {
+    setSelectedAsset(asset);
+    setIsAssetDialogOpen(true);
+  };
+
   const downloadMap = async () => {
     try {
       if (!mapContainerRef.current) {
@@ -308,20 +364,16 @@ const CorporateTracing = () => {
     }
   };
   
-  const timePeriods = [
-    { label: "This Month", value: "current" },
-    { label: "Last Month", value: "last" },
-    { label: "Last Quarter", value: "quarter" },
-    { label: "Year to Date", value: "ytd" },
-    { label: "Custom Range", value: "custom" },
-  ];
-  
   // Filter certificates based on search query
   const filteredCertificates = certificates.filter(cert => 
     cert.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
     cert.asset.toLowerCase().includes(searchQuery.toLowerCase()) ||
     cert.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const toggleHourlyMatching = () => {
+    setShowHourlyMatching(!showHourlyMatching);
+  };
   
   return (
     <motion.div 
@@ -338,22 +390,9 @@ const CorporateTracing = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <select 
-            className="border rounded-md px-3 py-1.5 bg-background text-sm"
-            value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
-          >
-            {timePeriods.map((period) => (
-              <option key={period.value} value={period.value}>{period.label}</option>
-            ))}
-          </select>
           <Button variant="outline" className="gap-2">
             <Calendar className="h-4 w-4" />
             {currentMonth} {currentYear}
-          </Button>
-          <Button variant="outline" className="gap-2">
-            <Filter className="h-4 w-4" />
-            Date
           </Button>
         </div>
       </div>
@@ -440,8 +479,49 @@ const CorporateTracing = () => {
           </div>
           
           <Card className="bg-muted/20 border-primary/20">
-            <CardContent className="p-6">
-              {/* ... keep existing code (integrity and heatmap section) */}
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold flex items-center">
+                <BarChart3 className="h-5 w-5 mr-2 text-primary" />
+                Hourly Matching Details
+              </CardTitle>
+              <CardDescription>
+                View your hour-by-hour renewable energy matching status
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <h3 className="font-medium">Time Matching Performance</h3>
+                    <p className="text-sm text-muted-foreground">Hour-by-hour renewable coverage for May 2025</p>
+                  </div>
+                  <Button onClick={toggleHourlyMatching} variant="outline" className="gap-2">
+                    <Clock className="h-4 w-4" />
+                    {showHourlyMatching ? "Hide Hourly Detail" : "View Hourly Detail"}
+                  </Button>
+                </div>
+                
+                {showHourlyMatching ? (
+                  <div className="border rounded-lg overflow-hidden">
+                    <HourlyMatchingView />
+                  </div>
+                ) : (
+                  <div className="text-center p-8 border border-dashed rounded-lg">
+                    <Clock className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+                    <h3 className="text-muted-foreground font-medium mb-1">Hourly Matching Details</h3>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                      Click "View Hourly Detail" to see your hour-by-hour renewable energy matching status for this period.
+                    </p>
+                  </div>
+                )}
+                
+                <div className="flex mt-4">
+                  <Button variant="outline" size="sm" className="ml-auto gap-2">
+                    <FileDown className="h-4 w-4" />
+                    Export Hourly Data (CSV)
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
           
@@ -483,87 +563,225 @@ const CorporateTracing = () => {
             </Card>
           ) : viewMode === "map" ? (
             <Card className="overflow-hidden">
-              <CardHeader>
-                <CardTitle>Asset Locations</CardTitle>
-                <CardDescription>Geographic overview of your energy sources</CardDescription>
-              </CardHeader>
               <CardContent className="p-0">
-                <div className="h-[600px]" ref={mapContainerRef}>
-                  <AssetMap guaranteesOfOrigin={allocatedGOs} />
+                <div ref={mapContainerRef} className="relative h-[600px]">
+                  <AssetMap 
+                    assets={allocatedGOs} 
+                    initialCenter={{ lat: 56.2639, lng: 9.5018 }} 
+                    initialZoom={7}
+                    onAssetClick={handleAssetClick}
+                    className="w-full h-full"
+                  />
                 </div>
               </CardContent>
             </Card>
           ) : (
-            <GOTrackingTable 
-              guaranteesOfOrigin={allocatedGOs} 
-              title="Allocated Certificates" 
-              showSearch={true}
-            />
+            <Card>
+              <CardHeader>
+                <CardTitle>Renewable Energy Assets</CardTitle>
+                <CardDescription>Assets providing your renewable energy</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="border rounded-md overflow-hidden">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-muted/50">
+                        <th className="px-4 py-3 text-left text-sm font-medium">Asset Name</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium">Type</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium">Volume (MWh)</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium">Grid Area</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium">Time Matching</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allocatedGOs.map((asset) => (
+                        <tr 
+                          key={asset.id} 
+                          className="border-t border-border hover:bg-muted/30 cursor-pointer"
+                          onClick={() => handleAssetClick(asset)}
+                        >
+                          <td className="px-4 py-3 text-sm">{asset.assetName}</td>
+                          <td className="px-4 py-3 text-sm">
+                            <Badge variant="outline" className={asset.type === 'wind' ? 'bg-blue-500/10 text-blue-500' : 'bg-amber-500/10 text-amber-500'}>
+                              {asset.type === 'wind' ? 'Wind' : 'Solar'}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-3 text-sm">{asset.volume.toFixed(1)}</td>
+                          <td className="px-4 py-3 text-sm">{asset.gridArea}</td>
+                          <td className="px-4 py-3 text-sm">
+                            <div className="flex items-center">
+                              <Progress value={asset.allocationScore} className="h-2 w-16 mr-2" />
+                              <span>{asset.allocationScore}%</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            <Button variant="ghost" size="sm" onClick={(e) => {
+                              e.stopPropagation();
+                              handleAssetClick(asset);
+                            }}>
+                              View Details
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
         
         {/* Energy Certificates Tab Content */}
         <TabsContent value="certificates" className="space-y-6">
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <CardTitle>Energy Certificates</CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="relative w-full sm:w-auto">
-                    <input
-                      type="search"
-                      placeholder="Search certificates..."
-                      className="w-full sm:w-[250px] pl-8 h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          {/* New Certificate Example Component */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="h-5 w-5 text-primary" />
+                  Certificate Overview
+                </CardTitle>
+                <CardDescription>
+                  Your Guarantee of Origin (GO) certificates show proof of renewable energy consumption
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col md:flex-row gap-6">
+                  <div className="relative md:w-1/2">
+                    <div className="bg-[url('https://images.unsplash.com/photo-1548337138-e87d889cc369?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1174&q=80')] bg-cover bg-center h-64 rounded-lg"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg flex flex-col justify-end p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <Badge className="bg-green-500 text-white border-none">Active</Badge>
+                        <div className="flex items-center gap-1 text-white text-xs">
+                          <Calendar size={12} />
+                          <span>May 2025</span>
+                        </div>
+                      </div>
+                      <h3 className="text-white font-semibold text-lg">Guarantee of Origin</h3>
+                      <div className="text-white/80 text-sm">Certificate #GH-25585-A</div>
+                      <div className="mt-2 flex items-center gap-2">
+                        <Badge variant="outline" className="bg-blue-500/20 text-blue-100 border-blue-400/30">Wind</Badge>
+                        <Badge variant="outline" className="bg-yellow-500/20 text-yellow-100 border-yellow-400/30">Solar</Badge>
+                      </div>
+                    </div>
                   </div>
-                  <Button variant="outline" size="sm">
-                    <Filter className="mr-2 h-4 w-4" />
-                    Filter
-                  </Button>
+                  
+                  <div className="md:w-1/2">
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-medium text-lg">Certificate Details</h3>
+                        <p className="text-sm text-muted-foreground">
+                          This certificate verifies your consumption of renewable energy from specific sources
+                        </p>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <div className="text-sm text-muted-foreground">Total Volume</div>
+                          <div className="font-medium">78.0 GWh</div>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-sm text-muted-foreground">Time Period</div>
+                          <div className="font-medium">Q2 2025</div>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-sm text-muted-foreground">Issuing Authority</div>
+                          <div className="font-medium">Energinet</div>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-sm text-muted-foreground">Energy Mix</div>
+                          <div className="font-medium">70% Wind / 30% Solar</div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2 pt-2">
+                        <div className="text-sm text-muted-foreground">Time Matching</div>
+                        <div className="space-y-1">
+                          <div className="flex justify-between items-center text-sm">
+                            <span>Hourly Matching Score</span>
+                            <span className="font-medium">85%</span>
+                          </div>
+                          <Progress value={85} className="h-2" />
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-3 pt-3">
+                        <Button className="w-1/2">View Certificate</Button>
+                        <Button variant="outline" className="w-1/2">Download PDF</Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Search and filter */}
+          <div className="flex items-center space-x-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search certificates by ID, asset or type..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8"
+              />
+            </div>
+            <Button variant="outline" className="gap-2">
+              <Filter className="h-4 w-4" />
+              Filter
+            </Button>
+          </div>
+          
+          {/* Certificates List */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Energy Certificates</CardTitle>
+              <CardDescription>Certificates that verify your renewable energy consumption</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border">
-                <table className="w-full caption-bottom text-sm">
+              <div className="border rounded-lg overflow-hidden">
+                <table className="w-full">
                   <thead>
-                    <tr className="border-b bg-muted/50">
-                      <th className="h-10 px-4 text-left font-medium">Certificate ID</th>
-                      <th className="h-10 px-4 text-left font-medium">Type</th>
-                      <th className="h-10 px-4 text-left font-medium">Asset</th>
-                      <th className="h-10 px-4 text-left font-medium">Period</th>
-                      <th className="h-10 px-4 text-left font-medium">Volume</th>
-                      <th className="h-10 px-4 text-left font-medium">Status</th>
-                      <th className="h-10 px-4 text-right font-medium">Actions</th>
+                    <tr className="bg-muted/50">
+                      <th className="px-4 py-3 text-left text-sm font-medium">Certificate ID</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Energy Type</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Asset</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Period</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Volume</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
+                      <th className="px-4 py-3 text-right text-sm font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredCertificates.map((cert) => (
-                      <tr key={cert.id} className="border-b transition-colors hover:bg-muted/50">
-                        <td className="p-4 align-middle font-medium">{cert.id}</td>
-                        <td className="p-4 align-middle">
-                          <Badge variant="outline" className={cert.type === "Wind" 
-                            ? "bg-[#735DFF]/20 text-[#735DFF] hover:bg-[#735DFF]/30"
-                            : "bg-[#D9F0C2]/20 text-green-700 hover:bg-[#D9F0C2]/30"
-                          }>
+                    {filteredCertificates.map((cert, index) => (
+                      <tr key={cert.id} className="border-t border-border hover:bg-muted/30">
+                        <td className="px-4 py-3 text-sm font-medium">{cert.id}</td>
+                        <td className="px-4 py-3 text-sm">
+                          <Badge variant="outline" className={cert.type === 'Wind' ? 'bg-blue-500/10 text-blue-500' : 'bg-amber-500/10 text-amber-500'}>
                             {cert.type}
                           </Badge>
                         </td>
-                        <td className="p-4 align-middle">{cert.asset}</td>
-                        <td className="p-4 align-middle">{cert.period}</td>
-                        <td className="p-4 align-middle">{cert.volume}</td>
-                        <td className="p-4 align-middle">
-                          <Badge variant={cert.status === "active" ? "default" : "secondary"}>
-                            {cert.status === "active" ? "Active" : "Expired"}
+                        <td className="px-4 py-3 text-sm">{cert.asset}</td>
+                        <td className="px-4 py-3 text-sm">{cert.period}</td>
+                        <td className="px-4 py-3 text-sm">{cert.volume}</td>
+                        <td className="px-4 py-3 text-sm">
+                          <Badge className={cert.status === 'active' ? 
+                            'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 
+                            'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'}>
+                            {cert.status === 'active' ? 'Active' : 'Expired'}
                           </Badge>
                         </td>
-                        <td className="p-4 align-middle text-right">
-                          <Button variant="ghost" size="sm" className="h-8 px-2 py-0">
-                            <Download className="h-4 w-4 mr-1" />
-                            Export
+                        <td className="px-4 py-3 text-right">
+                          <Button variant="ghost" size="sm" className="gap-1">
+                            <FileText size={14} />
+                            View
+                          </Button>
+                          <Button variant="ghost" size="sm" className="gap-1">
+                            <Download size={14} />
+                            PDF
                           </Button>
                         </td>
                       </tr>
@@ -572,52 +790,103 @@ const CorporateTracing = () => {
                 </table>
               </div>
             </CardContent>
-            <CardFooter className="flex items-center justify-between border-t px-6 py-3">
-              <div className="text-xs text-muted-foreground">
-                Showing <strong>{filteredCertificates.length}</strong> of <strong>{certificates.length}</strong> certificates
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" disabled>
-                  Previous
-                </Button>
-                <Button variant="outline" size="sm" disabled>
-                  Next
-                </Button>
-              </div>
-            </CardFooter>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Certificate Statistics</CardTitle>
-              <CardDescription>Overview of your energy certificate portfolio</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-muted-foreground">Active Certificates</div>
-                  <div className="text-2xl font-bold">{certificates.filter(c => c.status === "active").length}</div>
-                </div>
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-muted-foreground">Total Volume</div>
-                  <div className="text-2xl font-bold">
-                    {certificates.reduce((sum, cert) => {
-                      const volume = parseFloat(cert.volume.split(' ')[0]);
-                      return isNaN(volume) ? sum : sum + volume;
-                    }, 0).toFixed(1)} GWh
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-muted-foreground">Wind/Solar Ratio</div>
-                  <div className="text-2xl font-bold">
-                    {Math.round((certificates.filter(c => c.type === "Wind").length / certificates.length) * 100)}% / {Math.round((certificates.filter(c => c.type === "Solar").length / certificates.length) * 100)}%
-                  </div>
-                </div>
-              </div>
-            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* Asset Detail Dialog */}
+      <Dialog open={isAssetDialogOpen} onOpenChange={setIsAssetDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{selectedAsset?.assetName || "Asset Details"}</DialogTitle>
+            <DialogDescription>
+              Detailed information about this renewable energy asset
+            </DialogDescription>
+          </DialogHeader>
+          {selectedAsset && (
+            <div className="space-y-4">
+              <div className="bg-muted rounded-md p-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-sm text-muted-foreground">Asset Type</div>
+                    <div className="font-medium capitalize">
+                      {selectedAsset.type}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Location</div>
+                    <div className="font-medium">
+                      {selectedAsset.gridArea}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Coordinates</div>
+                    <div className="font-medium">
+                      {selectedAsset.coordinates.lat.toFixed(4)}, {selectedAsset.coordinates.lng.toFixed(4)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Operator</div>
+                    <div className="font-medium">
+                      {ASSET_OPERATORS[selectedAsset.assetName as keyof typeof ASSET_OPERATORS] || "Unknown"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-medium mb-2">Asset Description</h3>
+                <p className="text-sm text-muted-foreground">
+                  {ASSET_DESCRIPTIONS[selectedAsset.assetName as keyof typeof ASSET_DESCRIPTIONS] || 
+                  `This is a ${selectedAsset.type} energy asset located in ${selectedAsset.gridArea}.`}
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-medium mb-2">Energy Allocation</h3>
+                <div className="bg-muted/50 rounded-md p-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Volume allocated to you</span>
+                      <span className="font-medium">{selectedAsset.volume.toFixed(1)} MWh</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Time matching score</span>
+                      <span className="font-medium">{selectedAsset.allocationScore}%</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Production timestamp</span>
+                      <span className="font-medium">{new Date(selectedAsset.productionTimestamp).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Allocation timestamp</span>
+                      <span className="font-medium">{new Date(selectedAsset.allocationTimestamp).toLocaleString()}</span>
+                    </div>
+                    <div className="space-y-1 pt-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Consumption coverage</span>
+                        <span className="font-medium">~{Math.round(selectedAsset.volume / totalVolume * 100)}% of your total</span>
+                      </div>
+                      <Progress value={Math.round(selectedAsset.volume / totalVolume * 100)} className="h-2" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="pt-2">
+                <Button className="mr-2 gap-2">
+                  <FileText className="h-4 w-4" />
+                  View Certificate
+                </Button>
+                <Button variant="outline" className="gap-2">
+                  <FileDown className="h-4 w-4" />
+                  Export Data
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
