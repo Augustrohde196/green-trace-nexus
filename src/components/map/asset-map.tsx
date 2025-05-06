@@ -24,6 +24,7 @@ export function AssetMap({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<any>(null);
   const markers = useRef<any[]>([]);
+  const mapInitialized = useRef<boolean>(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Don't run on server-side
@@ -38,7 +39,22 @@ export function AssetMap({
         
         // Clean up previous map if it exists
         if (map.current) {
-          map.current.remove();
+          // Remove existing markers first
+          if (markers.current && markers.current.length) {
+            markers.current.forEach(marker => {
+              if (marker) marker.remove();
+            });
+            markers.current = [];
+          }
+          
+          // Check if map is initialized before trying to remove it
+          if (mapInitialized.current) {
+            try {
+              map.current.remove();
+            } catch (e) {
+              console.warn('Error removing map:', e);
+            }
+          }
         }
 
         mapboxgl.default.accessToken = MAPBOX_TOKEN;
@@ -55,6 +71,9 @@ export function AssetMap({
           center: center,
           zoom: initialZoom || 7,
         });
+        
+        // Mark map as initialized after it's created
+        mapInitialized.current = true;
 
         // Add navigation controls
         map.current.addControl(new mapboxgl.default.NavigationControl(), 'top-right');
@@ -63,15 +82,21 @@ export function AssetMap({
         map.current.on('load', () => {
           console.log('Map loaded, adding markers for', assets.length, 'assets');
           // Clear existing markers
-          markers.current.forEach(marker => marker.remove());
-          markers.current = [];
+          if (markers.current && markers.current.length) {
+            markers.current.forEach(marker => {
+              if (marker) marker.remove();
+            });
+            markers.current = [];
+          }
           
           // Add markers for each asset
           if (assets && assets.length > 0) {
-            markers.current = assets.map(asset => {
+            const newMarkers = [];
+            
+            for (const asset of assets) {
               if (!asset.coordinates || !asset.coordinates.lat || !asset.coordinates.lng) {
                 console.error('Asset has invalid coordinates:', asset);
-                return null;
+                continue;
               }
               
               const { coordinates, type, assetName, volume } = asset;
@@ -184,12 +209,13 @@ export function AssetMap({
                   }
                 });
                 
-                return marker;
+                newMarkers.push(marker);
               } catch (err) {
                 console.error('Error creating marker:', err);
-                return null;
               }
-            }).filter(Boolean); // Filter out any null markers
+            }
+            
+            markers.current = newMarkers.filter(Boolean);
           }
         });
       } catch (error) {
@@ -201,13 +227,26 @@ export function AssetMap({
 
     // Cleanup function
     return () => {
-      if (markers.current.length) {
+      // First remove all markers
+      if (markers.current && markers.current.length) {
         markers.current.forEach(marker => {
-          if (marker) marker.remove();
+          try {
+            if (marker) marker.remove();
+          } catch (e) {
+            console.warn('Error removing marker:', e);
+          }
         });
+        markers.current = [];
       }
-      if (map.current) {
-        map.current.remove();
+      
+      // Then remove the map if it was initialized
+      if (map.current && mapInitialized.current) {
+        try {
+          map.current.remove();
+          mapInitialized.current = false;
+        } catch (e) {
+          console.warn('Error cleaning up map:', e);
+        }
       }
     };
   }, [assets, initialCenter, initialZoom, onAssetClick]);
