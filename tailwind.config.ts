@@ -27,7 +27,7 @@ export default {
           foreground: "hsl(var(--secondary-foreground))",
         },
         sidebar: {
-          DEFAULT: "hsl(var(--sidebar-bg))",
+          DEFAULT: "hsl(var(--sidebar))",
           foreground: "hsl(var(--sidebar-foreground))",
           muted: "hsl(var(--sidebar-muted))",
           accent: "hsl(var(--sidebar-accent))",

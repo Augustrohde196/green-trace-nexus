@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 
 // Layout components
 import { AppLayout } from "@/components/layout/app-layout";
@@ -47,14 +47,14 @@ function App() {
         <Router>
           <Routes>
             {/* Auth routes */}
-            <Route element={<AuthLayout />}>
+            <Route element={<AuthLayout><Outlet /></AuthLayout>}>
               <Route path="/auth/sign-in" element={<SignInPage />} />
               <Route path="/auth/sign-up" element={<SignUpPage />} />
               <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
             </Route>
             
             {/* Corporate routes */}
-            <Route element={<CorporateLayout />}>
+            <Route element={<CorporateLayout><Outlet /></CorporateLayout>}>
               <Route path="/corporate" element={<CorporateDashboard />} />
               <Route path="/corporate/certificates" element={<CorporateCertificates />} />
               <Route path="/corporate/consumption" element={<CorporateConsumption />} />
@@ -68,7 +68,7 @@ function App() {
             </Route>
             
             {/* Main app routes */}
-            <Route element={<AppLayout />}>
+            <Route element={<AppLayout><Outlet /></AppLayout>}>
               <Route index element={<Dashboard />} />
               <Route path="/assets" element={<Assets />} />
               <Route path="/customers" element={<Customers />} />

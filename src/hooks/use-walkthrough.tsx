@@ -2,17 +2,30 @@
 import { useState, createContext, useContext, useCallback, useEffect } from "react";
 import { WalkthroughDialog } from "@/components/walkthrough/walkthrough-dialog";
 import { useToast } from "@/components/ui/use-toast";
+import { walkthroughSteps, WalkthroughStep } from "@/components/walkthrough/walkthrough-steps";
 
 interface WalkthroughContextType {
   isWalkthroughOpen: boolean;
   startWalkthrough: () => void;
   closeWalkthrough: () => void;
+  currentStep: WalkthroughStep | undefined;
+  currentStepIndex: number;
+  totalSteps: number;
+  nextStep: () => void;
+  prevStep: () => void;
+  isLastStep: boolean;
 }
 
 const WalkthroughContext = createContext<WalkthroughContextType>({
   isWalkthroughOpen: false,
   startWalkthrough: () => {},
   closeWalkthrough: () => {},
+  currentStep: undefined,
+  currentStepIndex: 0,
+  totalSteps: 0,
+  nextStep: () => {},
+  prevStep: () => {},
+  isLastStep: false
 });
 
 // Check if this is the first visit to show walkthrough automatically
@@ -23,7 +36,12 @@ const isFirstVisit = () => {
 
 export const WalkthroughProvider = ({ children }: { children: React.ReactNode }) => {
   const [isWalkthroughOpen, setIsWalkthroughOpen] = useState(false);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const { toast } = useToast();
+  
+  const totalSteps = walkthroughSteps.length;
+  const currentStep = isWalkthroughOpen ? walkthroughSteps[currentStepIndex] : undefined;
+  const isLastStep = currentStepIndex === totalSteps - 1;
 
   // Show walkthrough on first visit
   useEffect(() => {
@@ -39,6 +57,7 @@ export const WalkthroughProvider = ({ children }: { children: React.ReactNode })
 
   const startWalkthrough = useCallback(() => {
     // Always start from the beginning when opening walkthrough
+    setCurrentStepIndex(0);
     setIsWalkthroughOpen(true);
   }, []);
 
@@ -51,10 +70,30 @@ export const WalkthroughProvider = ({ children }: { children: React.ReactNode })
     });
   }, [toast]);
 
+  const nextStep = useCallback(() => {
+    setCurrentStepIndex(prev => Math.min(prev + 1, totalSteps - 1));
+  }, [totalSteps]);
+
+  const prevStep = useCallback(() => {
+    setCurrentStepIndex(prev => Math.max(prev - 1, 0));
+  }, []);
+
   return (
-    <WalkthroughContext.Provider value={{ isWalkthroughOpen, startWalkthrough, closeWalkthrough }}>
+    <WalkthroughContext.Provider 
+      value={{ 
+        isWalkthroughOpen, 
+        startWalkthrough, 
+        closeWalkthrough, 
+        currentStep, 
+        currentStepIndex, 
+        totalSteps, 
+        nextStep, 
+        prevStep, 
+        isLastStep 
+      }}
+    >
       {children}
-      <WalkthroughDialog open={isWalkthroughOpen} onClose={closeWalkthrough} />
+      {isWalkthroughOpen && <WalkthroughDialog onClose={closeWalkthrough} />}
     </WalkthroughContext.Provider>
   );
 };
