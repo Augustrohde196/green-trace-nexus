@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 interface CorporateLayoutProps {
   children: React.ReactNode;
@@ -83,6 +84,10 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
   const { toast } = useToast();
   const { startWalkthrough } = useWalkthrough();
 
+  // Force dashboard to be highlighted when the user is at the root corporate path
+  const currentPath = location.pathname;
+  const isRootPath = currentPath === "/corporate";
+
   const handleSignOut = () => {
     toast({
       title: "Signed out",
@@ -99,16 +104,18 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar>
-          <SidebarHeader className="flex items-center justify-center px-6 py-5">
-            <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">Renuw</span>
+          <SidebarHeader className="px-6 py-5">
+            {/* Removed the Corporate Portal title from sidebar */}
           </SidebarHeader>
           <SidebarContent className="pb-12">
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu className="px-2 space-y-1">
                   {menuItems.map((item) => {
-                    const isActive = location.pathname === item.url || 
-                                    (item.url !== '/corporate' && location.pathname.startsWith(item.url));
+                    const isActive = isRootPath 
+                      ? item.url === "/corporate" 
+                      : location.pathname === item.url || 
+                        (item.url !== '/corporate' && location.pathname.startsWith(item.url));
                     
                     return (
                       <SidebarMenuItem key={item.title}>
@@ -143,6 +150,7 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
         <div className="flex-1 flex flex-col bg-background">
           <header className="sticky top-0 z-[51] border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-16 items-center gap-4 px-6">
+              {/* Added the sidebar trigger button */}
               <SidebarTrigger />
               <div className="flex-1">
                 <h1 className="text-xl font-semibold text-[#2C2C2C] dark:text-white">Corporate Portal</h1>
