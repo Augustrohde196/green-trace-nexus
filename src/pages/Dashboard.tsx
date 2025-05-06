@@ -14,31 +14,23 @@ const Dashboard = () => {
   const [timeRange, setTimeRange] = useState<"week" | "month" | "year">("month");
   
   return (
-    <motion.div 
-      className="space-y-6 bg-background"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
+    <div className="space-y-6 bg-background">
       <DashboardHeader />
       
       <div id="dashboard-metrics-cards">
         <DashboardMetricsCards metrics={metrics} />
       </div>
 
-      <motion.div 
+      <div 
         className="flex flex-col md:flex-row gap-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
         id="dashboard-charts"
       >
         <ProductionChart timeRange={timeRange} setTimeRange={setTimeRange} />
         <EnergyMixChart data={metrics.productionByType} />
-      </motion.div>
+      </div>
 
       <ProjectionsChart />
-    </motion.div>
+    </div>
   );
 };
 
