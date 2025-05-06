@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Card,
@@ -6,6 +5,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -26,8 +26,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { 
-  FileText, Download, FileCheck, FileSpreadsheet, Calendar, CalendarClock, 
-  CheckCircle, BarChart3, PieChart, LineChart, ChevronDown
+  FileText, Download, Calendar, 
+  Search, Eye, ChevronDown, 
 } from "lucide-react";
 import { mockCustomers } from "@/data/mock-data";
 import { motion } from "framer-motion";
@@ -36,13 +36,37 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
+// Define types for our reports
+interface Report {
+  id: string;
+  name: string;
+  date: string;
+  type: 'allocation' | 'traceability' | 'compliance';
+  status: string;
+  description: string;
+  charts?: Array<{
+    type: string;
+    title: string;
+  }>;
+  metrics?: {
+    [key: string]: string | number;
+  };
+  customers?: number;
+  assets?: number;
+  data?: {
+    customers?: string[];
+    allocations?: number[];
+    [key: string]: unknown;
+  };
+}
+
 export default function Reporting() {
   const [reportType, setReportType] = useState<string>("allocation");
   const [timeframe, setTimeframe] = useState<string>("month");
   const [generatingReport, setGeneratingReport] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState("allocation");
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
-  const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   
   const handleGenerateReport = () => {
     setGeneratingReport(true);
@@ -51,13 +75,13 @@ export default function Reporting() {
     }, 2000);
   };
   
-  const handleViewReport = (report: any) => {
+  const handleViewReport = (report: Report) => {
     setSelectedReport(report);
     setReportDialogOpen(true);
   };
   
   // Mock report data
-  const allocationReports = [
+  const allocationReports: Report[] = [
     {
       id: "rep001",
       name: "April 2025 GO Allocation Summary",
@@ -121,7 +145,7 @@ export default function Reporting() {
     },
   ];
   
-  const traceabilityReports = [
+  const traceabilityReports: Report[] = [
     {
       id: "rep004",
       name: "Wind Farm A Traceability Report",
@@ -181,7 +205,7 @@ export default function Reporting() {
     },
   ];
   
-  const complianceReports = [
+  const complianceReports: Report[] = [
     {
       id: "rep007",
       name: "April 2025 Regulatory Compliance Export",
@@ -217,14 +241,14 @@ export default function Reporting() {
     { label: "Custom Range", value: "custom" },
   ];
   
-  const reportsByType = {
+  const reportsByType: Record<string, Report[]> = {
     allocation: allocationReports,
     traceability: traceabilityReports,
     compliance: complianceReports,
   };
   
-  const getReportsByTab = (tabValue: string) => {
-    return reportsByType[tabValue as keyof typeof reportsByType] || [];
+  const getReportsByTab = (tabValue: string): Report[] => {
+    return reportsByType[tabValue] || [];
   };
   
   return (
@@ -273,21 +297,21 @@ export default function Reporting() {
               
               {reportType === "allocation" && (
                 <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                  <BarChart3 className="h-3.5 w-3.5 text-primary" />
+                  {/*<BarChart3 className="h-3.5 w-3.5 text-primary" />*/}
                   <span>Shows consumption vs. supply and time-matching score for each customer</span>
                 </div>
               )}
               
               {reportType === "traceability" && (
                 <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                  <LineChart className="h-3.5 w-3.5 text-primary" />
+                  {/*<LineChart className="h-3.5 w-3.5 text-primary" />*/}
                   <span>Maps which customers receive energy from each asset and how much</span>
                 </div>
               )}
               
               {reportType === "compliance" && (
                 <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                  <CheckCircle className="h-3.5 w-3.5 text-primary" />
+                  {/*<CheckCircle className="h-3.5 w-3.5 text-primary" />*/}
                   <span>Export GO allocation data with timestamps for regulatory audit</span>
                 </div>
               )}
@@ -309,7 +333,7 @@ export default function Reporting() {
               </Select>
               
               <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                <CalendarClock className="h-3.5 w-3.5 text-primary" />
+                {/*<CalendarClock className="h-3.5 w-3.5 text-primary" />*/}
                 <span>
                   {timeframe === 'month' && 'Data from the current calendar month'}
                   {timeframe === 'quarter' && 'Data from the current quarter'}
@@ -330,13 +354,12 @@ export default function Reporting() {
                     <SelectItem value="pdf">PDF Report</SelectItem>
                     <SelectItem value="csv">CSV Export</SelectItem>
                     <SelectItem value="excel">Excel Workbook</SelectItem>
-                    <SelectItem value="both">PDF + Raw Data</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
               
               <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                <FileCheck className="h-3.5 w-3.5 text-primary" />
+                {/*<FileCheck className="h-3.5 w-3.5 text-primary" />*/}
                 <span>Reports are also saved to your account</span>
               </div>
             </div>
@@ -378,9 +401,9 @@ export default function Reporting() {
             {allocationReports.slice(0, 3).map((report) => (
               <div key={report.id} className="flex items-center justify-between gap-4 p-2 hover:bg-muted/40 rounded-md -mx-2 transition-colors">
                 <div className="flex items-center gap-3">
-                  {report.type === 'allocation' && <BarChart3 className="h-8 w-8 text-blue-500 bg-blue-100/60 p-1.5 rounded" />}
+                  {/*{report.type === 'allocation' && <BarChart3 className="h-8 w-8 text-blue-500 bg-blue-100/60 p-1.5 rounded" />}
                   {report.type === 'traceability' && <LineChart className="h-8 w-8 text-green-500 bg-green-100/60 p-1.5 rounded" />}
-                  {report.type === 'compliance' && <CheckCircle className="h-8 w-8 text-purple-500 bg-purple-100/60 p-1.5 rounded" />}
+                  {report.type === 'compliance' && <CheckCircle className="h-8 w-8 text-purple-500 bg-purple-100/60 p-1.5 rounded" />}*/}
                   <div>
                     <div className="font-medium truncate max-w-[150px]">{report.name}</div>
                     <div className="text-xs text-muted-foreground">
@@ -389,7 +412,7 @@ export default function Reporting() {
                   </div>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => handleViewReport(report)} className="gap-1">
-                  <FileText size={14} />
+                  <Eye size={14} />
                   View
                 </Button>
               </div>
@@ -412,15 +435,15 @@ export default function Reporting() {
           <div className="flex justify-between items-center mb-4">
             <TabsList className="w-full md:w-auto">
               <TabsTrigger value="allocation" className="flex items-center gap-1">
-                <BarChart3 className="h-4 w-4" />
+                {/*<BarChart3 className="h-4 w-4" />*/}
                 Allocation Reports
               </TabsTrigger>
               <TabsTrigger value="traceability" className="flex items-center gap-1">
-                <LineChart className="h-4 w-4" />
+                {/*<LineChart className="h-4 w-4" />*/}
                 Traceability Reports
               </TabsTrigger>
               <TabsTrigger value="compliance" className="flex items-center gap-1">
-                <CheckCircle className="h-4 w-4" />
+                {/*<CheckCircle className="h-4 w-4" />*/}
                 Compliance Data
               </TabsTrigger>
             </TabsList>
@@ -467,7 +490,7 @@ export default function Reporting() {
                           <TableCell>{report.customers}</TableCell>
                           <TableCell>
                             <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                              <CheckCircle size={12} className="mr-1" />
+                              {/*<CheckCircle size={12} className="mr-1" />*/}
                               Complete
                             </Badge>
                           </TableCell>
@@ -483,11 +506,11 @@ export default function Reporting() {
                                 View
                               </Button>
                               <Button variant="ghost" size="sm" className="gap-1">
-                                <FileCheck size={14} />
+                                <FileText size={14} />
                                 PDF
                               </Button>
                               <Button variant="ghost" size="sm" className="gap-1">
-                                <FileSpreadsheet size={14} />
+                                <Download size={14} />
                                 CSV
                               </Button>
                             </div>
@@ -532,7 +555,7 @@ export default function Reporting() {
                           <TableCell>{report.assets}</TableCell>
                           <TableCell>
                             <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                              <CheckCircle size={12} className="mr-1" />
+                              {/*<CheckCircle size={12} className="mr-1" />*/}
                               Complete
                             </Badge>
                           </TableCell>
@@ -548,11 +571,11 @@ export default function Reporting() {
                                 View
                               </Button>
                               <Button variant="ghost" size="sm" className="gap-1">
-                                <FileCheck size={14} />
+                                <FileText size={14} />
                                 PDF
                               </Button>
                               <Button variant="ghost" size="sm" className="gap-1">
-                                <FileSpreadsheet size={14} />
+                                <Download size={14} />
                                 CSV
                               </Button>
                             </div>
@@ -595,7 +618,7 @@ export default function Reporting() {
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                              <CheckCircle size={12} className="mr-1" />
+                              {/*<CheckCircle size={12} className="mr-1" />*/}
                               Complete
                             </Badge>
                           </TableCell>
@@ -611,7 +634,7 @@ export default function Reporting() {
                                 View
                               </Button>
                               <Button variant="ghost" size="sm" className="gap-1">
-                                <FileSpreadsheet size={14} />
+                                <Download size={14} />
                                 CSV
                               </Button>
                             </div>
@@ -646,7 +669,7 @@ export default function Reporting() {
                   <p className="text-sm text-muted-foreground">Generated on {new Date(selectedReport.date).toLocaleDateString()}</p>
                 </div>
                 <Badge variant="outline" className="bg-green-100 text-green-800">
-                  <CheckCircle size={14} className="mr-1" />
+                  <span className="mr-1">✓</span>
                   Complete
                 </Badge>
               </div>
@@ -663,7 +686,7 @@ export default function Reporting() {
                         <div className="text-sm text-muted-foreground capitalize">
                           {key.replace(/([A-Z])/g, ' $1').trim()}
                         </div>
-                        <div className="text-xl font-bold mt-1">{value}</div>
+                        <div className="text-xl font-bold mt-1">{String(value)}</div>
                       </CardContent>
                     </Card>
                   ))}
@@ -675,14 +698,14 @@ export default function Reporting() {
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground mb-3">Charts & Visualizations</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {selectedReport.charts.map((chart: any, index: number) => (
+                    {selectedReport.charts.map((chart, index) => (
                       <Card key={index}>
                         <CardContent className="p-4">
                           <div className="font-medium mb-2">{chart.title}</div>
                           <div className="h-[200px] bg-muted/40 rounded-md flex items-center justify-center">
-                            {chart.type === 'bar' && <BarChart3 className="h-12 w-12 text-muted-foreground/50" />}
-                            {chart.type === 'pie' && <PieChart className="h-12 w-12 text-muted-foreground/50" />}
-                            {chart.type === 'line' && <LineChart className="h-12 w-12 text-muted-foreground/50" />}
+                            {chart.type === 'bar' && <ChevronDown className="h-12 w-12 text-muted-foreground/50" />}
+                            {chart.type === 'pie' && <ChevronDown className="h-12 w-12 text-muted-foreground/50" />}
+                            {chart.type === 'line' && <ChevronDown className="h-12 w-12 text-muted-foreground/50" />}
                           </div>
                         </CardContent>
                       </Card>
@@ -704,10 +727,12 @@ export default function Reporting() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {selectedReport.data.customers.map((customer: string, index: number) => (
-                          <TableRow key={customer}>
+                        {selectedReport.data.customers.map((customer, index) => (
+                          <TableRow key={index}>
                             <TableCell>{customer}</TableCell>
-                            <TableCell className="text-right">{selectedReport.data.allocations[index]}</TableCell>
+                            <TableCell className="text-right">
+                              {selectedReport.data?.allocations?.[index]}
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -718,11 +743,11 @@ export default function Reporting() {
               
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" className="gap-2">
-                  <FileCheck className="h-4 w-4" />
+                  <FileText className="h-4 w-4" />
                   Download PDF
                 </Button>
                 <Button variant="outline" className="gap-2">
-                  <FileSpreadsheet className="h-4 w-4" />
+                  <Download className="h-4 w-4" />
                   Download CSV
                 </Button>
               </div>
