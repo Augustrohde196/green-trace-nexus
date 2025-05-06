@@ -28,11 +28,11 @@ export function DashboardCard({
       transition={{ duration: 0.3 }}
       id={`dashboard-card-${title.toLowerCase().replace(/\s+/g, '-')}`}
     >
-      <Card className={`overflow-hidden border border-border/40 transition-colors hover:border-primary/30 ${className}`}>
+      <Card className={`overflow-hidden border border-border/40 ${className}`}>
         <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
           <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
           {Icon && (
-            <div className={`flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 ${iconColor} transition-colors`}>
+            <div className={`flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 ${iconColor}`}>
               <Icon className="h-5 w-5" />
             </div>
           )}
