@@ -1,52 +1,31 @@
 
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { 
-  LineChart, 
-  Line, 
-  AreaChart, 
-  Area, 
-  BarChart,
-  Bar,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
+import { Download, FileText, MapPin, Leaf, BatteryIcon, SunMedium, Wind, Activity, Calendar } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
   PieChart,
   Pie,
   Cell,
-  Legend,
-  ComposedChart
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ComposedChart,
+  Bar,
+  Legend
 } from "recharts";
-import { 
-  ExternalLink, 
-  BarChart3, 
-  BarChartHorizontal, 
-  Wind, 
-  Activity, 
-  Leaf, 
-  Power, 
-  FileText, 
-  Download, 
-  TrendingUp, 
-  Building, 
-  Check, 
-  ArrowUp,
-  FileCheck2 as FileCheck,
-  Battery as BatteryIcon,
-  Sun as SunMedium
-} from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { Link } from "react-router-dom";
 
 // Sample data for time-matching scores by month
 const timeMatchingData = [
@@ -68,57 +47,63 @@ const consumptionData = [
   { hour: "20:00", weekday: 25, weekend: 30 },
 ];
 
-// Updated portfolio performance data - now includes actual vs target allocation parameters
-const portfolioPerformanceData = [
-  { parameter: "Wind %", actual: 70, target: 65 },
-  { parameter: "Solar %", actual: 30, target: 35 },
-  { parameter: "BTM %", actual: 45, target: 50 },
-  { parameter: "FTM %", actual: 55, target: 50 },
-  { parameter: "Local (<100km)", actual: 35, target: 40 },
-  { parameter: "Regional (<300km)", actual: 65, target: 60 },
+// Energy source data
+const energySourceData = [
+  { name: "Wind", value: 60, color: "#8884d8" },
+  { name: "Solar", value: 40, color: "#82ca9d" },
 ];
 
-// Portfolio match score data for horizontal bar chart
-const portfolioMatchScores = [
-  { name: "Technology Mix", value: 92, fill: "#8884d8" },
-  { name: "Location Distance", value: 88, fill: "#82ca9d" },
-  { name: "Time Matching", value: 78, fill: "#ffc658" },
-  { name: "Capacity Factor", value: 95, fill: "#0088fe" },
-  { name: "Additionality", value: 70, fill: "#ff8042" },
+// Source assets data
+const sourceAssetsData = [
+  { name: "Nordsee Wind Farm (DE)", type: "Wind", volume: 50 },
+  { name: "Hvide Sande Wind (DK)", type: "Wind", volume: 10 },
+  { name: "Nykøbing Solar (DK)", type: "Solar", volume: 40 }
 ];
 
-// Time period options for reports
+// Time periods for filtering
 const timePeriods = [
-  { label: "Last Month", value: "1m" },
+  { label: "This Month", value: "current" },
+  { label: "Last Month", value: "last" },
   { label: "Last 3 Months", value: "3m" },
-  { label: "Last 6 Months", value: "6m" },
-  { label: "Last Year", value: "1y" },
+  { label: "Year to Date", value: "ytd" },
 ];
 
-const DashboardPage = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState("6m");
+const CorporateDashboard = () => {
+  const [selectedPeriod, setSelectedPeriod] = useState("current");
+  const { toast } = useToast();
 
-  // Function to handle downloading the chart as an image
-  const downloadChart = (chartId: string, filename: string) => {
-    const chartElement = document.getElementById(chartId);
-    if (!chartElement) return;
-    
-    // This is a simplified example - in a real app you would use a library 
-    // like html2canvas or dom-to-image to create an actual image
-    console.log(`Downloading ${chartId} as ${filename}_${selectedPeriod}.png`);
-    
-    // Mock alert to show functionality
-    alert(`Chart "${filename}" for period ${selectedPeriod} would be downloaded in a production environment.`);
+  // Total consumption and production values (derived from the data)
+  const totalConsumption = timeMatchingData.reduce((sum, item) => sum + item.consumption, 0);
+  const totalProduction = timeMatchingData.reduce((sum, item) => sum + item.production, 0);
+  
+  // Calculate average time-matching score
+  const averageScore = Math.round(
+    timeMatchingData.reduce((sum, item) => sum + item.score, 0) / timeMatchingData.length
+  );
+
+  const downloadReport = () => {
+    toast({
+      title: "Downloading report",
+      description: `Full ESG report for ${selectedPeriod === "current" ? "current month" : selectedPeriod} is being prepared.`,
+      duration: 3000,
+    });
   };
 
-  // Function to download a full report
-  const downloadFullReport = () => {
-    console.log(`Downloading full report for period: ${selectedPeriod}`);
-    alert(`Full report for period ${selectedPeriod} would be downloaded in a production environment.`);
+  const navigateToAssetDetails = (asset: any) => {
+    toast({
+      title: "Asset details",
+      description: `Navigating to details for ${asset.name}`,
+      duration: 2000,
+    });
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
@@ -126,27 +111,84 @@ const DashboardPage = () => {
             Your renewable energy portfolio overview
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Link to="/corporate/consumption">
-            <Button variant="outline" size="sm" className="gap-2">
-              <Activity size={16} />
-              View Consumption
-            </Button>
-          </Link>
-          <Link to="/">
-            <Button size="sm" className="gap-2">
-              <ExternalLink size={16} />
-              Utility Portal
-            </Button>
-          </Link>
+        <div className="flex items-center gap-2">
+          <select 
+            className="border rounded-md px-3 py-1.5 bg-background text-sm"
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
+          >
+            {timePeriods.map((period) => (
+              <option key={period.value} value={period.value}>{period.label}</option>
+            ))}
+          </select>
+          <Button variant="outline" size="sm" onClick={downloadReport} className="gap-2">
+            <Download size={16} />
+            Download ESG Report
+          </Button>
         </div>
       </div>
       
+      {/* Time-Matching Score Highlight */}
+      <motion.div 
+        className="bg-primary/10 rounded-lg p-6 border border-primary/20"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1, duration: 0.5 }}
+      >
+        <div className="grid md:grid-cols-2 gap-6 items-center">
+          <div>
+            <h3 className="text-lg font-medium mb-2">Time-Matching Score</h3>
+            <div className="text-5xl font-bold text-primary mb-4">{averageScore}%</div>
+            <p className="text-sm text-muted-foreground">
+              {averageScore}% of your electricity consumption was matched with renewable energy produced at the same time.
+              This represents your progress towards 24/7 clean energy.
+            </p>
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-1 text-sm">
+                <span>Low</span>
+                <span>Excellent</span>
+              </div>
+              <Progress value={averageScore} className="h-2" />
+            </div>
+          </div>
+          <div className="hidden md:block">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-3 h-3 rounded-full bg-green-500"></span>
+                <span className="text-sm">For this period</span>
+              </div>
+              <div className="text-sm font-medium">{averageScore}% matched</div>
+            </div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-3 h-3 rounded-full bg-blue-400"></span>
+                <span className="text-sm">Target</span>
+              </div>
+              <div className="text-sm font-medium">80% matched</div>
+            </div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-3 h-3 rounded-full bg-amber-400"></span>
+                <span className="text-sm">Industry average</span>
+              </div>
+              <div className="text-sm font-medium">65% matched</div>
+            </div>
+            <div className="mt-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-green-600 font-medium">+4% from last month</span>
+                <Link to="/corporate/reporting" className="text-primary hover:underline">View detailed report</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+      
+      {/* Metrics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Annual Consumption</CardTitle>
-            <Building className="h-4 w-4 text-muted-foreground" />
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">245 GWh</div>
@@ -156,7 +198,7 @@ const DashboardPage = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Certificates Coverage</CardTitle>
-            <FileCheck className="h-4 w-4 text-muted-foreground" />
+            <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">92%</div>
@@ -165,245 +207,228 @@ const DashboardPage = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Matching Score</CardTitle>
-            <BatteryIcon className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">CO₂ Avoided</CardTitle>
+            <Leaf className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">78%</div>
-            <p className="text-xs text-muted-foreground">Temporal matching score</p>
+            <div className="text-2xl font-bold">112 tons</div>
+            <p className="text-xs text-muted-foreground">Equivalent to 5,100 trees</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Portfolio Mix</CardTitle>
             <div className="flex items-center space-x-1">
-              <Wind className="h-4 w-4 text-[#735DFF]" />
-              <SunMedium className="h-4 w-4 text-[#D9F0C2]" />
+              <Wind className="h-4 w-4 text-blue-500" />
+              <SunMedium className="h-4 w-4 text-green-500" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">70% / 30%</div>
+            <div className="text-2xl font-bold">60% / 40%</div>
             <p className="text-xs text-muted-foreground">Wind / Solar split</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-4 grid-cols-1">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Time-Matching Scores (Last 6 Months)
-            </CardTitle>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => downloadChart('time-matching-chart', 'time_matching')}
-            >
-              <Download size={16} className="mr-2" />
-              Download
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]" id="time-matching-chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={timeMatchingData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="month" />
-                  <YAxis yAxisId="left" orientation="left" label={{ value: 'GWh', angle: -90, position: 'insideLeft' }} />
-                  <YAxis yAxisId="right" orientation="right" label={{ value: 'Score %', angle: 90, position: 'insideRight' }} domain={[0, 100]} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar yAxisId="left" dataKey="consumption" fill="#8884d8" name="Consumption (GWh)" />
-                  <Bar yAxisId="left" dataKey="production" fill="#4DA167" name="Production (GWh)" />
-                  <Line yAxisId="right" type="monotone" dataKey="score" stroke="#ff7300" name="Matching Score (%)" />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <h3 className="font-medium">Average Matching Score</h3>
-                  <p className="text-muted-foreground text-sm">Last 6 months</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-green-500">78.7%</span>
-                  <ArrowUp className="h-5 w-5 text-green-500" />
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <h3 className="font-medium">Best Month</h3>
-                  <p className="text-muted-foreground text-sm">June 2024</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-green-500">89%</span>
-                  <Check className="h-5 w-5 text-green-500" />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Energy Usage vs Green Supply Graph */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Time-Matching Scores</CardTitle>
+          <CardDescription>Energy consumption vs. renewable allocation over time</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={timeMatchingData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" />
+                <YAxis yAxisId="left" orientation="left" label={{ value: 'GWh', angle: -90, position: 'insideLeft' }} />
+                <YAxis yAxisId="right" orientation="right" label={{ value: 'Score %', angle: 90, position: 'insideRight' }} domain={[0, 100]} />
+                <Tooltip />
+                <Legend />
+                <Bar yAxisId="left" dataKey="consumption" fill="#8884d8" name="Consumption (GWh)" />
+                <Bar yAxisId="left" dataKey="production" fill="#4DA167" name="Production (GWh)" />
+                <Line yAxisId="right" type="monotone" dataKey="score" stroke="#ff7300" name="Matching Score (%)" />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+        {/* Energy Certificates Chart */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader>
             <CardTitle>Energy Certificates</CardTitle>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => downloadChart('certificates-chart', 'certificates')}
-            >
-              <Download size={16} className="mr-2" />
-              Download
-            </Button>
+            <CardDescription>Breakdown of renewable energy by source</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4" id="certificates-chart">
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium">Wind Certificates</div>
-                  <div className="text-sm text-muted-foreground">157.5 GWh</div>
-                </div>
-                <Progress value={70} className="mt-2" />
+            <div className="flex flex-col md:flex-row items-center gap-6" id="certificates-chart">
+              <div className="w-full md:w-1/2 h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={energySourceData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                    >
+                      {energySourceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => `${value} MWh (${(value/100).toFixed(0)}%)`} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium">Solar Certificates</div>
-                  <div className="text-sm text-muted-foreground">67.5 GWh</div>
+              <div className="w-full md:w-1/2">
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-block w-3 h-3 rounded-full bg-[#8884d8]"></span>
+                        <span>Wind</span>
+                      </div>
+                      <span className="text-sm font-medium">60 MWh</span>
+                    </div>
+                    <Progress value={60} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-block w-3 h-3 rounded-full bg-[#82ca9d]"></span>
+                        <span>Solar</span>
+                      </div>
+                      <span className="text-sm font-medium">40 MWh</span>
+                    </div>
+                    <Progress value={40} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span>Total Coverage</span>
+                      <span className="text-sm font-medium">100 MWh / 108 MWh</span>
+                    </div>
+                    <Progress value={92} className="h-2" />
+                  </div>
                 </div>
-                <Progress value={30} className="mt-2" />
-              </div>
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium">Total Coverage</div>
-                  <div className="text-sm text-muted-foreground">225 GWh / 245 GWh</div>
-                </div>
-                <Progress value={92} className="mt-2" />
               </div>
             </div>
           </CardContent>
         </Card>
+        
+        {/* Consumption Profile */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader>
             <CardTitle>Consumption Profile</CardTitle>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => downloadChart('consumption-profile-chart', 'consumption')}
-            >
-              <Download size={16} className="mr-2" />
-              Download
-            </Button>
+            <CardDescription>Hourly energy usage patterns</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[200px]" id="consumption-profile-chart">
+            <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={consumptionData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <AreaChart data={consumptionData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="hour" />
                   <YAxis label={{ value: 'MWh', angle: -90, position: 'insideLeft' }} />
                   <Tooltip 
                     formatter={(value: number) => [`${value} MWh`, '']}
+                    labelFormatter={(label) => `Time: ${label}`}
                   />
                   <Legend />
-                  <Area type="monotone" dataKey="weekday" name="Weekday" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
-                  <Area type="monotone" dataKey="weekend" name="Weekend" stroke="#82ca9d" fill="#82ca9d" fillOpacity={0.3} />
+                  <Area 
+                    type="monotone" 
+                    dataKey="weekday" 
+                    name="Weekday" 
+                    stroke="#8884d8" 
+                    fill="#8884d8" 
+                    fillOpacity={0.3}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="weekend" 
+                    name="Weekend" 
+                    stroke="#82ca9d" 
+                    fill="#82ca9d" 
+                    fillOpacity={0.3}
+                    activeDot={{ r: 6 }}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
+            <div className="mt-4 text-sm text-muted-foreground">
+              Hover over the chart to see detailed consumption values for specific hours.
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Portfolio Allocation vs Target</CardTitle>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => downloadChart('portfolio-allocation-chart', 'portfolio_allocation')}
-            >
-              <Download size={16} className="mr-2" />
-              Download
+      {/* Traceability Highlights */}
+      <Card>
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div>
+            <CardTitle>Traceability Highlights</CardTitle>
+            <CardDescription>Key assets powering your energy this period</CardDescription>
+          </div>
+          <Link to="/corporate/tracing">
+            <Button variant="outline" size="sm">
+              <MapPin className="mr-2 h-4 w-4" />
+              View Full Map
             </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]" id="portfolio-allocation-chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={portfolioPerformanceData} layout="vertical" margin={{ top: 10, right: 30, left: 50, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                  <XAxis type="number" domain={[0, 100]} />
-                  <YAxis dataKey="parameter" type="category" width={100} />
-                  <Tooltip formatter={(value: number) => [`${value}%`, '']} />
-                  <Legend />
-                  <Bar dataKey="target" name="Target Allocation" fill="#8884d8" />
-                  <Bar dataKey="actual" name="Actual Allocation" fill="#4DA167" />
-                </BarChart>
-              </ResponsiveContainer>
+          </Link>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {sourceAssetsData.map((asset, index) => (
+              <div key={index} className="flex items-center justify-between border-b pb-3 last:border-0">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-full ${asset.type === 'Wind' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'}`}>
+                    {asset.type === 'Wind' ? <Wind size={16} /> : <SunMedium size={16} />}
+                  </div>
+                  <div>
+                    <div className="font-medium">{asset.name}</div>
+                    <div className="text-xs text-muted-foreground">{asset.type} Energy</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <div>{asset.volume} MWh</div>
+                    <div className="text-xs text-muted-foreground">{asset.volume}% of total</div>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="text-primary"
+                    onClick={() => navigateToAssetDetails(asset)}
+                  >
+                    Details
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+            <div className="flex items-start gap-3">
+              <div className="bg-green-100 text-green-700 p-2 rounded-full mt-0.5">
+                <Leaf size={16} />
+              </div>
+              <div>
+                <div className="font-medium">Environmental Impact</div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Your renewable energy procurement this period has avoided 112 tons of CO₂ emissions,
+                  equivalent to planting 5,100 trees or removing 24 cars from the road for a year.
+                </p>
+              </div>
             </div>
-            <div className="mt-4 p-4 border rounded-lg">
-              <h3 className="font-medium">Portfolio Allocation Match</h3>
-              <p className="text-sm text-muted-foreground mt-2">
-                Your portfolio is achieving a 92% match to your desired allocation parameters.
-                The largest deviation is in BTM assets (5% below target) and Regional assets (5% above target).
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Portfolio Match Scores</CardTitle>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => downloadChart('portfolio-match-chart', 'portfolio_match')}
-            >
-              <Download size={16} className="mr-2" />
-              Download
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]" id="portfolio-match-chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  layout="vertical"
-                  data={portfolioMatchScores}
-                  margin={{ top: 20, right: 30, left: 100, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                  <XAxis type="number" domain={[0, 100]} />
-                  <YAxis 
-                    dataKey="name" 
-                    type="category" 
-                    width={100}
-                    tickLine={false}
-                  />
-                  <Tooltip formatter={(value: number) => [`${value}%`, '']} />
-                  <Legend />
-                  <Bar dataKey="value" name="Match Score (%)" radius={[0, 4, 4, 0]}>
-                    {portfolioMatchScores.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-4 p-4 border rounded-lg">
-              <h3 className="font-medium">Overall Portfolio Performance</h3>
-              <p className="text-sm text-muted-foreground mt-2">
-                Your portfolio is performing well across most dimensions, with high scores in Capacity Factor (95%)
-                and Technology Mix (92%). The area with the most room for improvement is Additionality (70%).
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
-export default DashboardPage;
+export default CorporateDashboard;

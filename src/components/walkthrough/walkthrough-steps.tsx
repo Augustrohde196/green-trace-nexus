@@ -56,10 +56,75 @@ export const walkthroughSteps: WalkthroughStep[] = [
   },
   {
     id: "sidebar",
-    title: "Navigation Menu",
-    description: "Use the sidebar to navigate between different sections of the portal. We'll highlight each section one by one. Click 'Next Item' to see each section.",
+    title: "Navigation Menu - Dashboard",
+    description: "Use the sidebar to navigate between different sections of the portal. We'll highlight each section one by one. The Dashboard gives you an overview of your renewable energy portfolio.",
+    spotlight: "sidebar-menu-item-0",
     placement: "right",
-    subIndex: 0 // Start with the first item (Assets)
+    subIndex: 0
+  },
+  {
+    id: "sidebar-certificates",
+    title: "Navigation Menu - My Certificates",
+    description: "View and manage your renewable energy certificates. Track your certificates' status, expiration, and allocation details.",
+    spotlight: "sidebar-menu-item-1",
+    placement: "right",
+    subIndex: 1
+  },
+  {
+    id: "sidebar-consumption",
+    title: "Navigation Menu - Consumption",
+    description: "Monitor your energy consumption patterns, view historical data, and analyze your usage trends over time.",
+    spotlight: "sidebar-menu-item-2",
+    placement: "right",
+    subIndex: 2
+  },
+  {
+    id: "sidebar-tracing",
+    title: "Navigation Menu - Certificate Tracing",
+    description: "Trace the origin of your renewable energy certificates with detailed visualization of production assets.",
+    spotlight: "sidebar-menu-item-3",
+    placement: "right",
+    subIndex: 3
+  },
+  {
+    id: "sidebar-analytics",
+    title: "Navigation Menu - Analytics",
+    description: "Access detailed analytics about your energy portfolio, including time matching scores and performance metrics.",
+    spotlight: "sidebar-menu-item-4",
+    placement: "right",
+    subIndex: 4
+  },
+  {
+    id: "sidebar-portfolio",
+    title: "Navigation Menu - Portfolio Settings",
+    description: "Customize your energy portfolio preferences including energy mix, location, and other settings.",
+    spotlight: "sidebar-menu-item-5",
+    placement: "right",
+    subIndex: 5
+  },
+  {
+    id: "sidebar-reporting",
+    title: "Navigation Menu - ESG Reporting",
+    description: "Generate sustainability reports and download data for compliance purposes.",
+    spotlight: "sidebar-menu-item-6",
+    placement: "right",
+    subIndex: 6
+  },
+  {
+    id: "sidebar-billing",
+    title: "Navigation Menu - Billing",
+    description: "Manage your subscription and payment details, and view your billing history.",
+    spotlight: "sidebar-menu-item-7",
+    placement: "right",
+    subIndex: 7
+  },
+  {
+    id: "sidebar-settings",
+    title: "Navigation Menu - Settings",
+    description: "Configure your account settings, security options, and integration preferences.",
+    spotlight: "sidebar-menu-item-8",
+    placement: "right",
+    subIndex: 8
   },
   {
     id: "complete",

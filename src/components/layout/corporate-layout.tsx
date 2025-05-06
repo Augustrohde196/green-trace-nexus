@@ -1,9 +1,10 @@
 
-import { Link, useNavigate } from "react-router-dom";
-import { Home, FileText, Activity, MapPin, BarChart3, Sliders, Bell, Moon, Sun, User, LogOut } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Home, FileText, Activity, MapPin, BarChart3, Sliders, Bell, Moon, Sun, User, LogOut, Receipt, Settings } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { useWalkthrough } from "@/hooks/use-walkthrough";
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { motion } from "framer-motion";
 
 interface CorporateLayoutProps {
   children: React.ReactNode;
@@ -61,12 +63,29 @@ const menuItems = [
     icon: Sliders,
     url: "/corporate/portfolio",
   },
+  {
+    title: "ESG Reporting",
+    icon: FileText,
+    url: "/corporate/reporting",
+  },
+  {
+    title: "Billing",
+    icon: Receipt,
+    url: "/corporate/billing",
+  },
+  {
+    title: "Settings",
+    icon: Settings,
+    url: "/corporate/settings",
+  }
 ];
 
 export function CorporateLayout({ children }: CorporateLayoutProps) {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const { startWalkthrough } = useWalkthrough();
 
   const handleSignOut = () => {
     toast({
@@ -76,6 +95,10 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
     navigate("/auth/sign-in");
   };
 
+  const handleNotificationClick = () => {
+    startWalkthrough();
+  };
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
@@ -83,29 +106,40 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
           <SidebarHeader className="flex items-center justify-center px-6 py-5">
             <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">Renuw</span>
           </SidebarHeader>
-          <SidebarContent>
+          <SidebarContent className="pb-12">
             <SidebarGroup>
               <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground/60 px-3 py-2">Corporate Portal</SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu className="px-2">
-                  {menuItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton 
-                        className="transition-all duration-200 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground/90"
-                        asChild
-                      >
-                        <Link to={item.url} className="flex items-center gap-3">
-                          <item.icon size={18} className="text-sidebar-foreground/70" />
-                          <span className="text-sm text-sidebar-foreground/90">{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                <SidebarMenu className="px-2 space-y-1">
+                  {menuItems.map((item) => {
+                    const isActive = location.pathname === item.url || 
+                                    (item.url !== '/corporate' && location.pathname.startsWith(item.url));
+                    
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton 
+                          className={`transition-all duration-200 ${
+                            isActive 
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                              : "hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground/90"
+                          }`}
+                          asChild
+                        >
+                          <Link to={item.url} className="flex items-center gap-3 py-2 px-3 rounded-md">
+                            <item.icon size={18} className={isActive ? "text-primary" : "text-sidebar-foreground/70"} />
+                            <span className={`text-sm ${isActive ? "text-sidebar-accent-foreground" : "text-sidebar-foreground/90"}`}>
+                              {item.title}
+                            </span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
-          <SidebarFooter className="px-4 py-3">
+          <SidebarFooter className="px-4 py-3 absolute bottom-0 w-full border-t">
             <div className="text-xs text-sidebar-foreground/50 font-medium">
               Renuw Corporate Portal v1.0
             </div>
@@ -118,23 +152,35 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
                 {/* Header space */}
               </div>
               <div className="flex items-center gap-4">
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                  className="rounded-full hover:bg-muted transition-colors border-none"
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  className="rounded-full hover:bg-muted transition-colors border-none relative"
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                    title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                    className="rounded-full hover:bg-muted transition-colors border-none"
+                  >
+                    {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+                  </Button>
+                </motion.div>
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  id="notification-bell"
                 >
-                  <Bell size={18} />
-                  <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-red-500"></span>
-                </Button>
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    className="rounded-full hover:bg-muted transition-colors border-none relative"
+                    onClick={handleNotificationClick}
+                  >
+                    <Bell size={18} />
+                    <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-red-500"></span>
+                  </Button>
+                </motion.div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
@@ -143,18 +189,18 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
                       className="rounded-full hover:bg-muted transition-colors border-none bg-primary/10"
                     >
                       <User size={16} className="mr-2" />
-                      My Account
+                      Alex Nielsen
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer">
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/corporate/settings')}>
                       <User size={16} className="mr-2" />
                       Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer">
-                      <Sliders size={16} className="mr-2" />
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/corporate/settings')}>
+                      <Settings size={16} className="mr-2" />
                       Settings
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -167,9 +213,14 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
               </div>
             </div>
           </header>
-          <main className="flex-1 p-6 bg-background">
+          <motion.main 
+            className="flex-1 p-6 bg-background"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
             {children}
-          </main>
+          </motion.main>
         </div>
       </div>
     </SidebarProvider>

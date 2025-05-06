@@ -1,11 +1,18 @@
 
-import { useEffect, useState } from "react";
-import { X, ArrowRight, ArrowLeft } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { walkthroughSteps, WalkthroughStep } from "./walkthrough-steps";
 import { Checkbox } from "@/components/ui/checkbox";
+import { walkthroughSteps, WalkthroughStep } from "./walkthrough-steps";
+import { X } from "lucide-react";
 
 interface WalkthroughDialogProps {
   open: boolean;
@@ -13,255 +20,281 @@ interface WalkthroughDialogProps {
 }
 
 export function WalkthroughDialog({ open, onClose }: WalkthroughDialogProps) {
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [hasAgreed, setHasAgreed] = useState(false);
-  
-  const currentStep = walkthroughSteps[currentStepIndex];
-  
-  // Reset to first step when reopening
+  const [currentStep, setCurrentStep] = useState(0);
+  const [agreementAccepted, setAgreementAccepted] = useState(false);
+  const [overlayStyle, setOverlayStyle] = useState<React.CSSProperties>({});
+  const [spotlightStyle, setSpotlightStyle] = useState<React.CSSProperties>({});
+  const [spotlightElement, setSpotlightElement] = useState<HTMLElement | null>(null);
+  const [dialogPosition, setDialogPosition] = useState<{ top?: string; bottom?: string; left?: string; right?: string }>({});
+  const [sidebarIndex, setSidebarIndex] = useState(0);
+
+  const step = walkthroughSteps[currentStep];
+  const isFirstStep = currentStep === 0;
+  const isLastStep = currentStep === walkthroughSteps.length - 1;
+
+  // When the walkthrough opens, always start from the first step
   useEffect(() => {
     if (open) {
-      setCurrentStepIndex(0);
-      setHasAgreed(false);
+      setCurrentStep(0);
+      setAgreementAccepted(false);
     }
   }, [open]);
-  
-  // For highlighting UI elements
+
+  // Add a custom class to the body to style the background overlay
   useEffect(() => {
-    // Remove highlights from all elements first
-    const clearAllHighlights = () => {
-      document.querySelectorAll('.walkthrough-highlight').forEach(el => {
-        el.classList.remove('walkthrough-highlight', 'ring-2', 'ring-primary', 'ring-offset-2', 'transition-all', 'z-50');
+    if (open) {
+      document.body.classList.add("walkthrough-active");
+      
+      // For sidebar navigation steps with subIndex, update the sidebar item to highlight
+      if (step && step.subIndex !== undefined) {
+        setSidebarIndex(step.subIndex);
+      }
+      
+      if (step && step.spotlight) {
+        // Add custom data attribute to the sidebar menu items for targeting
+        const sidebarItems = document.querySelectorAll(".sidebar-menu-item");
+        sidebarItems.forEach((item, index) => {
+          item.setAttribute("id", `sidebar-menu-item-${index}`);
+        });
+        
+        // Remove previous spotlight styles
+        const previousSpotlight = document.querySelector(".spotlight-element");
+        if (previousSpotlight) {
+          previousSpotlight.classList.remove("spotlight-element");
+        }
+        
+        // Find the spotlight element and apply the spotlight
+        const element = document.getElementById(step.spotlight);
+        if (element) {
+          setSpotlightElement(element);
+          element.classList.add("spotlight-element");
+          
+          // Calculate positions for the spotlight and dialog based on the element
+          const rect = element.getBoundingClientRect();
+          const padding = 10; // Add some padding around the element
+          
+          // Calculate the spotlight style (element's position + padding)
+          const newSpotlightStyle = {
+            position: "fixed",
+            top: `${rect.top - padding}px`,
+            left: `${rect.left - padding}px`,
+            width: `${rect.width + padding * 2}px`,
+            height: `${rect.height + padding * 2}px`,
+            borderRadius: "4px",
+            boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.6)",
+            pointerEvents: "none",
+            zIndex: 1000,
+          };
+          setSpotlightStyle(newSpotlightStyle);
+          
+          // Calculate the dialog position based on placement
+          const placement = step.placement || "bottom";
+          let newDialogPosition = {};
+          
+          switch (placement) {
+            case "bottom":
+              newDialogPosition = {
+                top: `${rect.bottom + padding + 20}px`,
+                left: `${rect.left + rect.width / 2}px`,
+                transform: "translateX(-50%)",
+              };
+              break;
+            case "top":
+              newDialogPosition = {
+                bottom: `${window.innerHeight - rect.top + padding + 20}px`,
+                left: `${rect.left + rect.width / 2}px`,
+                transform: "translateX(-50%)",
+              };
+              break;
+            case "left":
+              newDialogPosition = {
+                top: `${rect.top + rect.height / 2}px`,
+                right: `${window.innerWidth - rect.left + padding + 20}px`,
+                transform: "translateY(-50%)",
+              };
+              break;
+            case "right":
+              newDialogPosition = {
+                top: `${rect.top + rect.height / 2}px`,
+                left: `${rect.right + padding + 20}px`,
+                transform: "translateY(-50%)",
+              };
+              break;
+          }
+          
+          setDialogPosition(newDialogPosition);
+          setOverlayStyle({
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.4)", // Semi-transparent overlay
+            backdropFilter: "blur(1px)",
+            zIndex: 999,
+            pointerEvents: "none",
+          });
+        } else {
+          // If no spotlight, center the dialog
+          setSpotlightStyle({});
+          setDialogPosition({});
+          setOverlayStyle({
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
+            backdropFilter: "blur(1px)",
+            zIndex: 999,
+            pointerEvents: "none",
+          });
+        }
+      } else {
+        // No spotlight for this step, center the dialog
+        setSpotlightStyle({});
+        setDialogPosition({});
+        setOverlayStyle({
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "rgba(0, 0, 0, 0.4)",
+          backdropFilter: "blur(1px)",
+          zIndex: 999,
+          pointerEvents: "none",
+        });
+      }
+    } else {
+      document.body.classList.remove("walkthrough-active");
+      
+      // Clean up spotlight classes
+      const spotlightElements = document.querySelectorAll(".spotlight-element");
+      spotlightElements.forEach(element => {
+        element.classList.remove("spotlight-element");
       });
       
-      // Remove overlay
-      const existingOverlay = document.getElementById('walkthrough-overlay');
-      if (existingOverlay) {
-        existingOverlay.remove();
-      }
-    };
-    
-    clearAllHighlights();
-    
-    if (open && currentStep?.spotlight) {
-      // Create semi-transparent overlay - reducing opacity to make background more visible
-      const overlay = document.createElement('div');
-      overlay.id = 'walkthrough-overlay';
-      overlay.className = 'fixed inset-0 bg-black/30 backdrop-blur-sm pointer-events-none z-40';
-      document.body.appendChild(overlay);
-      
-      // Handle spotlight on multiple elements for menu walkthrough
-      if (currentStep.id === 'sidebar') {
-        // For the navigation menu step, highlight menu items one by one
-        const menuItemIndices = [1, 2, 3, 4, 5, 6]; // Skipping Dashboard (index 0)
-        const menuItemIndex = currentStep.subIndex || 0;
-        
-        if (menuItemIndex < menuItemIndices.length) {
-          const menuItems = document.querySelectorAll('.sidebar-menu-item');
-          if (menuItems && menuItems[menuItemIndices[menuItemIndex]]) {
-            const element = menuItems[menuItemIndices[menuItemIndex]] as HTMLElement;
-            element.classList.add('walkthrough-highlight', 'ring-2', 'ring-primary', 'ring-offset-2', 'transition-all', 'z-50');
-            element.scrollIntoView({ behavior: "smooth", block: "center" });
-          }
-        }
-      }
-      else if (currentStep.id === 'charts') {
-        // For charts step, highlight both charts
-        const productionChart = document.querySelector('.production-chart-container');
-        const energyMixChart = document.querySelector('.energy-mix-chart-container');
-        
-        if (productionChart) {
-          productionChart.classList.add('walkthrough-highlight', 'ring-2', 'ring-primary', 'ring-offset-2', 'transition-all', 'z-50');
-        }
-        
-        if (energyMixChart) {
-          energyMixChart.classList.add('walkthrough-highlight', 'ring-2', 'ring-primary', 'ring-offset-2', 'transition-all', 'z-50');
-        }
-        
-        // Scroll to the first chart
-        if (productionChart) {
-          productionChart.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      }
-      else {
-        // For other steps, use the spotlight ID
-        const element = document.getElementById(currentStep.spotlight);
-        if (element) {
-          element.classList.add('walkthrough-highlight', 'ring-2', 'ring-primary', 'ring-offset-2', 'transition-all', 'z-50');
-          element.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      }
+      setOverlayStyle({});
+      setSpotlightStyle({});
+      setDialogPosition({});
     }
-    
-    return () => {
-      clearAllHighlights();
-    };
-  }, [open, currentStep, currentStep?.subIndex]);
-  
-  // Handle checkbox change for agreement
-  const handleCheckboxChange = (checked: boolean) => {
-    setHasAgreed(checked);
-  };
+  }, [open, currentStep, step]);
 
-  const nextStep = () => {
-    // For first step, require agreement
-    if (currentStepIndex === 0 && !hasAgreed) {
-      // Animation to indicate required checkbox
-      const agreeCheckbox = document.getElementById("agree-checkbox-container");
-      if (agreeCheckbox) {
-        agreeCheckbox.classList.add("animate-pulse");
-        setTimeout(() => {
-          agreeCheckbox.classList.remove("animate-pulse");
-        }, 1000);
-      }
-      return;
-    }
-    
-    // For navigation menu step, cycle through menu items
-    if (currentStep.id === 'sidebar') {
-      const nextSubIndex = (currentStep.subIndex || 0) + 1;
-      if (nextSubIndex < 6) { // We have 6 menu items to highlight
-        walkthroughSteps[currentStepIndex].subIndex = nextSubIndex;
-        // Force a re-render
-        setCurrentStepIndex(currentStepIndex);
-        return;
-      }
-    }
-    
-    if (currentStepIndex < walkthroughSteps.length - 1) {
-      setCurrentStepIndex(currentStepIndex + 1);
+  // Handle next and back buttons
+  const handleNext = () => {
+    if (currentStep < walkthroughSteps.length - 1) {
+      setCurrentStep(currentStep + 1);
     } else {
-      // Close on last step
       onClose();
     }
   };
-  
-  const prevStep = () => {
-    // For navigation menu step, cycle back through menu items
-    if (currentStep.id === 'sidebar' && currentStep.subIndex && currentStep.subIndex > 0) {
-      walkthroughSteps[currentStepIndex].subIndex = currentStep.subIndex - 1;
-      // Force a re-render
-      setCurrentStepIndex(currentStepIndex);
-      return;
-    }
-    
-    if (currentStepIndex > 0) {
-      setCurrentStepIndex(currentStepIndex - 1);
+
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
     }
   };
-  
+
   const handleSkip = () => {
     onClose();
   };
-  
-  const renderAgreementCheckbox = () => {
-    if (currentStepIndex === 0) {
-      return (
-        <div className="flex items-center space-x-2" id="agree-checkbox-container">
-          <Checkbox 
-            id="agree-checkbox" 
-            checked={hasAgreed}
-            onCheckedChange={handleCheckboxChange}
-            className="h-4 w-4"
-          />
-          <label htmlFor="agree-checkbox" className="text-sm cursor-pointer">
-            I have read and agree to the Service Agreement
-          </label>
-        </div>
-      );
-    }
-    return null;
-  };
 
-  // Determine button label based on current step
-  const getNextButtonLabel = () => {
-    if (currentStepIndex === walkthroughSteps.length - 1) {
-      return "Finish";
-    }
+  // Get the button label based on step
+  const getButtonLabel = () => {
+    if (isLastStep) return "Finish";
     
-    if (currentStep.id === 'sidebar') {
-      const subIndex = currentStep.subIndex || 0;
-      if (subIndex < 5) { // If not on the last menu item
+    // For sidebar navigation steps, use "Next Item" unless it's the last navigation step
+    if (step.subIndex !== undefined) {
+      const nextStep = walkthroughSteps[currentStep + 1];
+      if (nextStep && nextStep.subIndex !== undefined) {
         return "Next Item";
       }
     }
     
     return "Next";
   };
-  
+
+  // Check if the next button should be disabled (only for the first step if agreement not accepted)
+  const isNextDisabled = isFirstStep && !agreementAccepted;
+
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="p-0 gap-0 max-w-md border-0 shadow-lg overflow-hidden z-50">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={`${currentStep.id}-${currentStep.subIndex || 0}`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-col"
-          >
-            <div className="relative bg-gradient-to-r from-purple-500 to-blue-500 p-6 pt-12 text-white">
-              <div 
-                className="absolute top-2 right-2 cursor-pointer rounded-full hover:bg-white/20 p-1"
-                onClick={onClose}
-              >
-                <X size={16} />
-              </div>
-              <h2 className="text-xl font-bold">{currentStep.title}</h2>
-              <div className="flex mt-4">
-                {walkthroughSteps.map((_, idx) => (
-                  <div 
-                    key={idx} 
-                    className={`h-1 flex-1 mx-0.5 rounded-full ${idx === currentStepIndex ? "bg-white" : "bg-white/30"}`}
+    <>
+      {/* Semi-transparent overlay */}
+      {open && <div style={overlayStyle} />}
+      
+      {/* Spotlight highlight */}
+      {open && spotlightElement && <div style={spotlightStyle} />}
+      
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent 
+          className="sm:max-w-md"
+          style={{
+            position: Object.keys(dialogPosition).length > 0 ? "fixed" : "relative",
+            ...dialogPosition,
+            zIndex: 1001,
+          }}
+        >
+          <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
+          
+          <DialogHeader>
+            <DialogTitle>{step.title}</DialogTitle>
+            <DialogDescription className="pt-2">
+              {step.description}
+              
+              {isFirstStep && (
+                <div className="flex items-center space-x-2 mt-4">
+                  <Checkbox 
+                    id="terms" 
+                    checked={agreementAccepted} 
+                    onCheckedChange={(checked) => setAgreementAccepted(checked as boolean)}
                   />
-                ))}
-              </div>
-            </div>
-            
-            <div className="p-6">
-              <div className="text-sm text-gray-700 dark:text-gray-300">
-                {currentStep.description}
-              </div>
-              {renderAgreementCheckbox()}
-            </div>
-            
-            <div className="p-4 bg-gray-50 dark:bg-gray-900 flex justify-between items-center border-t">
+                  <label
+                    htmlFor="terms"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    I accept the agreement
+                  </label>
+                </div>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <DialogFooter className="flex flex-row justify-between sm:justify-between gap-2">
+            <div className="flex gap-2">
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSkip}
+                type="button"
+                variant="outline"
+                onClick={handleBack}
+                disabled={isFirstStep}
               >
-                Skip
+                Back
               </Button>
               
-              <div className="flex gap-2">
-                {(currentStepIndex > 0 || (currentStep.id === 'sidebar' && (currentStep.subIndex || 0) > 0)) && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={prevStep}
-                    className="gap-1"
-                  >
-                    <ArrowLeft size={16} />
-                    Back
-                  </Button>
-                )}
-                
+              {!isLastStep && (
                 <Button
-                  onClick={nextStep}
-                  size="sm"
-                  className="gap-1"
-                  disabled={currentStepIndex === 0 && !hasAgreed}
+                  type="button"
+                  variant="outline"
+                  onClick={handleSkip}
                 >
-                  {getNextButtonLabel()}
-                  {currentStepIndex < walkthroughSteps.length - 1 && <ArrowRight size={16} />}
+                  Skip
                 </Button>
-              </div>
+              )}
             </div>
-          </motion.div>
-        </AnimatePresence>
-      </DialogContent>
-    </Dialog>
+            
+            <Button 
+              type="button" 
+              disabled={isNextDisabled}
+              onClick={handleNext}
+            >
+              {getButtonLabel()}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

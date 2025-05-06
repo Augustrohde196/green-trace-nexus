@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GOTrackingTable } from "@/components/go/go-tracking-table";
 import { AssetMap } from "@/components/map/asset-map";
 import { Button } from "@/components/ui/button";
-import { Calendar, Download, Map, List, FileDown } from "lucide-react";
+import { Calendar, Download, Map, List, FileDown, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { GuaranteeOfOrigin } from "@/data/go-models";
 import { useToast } from "@/components/ui/use-toast";
 import html2canvas from "html2canvas";
+import { motion } from "framer-motion";
 
 const DENMARK_COORDINATES = [
   { region: "Capital Region", name: "Copenhagen", lat: 55.676, lng: 12.568 },
@@ -110,6 +111,7 @@ const CorporateTracing = () => {
   const [allocatedGOs, setAllocatedGOs] = useState<GuaranteeOfOrigin[]>([]);
   const [viewMode, setViewMode] = useState<"map" | "list">("map");
   const [loading, setLoading] = useState(true);
+  const [selectedPeriod, setSelectedPeriod] = useState("current");
   const mapContainerRef = useRef<HTMLDivElement>(null);
   
   const currentDate = new Date();
@@ -235,19 +237,47 @@ const CorporateTracing = () => {
     }
   };
   
+  const timePeriods = [
+    { label: "This Month", value: "current" },
+    { label: "Last Month", value: "last" },
+    { label: "Last Quarter", value: "quarter" },
+    { label: "Year to Date", value: "ytd" },
+    { label: "Custom Range", value: "custom" },
+  ];
+  
   return (
-    <div className="space-y-6 bg-background">
+    <motion.div 
+      className="space-y-6 bg-background"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Certificate Tracing</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Certificate Traceability</h2>
           <p className="text-muted-foreground">
-            Track your certificates and view production assets across Denmark
+            Trace the origin of your renewable energy certificates
           </p>
         </div>
-        <Button variant="outline">
-          <Calendar className="mr-2 h-4 w-4" />
-          {currentMonth} {currentYear}
-        </Button>
+        <div className="flex items-center gap-2">
+          <select 
+            className="border rounded-md px-3 py-1.5 bg-background text-sm"
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
+          >
+            {timePeriods.map((period) => (
+              <option key={period.value} value={period.value}>{period.label}</option>
+            ))}
+          </select>
+          <Button variant="outline" className="gap-2">
+            <Calendar className="h-4 w-4" />
+            {currentMonth} {currentYear}
+          </Button>
+          <Button variant="outline" className="gap-2">
+            <Filter className="h-4 w-4" />
+            Filter
+          </Button>
+        </div>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -259,7 +289,7 @@ const CorporateTracing = () => {
             </Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalVolume.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{(allocatedGOs.reduce((sum, go) => sum + go.volume, 0)).toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
               From {allocatedGOs.length} certificates
             </p>
@@ -274,9 +304,9 @@ const CorporateTracing = () => {
             </Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{windVolume.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{(allocatedGOs.filter(go => go.type === "wind").reduce((sum, go) => sum + go.volume, 0)).toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              {totalVolume ? Math.round((windVolume / totalVolume) * 100) : 0}% of total
+              {allocatedGOs.length ? Math.round((allocatedGOs.filter(go => go.type === "wind").reduce((sum, go) => sum + go.volume, 0) / allocatedGOs.reduce((sum, go) => sum + go.volume, 0)) * 100) : 0}% of total
             </p>
           </CardContent>
         </Card>
@@ -289,9 +319,9 @@ const CorporateTracing = () => {
             </Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{solarVolume.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{(allocatedGOs.filter(go => go.type === "solar").reduce((sum, go) => sum + go.volume, 0)).toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              {totalVolume ? Math.round((solarVolume / totalVolume) * 100) : 0}% of total
+              {allocatedGOs.length ? Math.round((allocatedGOs.filter(go => go.type === "solar").reduce((sum, go) => sum + go.volume, 0) / allocatedGOs.reduce((sum, go) => sum + go.volume, 0)) * 100) : 0}% of total
             </p>
           </CardContent>
         </Card>
@@ -304,13 +334,81 @@ const CorporateTracing = () => {
             </Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{uniqueAssetCount}</div>
+            <div className="text-2xl font-bold">{new Set(allocatedGOs.map(go => go.assetId)).size}</div>
             <p className="text-xs text-muted-foreground">
               Across Denmark
             </p>
           </CardContent>
         </Card>
       </div>
+      
+      <Card className="bg-muted/20 border-primary/20">
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="md:w-3/5">
+              <h3 className="text-lg font-medium mb-4">Hourly Matching Performance</h3>
+              <div className="bg-background rounded-lg p-4 border">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="font-medium">Time-matching heatmap</h4>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Download className="h-3 w-3" />
+                    Export
+                  </Button>
+                </div>
+                <div className="h-[200px] bg-muted/30 rounded flex items-center justify-center">
+                  {/* Placeholder for heatmap visualization */}
+                  <span className="text-muted-foreground">Hourly matching heatmap visualization</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  This heatmap shows hours where your consumption was matched with renewable production.
+                  Green cells indicate full matching, yellow indicates partial matching, and red indicates no matching.
+                </p>
+              </div>
+            </div>
+            <div className="md:w-2/5">
+              <h3 className="text-lg font-medium mb-4">Certificate Integrity</h3>
+              <div className="space-y-4">
+                <div className="bg-background rounded-lg p-4 border">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-100 text-green-700">Verified</Badge>
+                      <span className="font-medium">Chain of Custody</span>
+                    </div>
+                    <span className="text-green-600">✓</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    All certificates have verified chain of custody from generation to your allocation.
+                  </p>
+                </div>
+                <div className="bg-background rounded-lg p-4 border">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-100 text-green-700">Verified</Badge>
+                      <span className="font-medium">Registry Validation</span>
+                    </div>
+                    <span className="text-green-600">✓</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    All certificates are validated against the official AIB registry.
+                  </p>
+                </div>
+                <div className="bg-background rounded-lg p-4 border">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-100 text-green-700">Available</Badge>
+                      <span className="font-medium">Audit Report</span>
+                    </div>
+                    <Button variant="ghost" size="sm" className="text-primary">Download</Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Download the full audit report of your certificate tracing for compliance purposes.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       
       <div className="flex justify-end space-x-2 mb-4">
         <Button
@@ -350,6 +448,10 @@ const CorporateTracing = () => {
         </Card>
       ) : viewMode === "map" ? (
         <Card className="overflow-hidden">
+          <CardHeader>
+            <CardTitle>Asset Locations</CardTitle>
+            <CardDescription>Geographic overview of your energy sources</CardDescription>
+          </CardHeader>
           <CardContent className="p-0">
             <div className="h-[600px]" ref={mapContainerRef}>
               <AssetMap guaranteesOfOrigin={allocatedGOs} />
@@ -363,7 +465,7 @@ const CorporateTracing = () => {
           showSearch={true}
         />
       )}
-    </div>
+    </motion.div>
   );
 };
 
