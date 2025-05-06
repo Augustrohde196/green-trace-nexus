@@ -18,6 +18,7 @@ export default {
         techPurple: "#735DFF",
         techDark: "#2C2C2C",
         techGreen: "#D9F0C2",
+        techWhite: "#FFFFFF",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -53,14 +54,15 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        solar: "#D9F0C2",
-        wind: "#735DFF",
+        // Use our primary color palette consistently
+        solar: "#D9F0C2",  // techGreen
+        wind: "#735DFF",   // techPurple
         neutralGray: "#8E9196", 
-        primaryPurple: "#9b87f5",
-        secondaryPurple: "#7E69AB",
-        tertiaryPurple: "#6E59A5",
-        darkPurple: "#1A1F2C",
-        lightPurple: "#D6BCFA",
+        primaryPurple: "#735DFF", // Match techPurple
+        secondaryPurple: "#6e52e3",
+        tertiaryPurple: "#5840c7",
+        darkPurple: "#2C2C2C", // Match techDark
+        lightPurple: "#9a8cff",
         softGreen: "#F2FCE2",
         softYellow: "#FEF7CD",
         softOrange: "#FEC6A1",
