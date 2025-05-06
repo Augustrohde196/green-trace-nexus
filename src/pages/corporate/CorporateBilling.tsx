@@ -114,111 +114,109 @@ const CorporateBilling = () => {
               <TabsTrigger value="current">Current Year</TabsTrigger>
               <TabsTrigger value="previous">Previous Years</TabsTrigger>
             </TabsList>
-          </Tabs>
-        </CardHeader>
-        <CardContent>
-          <TabsContent value="current" className="mt-0">
-            <div className="rounded-lg border overflow-hidden">
-              <div className="bg-muted/50 px-6 py-4 text-sm font-medium flex items-center">
-                <div className="w-1/5">Invoice #</div>
-                <div className="w-1/5">Date</div>
-                <div className="w-1/5">Period</div>
-                <div className="w-1/5">Amount</div>
-                <div className="w-1/5">Status</div>
-                <div className="w-[90px] text-right">Actions</div>
-              </div>
-              
-              {["05", "04", "03", "02", "01"].map((month) => (
-                <div 
-                  key={month} 
-                  className="px-6 py-4 border-t flex items-center hover:bg-muted/20 transition-colors"
-                >
-                  <div className="w-1/5 font-medium">#INV-2025-{month}</div>
-                  <div className="w-1/5 flex items-center">
-                    <Calendar className="h-4 w-4 text-muted-foreground mr-2" />
-                    <span>May {Number(month)}, 2025</span>
-                  </div>
-                  <div className="w-1/5">May 2025</div>
-                  <div className="w-1/5 font-medium">20,00 DKK</div>
-                  <div className="w-1/5">
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
-                  </div>
-                  <div className="w-[90px] flex justify-end">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => handleDownloadInvoice(`2025-${month}`)}
-                    >
-                      <Receipt className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => handleDownloadInvoice(`2025-${month}`)}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
+            <TabsContent value="current" className="mt-0">
+              <div className="rounded-lg border overflow-hidden">
+                <div className="bg-muted/50 px-6 py-4 text-sm font-medium flex items-center">
+                  <div className="w-1/5">Invoice #</div>
+                  <div className="w-1/5">Date</div>
+                  <div className="w-1/5">Period</div>
+                  <div className="w-1/5">Amount</div>
+                  <div className="w-1/5">Status</div>
+                  <div className="w-[90px] text-right">Actions</div>
                 </div>
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="previous" className="mt-0">
-            <div className="rounded-lg border overflow-hidden">
-              <div className="bg-muted/50 px-6 py-4 text-sm font-medium flex items-center">
-                <div className="w-1/5">Invoice #</div>
-                <div className="w-1/5">Date</div>
-                <div className="w-1/5">Period</div>
-                <div className="w-1/5">Amount</div>
-                <div className="w-1/5">Status</div>
-                <div className="w-[90px] text-right">Actions</div>
+                
+                {["05", "04", "03", "02", "01"].map((month) => (
+                  <div 
+                    key={month} 
+                    className="px-6 py-4 border-t flex items-center hover:bg-muted/20 transition-colors"
+                  >
+                    <div className="w-1/5 font-medium">#INV-2025-{month}</div>
+                    <div className="w-1/5 flex items-center">
+                      <Calendar className="h-4 w-4 text-muted-foreground mr-2" />
+                      <span>May {Number(month)}, 2025</span>
+                    </div>
+                    <div className="w-1/5">May 2025</div>
+                    <div className="w-1/5 font-medium">20,00 DKK</div>
+                    <div className="w-1/5">
+                      <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
+                    </div>
+                    <div className="w-[90px] flex justify-end">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => handleDownloadInvoice(`2025-${month}`)}
+                      >
+                        <Receipt className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => handleDownloadInvoice(`2025-${month}`)}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
-              
-              {["12", "11", "10"].map((month) => (
-                <div 
-                  key={month} 
-                  className="px-6 py-4 border-t flex items-center hover:bg-muted/20 transition-colors"
-                >
-                  <div className="w-1/5 font-medium">#INV-2024-{month}</div>
-                  <div className="w-1/5 flex items-center">
-                    <Calendar className="h-4 w-4 text-muted-foreground mr-2" />
-                    <span>{
+            </TabsContent>
+            <TabsContent value="previous" className="mt-0">
+              <div className="rounded-lg border overflow-hidden">
+                <div className="bg-muted/50 px-6 py-4 text-sm font-medium flex items-center">
+                  <div className="w-1/5">Invoice #</div>
+                  <div className="w-1/5">Date</div>
+                  <div className="w-1/5">Period</div>
+                  <div className="w-1/5">Amount</div>
+                  <div className="w-1/5">Status</div>
+                  <div className="w-[90px] text-right">Actions</div>
+                </div>
+                
+                {["12", "11", "10"].map((month) => (
+                  <div 
+                    key={month} 
+                    className="px-6 py-4 border-t flex items-center hover:bg-muted/20 transition-colors"
+                  >
+                    <div className="w-1/5 font-medium">#INV-2024-{month}</div>
+                    <div className="w-1/5 flex items-center">
+                      <Calendar className="h-4 w-4 text-muted-foreground mr-2" />
+                      <span>{
+                        month === "12" ? "December" :
+                        month === "11" ? "November" : 
+                        "October"
+                      } {Number(month)}, 2024</span>
+                    </div>
+                    <div className="w-1/5">{
                       month === "12" ? "December" :
                       month === "11" ? "November" : 
                       "October"
-                    } {Number(month)}, 2024</span>
+                    } 2024</div>
+                    <div className="w-1/5 font-medium">20,00 DKK</div>
+                    <div className="w-1/5">
+                      <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
+                    </div>
+                    <div className="w-[90px] flex justify-end">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => handleDownloadInvoice(`2024-${month}`)}
+                      >
+                        <Receipt className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => handleDownloadInvoice(`2024-${month}`)}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="w-1/5">{
-                    month === "12" ? "December" :
-                    month === "11" ? "November" : 
-                    "October"
-                  } 2024</div>
-                  <div className="w-1/5 font-medium">20,00 DKK</div>
-                  <div className="w-1/5">
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
-                  </div>
-                  <div className="w-[90px] flex justify-end">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => handleDownloadInvoice(`2024-${month}`)}
-                    >
-                      <Receipt className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => handleDownloadInvoice(`2024-${month}`)}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </TabsContent>
-        </CardContent>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardHeader>
+        <CardContent></CardContent>
       </Card>
     </motion.div>
   );
