@@ -1,10 +1,11 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GOTrackingTable } from "@/components/go/go-tracking-table";
 import { AssetMap } from "@/components/map/asset-map";
 import { Button } from "@/components/ui/button";
-import { Calendar, Download, Map, List, FileDown, Filter, FileText, Certificate, Search, MapPin } from "lucide-react";
+import { Calendar, Download, Map, List, FileDown, Filter, FileText, Award, Search, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { GuaranteeOfOrigin } from "@/data/go-models";
 import { useToast } from "@/components/ui/use-toast";
@@ -369,7 +370,7 @@ const CorporateTracing = () => {
             Origin Tracking
           </TabsTrigger>
           <TabsTrigger value="certificates" className="flex gap-2">
-            <Certificate className="w-4 h-4" />
+            <Award className="w-4 h-4" />
             Energy Certificates
           </TabsTrigger>
         </TabsList>
