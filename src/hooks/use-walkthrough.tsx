@@ -1,7 +1,7 @@
 
 import { useState, createContext, useContext, useCallback, useEffect } from "react";
 import { WalkthroughDialog } from "@/components/walkthrough/walkthrough-dialog";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { walkthroughSteps, WalkthroughStep } from "@/components/walkthrough/walkthrough-steps";
 
 interface WalkthroughContextType {

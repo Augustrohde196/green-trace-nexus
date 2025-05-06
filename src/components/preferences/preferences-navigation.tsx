@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Mix, MapPin, Layers, Clock } from "lucide-react";
+import { Gauge, MapPin, Layers, Clock } from "lucide-react";
 import { TimeMatchingPreference } from "./time-matching-preference";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +22,7 @@ export function PreferencesNavigation() {
             activeView === "energy-mix" && "border-primary bg-primary/5"
           )}
         >
-          <Mix className={cn("h-6 w-6", activeView === "energy-mix" ? "text-primary" : "text-muted-foreground")} />
+          <Gauge className={cn("h-6 w-6", activeView === "energy-mix" ? "text-primary" : "text-muted-foreground")} />
           <span className={activeView === "energy-mix" ? "text-primary" : "text-muted-foreground"}>Energy Mix</span>
         </Button>
         <Button
