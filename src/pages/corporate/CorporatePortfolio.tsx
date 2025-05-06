@@ -27,6 +27,9 @@ const CorporatePortfolio = () => {
   // BTM vs FTM preferences
   const [btmPercentage, setBtmPercentage] = useState(45);
   const [ftmPercentage, setFtmPercentage] = useState(55);
+  
+  // Initialize the toast hook correctly
+  const { toast } = useToast();
 
   const handleSolarChange = (value: number[]) => {
     const newSolarValue = value[0];
