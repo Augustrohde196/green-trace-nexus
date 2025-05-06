@@ -1,7 +1,7 @@
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { CustomerForm, CustomerFormData } from "@/components/customers/customer-form";
-import { NewCustomer } from "@/hooks/use-mock-customers";
+import { NewCustomer } from "@/data/models"; // Fixed import path to use data/models instead of hooks
 
 interface AddCustomerSheetProps {
   open: boolean;
