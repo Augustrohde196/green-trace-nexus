@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GOTrackingTable } from "@/components/go/go-tracking-table";
 import { AssetMap } from "@/components/map/asset-map";
 import { Button } from "@/components/ui/button";
-import { Calendar, Download, Map, List, FileDown, Filter } from "lucide-react";
+import { Calendar, Download, Map, List, FileDown, Filter, FileText, Certificate, Search, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { GuaranteeOfOrigin } from "@/data/go-models";
 import { useToast } from "@/components/ui/use-toast";
@@ -106,6 +106,73 @@ const generateSimulatedGOs = (count: number): GuaranteeOfOrigin[] => {
   return gos;
 };
 
+const certificates = [
+  { 
+    id: "GH-23985-A", 
+    type: "Wind", 
+    asset: "Vestas Wind Farm, Denmark", 
+    period: "Q1 2024", 
+    volume: "45.2 GWh",
+    status: "active"
+  },
+  { 
+    id: "GH-23765-B", 
+    type: "Wind", 
+    asset: "Vestas Wind Farm, Sweden", 
+    period: "Q1 2024", 
+    volume: "32.8 GWh",
+    status: "active"
+  },
+  { 
+    id: "GH-24001-C", 
+    type: "Solar", 
+    asset: "SolarEdge Farm, Spain", 
+    period: "Q1 2024", 
+    volume: "18.5 GWh",
+    status: "active"
+  },
+  { 
+    id: "GH-22456-D", 
+    type: "Wind", 
+    asset: "Vestas Wind Farm, Denmark", 
+    period: "Q4 2023", 
+    volume: "41.7 GWh",
+    status: "active"
+  },
+  { 
+    id: "GH-22127-E", 
+    type: "Solar", 
+    asset: "SolarEdge Farm, Spain", 
+    period: "Q4 2023", 
+    volume: "15.2 GWh",
+    status: "active"
+  },
+  { 
+    id: "GH-21875-F", 
+    type: "Wind", 
+    asset: "Vestas Wind Farm, Sweden", 
+    period: "Q4 2023", 
+    volume: "37.8 GWh",
+    status: "active"
+  },
+  { 
+    id: "GH-21003-G", 
+    type: "Wind", 
+    asset: "Vestas Wind Farm, Denmark", 
+    period: "Q3 2023", 
+    volume: "38.9 GWh",
+    status: "expired"
+  },
+  { 
+    id: "GH-20876-H", 
+    type: "Solar", 
+    asset: "SolarEdge Farm, Spain", 
+    period: "Q3 2023", 
+    volume: "21.4 GWh",
+    status: "expired"
+  },
+];
+
 const CorporateTracing = () => {
   const { toast } = useToast();
   const [allocatedGOs, setAllocatedGOs] = useState<GuaranteeOfOrigin[]>([]);
@@ -113,6 +180,9 @@ const CorporateTracing = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState("current");
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<"origin" | "certificates">("origin");
+  // Certificate search state
+  const [searchQuery, setSearchQuery] = useState("");
   
   const currentDate = new Date();
   const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
@@ -245,6 +315,13 @@ const CorporateTracing = () => {
     { label: "Custom Range", value: "custom" },
   ];
   
+  // Filter certificates based on search query
+  const filteredCertificates = certificates.filter(cert => 
+    cert.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    cert.asset.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    cert.type.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
   return (
     <motion.div 
       className="space-y-6 bg-background"
@@ -254,9 +331,9 @@ const CorporateTracing = () => {
     >
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Certificate Traceability</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Traceability</h2>
           <p className="text-muted-foreground">
-            Trace the origin of your renewable energy certificates
+            Explore the origin and certificates of your renewable energy
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -275,196 +352,271 @@ const CorporateTracing = () => {
           </Button>
           <Button variant="outline" className="gap-2">
             <Filter className="h-4 w-4" />
-            Filter
+            Date
           </Button>
         </div>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Volume</CardTitle>
-            <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-              MWh
-            </Badge>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{(allocatedGOs.reduce((sum, go) => sum + go.volume, 0)).toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              From {allocatedGOs.length} certificates
-            </p>
-          </CardContent>
-        </Card>
+      <Tabs 
+        defaultValue="origin" 
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as "origin" | "certificates")}
+        className="w-full"
+      >
+        <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
+          <TabsTrigger value="origin" className="flex gap-2">
+            <MapPin className="w-4 h-4" />
+            Origin Tracking
+          </TabsTrigger>
+          <TabsTrigger value="certificates" className="flex gap-2">
+            <Certificate className="w-4 h-4" />
+            Energy Certificates
+          </TabsTrigger>
+        </TabsList>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Wind Energy</CardTitle>
-            <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20">
-              MWh
-            </Badge>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{(allocatedGOs.filter(go => go.type === "wind").reduce((sum, go) => sum + go.volume, 0)).toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              {allocatedGOs.length ? Math.round((allocatedGOs.filter(go => go.type === "wind").reduce((sum, go) => sum + go.volume, 0) / allocatedGOs.reduce((sum, go) => sum + go.volume, 0)) * 100) : 0}% of total
-            </p>
-          </CardContent>
-        </Card>
+        {/* Origin Tracking Tab Content */}
+        <TabsContent value="origin" className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Volume</CardTitle>
+                <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
+                  MWh
+                </Badge>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{(allocatedGOs.reduce((sum, go) => sum + go.volume, 0)).toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">
+                  From {allocatedGOs.length} certificates
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Wind Energy</CardTitle>
+                <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20">
+                  MWh
+                </Badge>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{(allocatedGOs.filter(go => go.type === "wind").reduce((sum, go) => sum + go.volume, 0)).toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">
+                  {allocatedGOs.length ? Math.round((allocatedGOs.filter(go => go.type === "wind").reduce((sum, go) => sum + go.volume, 0) / allocatedGOs.reduce((sum, go) => sum + go.volume, 0)) * 100) : 0}% of total
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Solar Energy</CardTitle>
+                <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20">
+                  MWh
+                </Badge>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{(allocatedGOs.filter(go => go.type === "solar").reduce((sum, go) => sum + go.volume, 0)).toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">
+                  {allocatedGOs.length ? Math.round((allocatedGOs.filter(go => go.type === "solar").reduce((sum, go) => sum + go.volume, 0) / allocatedGOs.reduce((sum, go) => sum + go.volume, 0)) * 100) : 0}% of total
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Production Sites</CardTitle>
+                <Badge variant="outline" className="bg-purple-500/10 text-purple-500 border-purple-500/20">
+                  Count
+                </Badge>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{new Set(allocatedGOs.map(go => go.assetId)).size}</div>
+                <p className="text-xs text-muted-foreground">
+                  Across Denmark
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <Card className="bg-muted/20 border-primary/20">
+            <CardContent className="p-6">
+              {/* ... keep existing code (integrity and heatmap section) */}
+            </CardContent>
+          </Card>
+          
+          <div className="flex justify-end space-x-2 mb-4">
+            <Button
+              variant={viewMode === "map" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("map")}
+            >
+              <Map className="mr-2 h-4 w-4" />
+              Map View
+            </Button>
+            <Button 
+              variant={viewMode === "list" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("list")}
+            >
+              <List className="mr-2 h-4 w-4" />
+              List View
+            </Button>
+            {viewMode === "map" ? (
+              <Button variant="outline" size="sm" onClick={downloadMap}>
+                <Download className="mr-2 h-4 w-4" />
+                Download Map
+              </Button>
+            ) : (
+              <Button variant="outline" size="sm" onClick={exportData}>
+                <FileDown className="mr-2 h-4 w-4" />
+                Export Data
+              </Button>
+            )}
+          </div>
+          
+          {loading ? (
+            <Card className="p-8">
+              <div className="flex items-center justify-center h-[400px]">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            </Card>
+          ) : viewMode === "map" ? (
+            <Card className="overflow-hidden">
+              <CardHeader>
+                <CardTitle>Asset Locations</CardTitle>
+                <CardDescription>Geographic overview of your energy sources</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="h-[600px]" ref={mapContainerRef}>
+                  <AssetMap guaranteesOfOrigin={allocatedGOs} />
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <GOTrackingTable 
+              guaranteesOfOrigin={allocatedGOs} 
+              title="Allocated Certificates" 
+              showSearch={true}
+            />
+          )}
+        </TabsContent>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Solar Energy</CardTitle>
-            <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20">
-              MWh
-            </Badge>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{(allocatedGOs.filter(go => go.type === "solar").reduce((sum, go) => sum + go.volume, 0)).toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              {allocatedGOs.length ? Math.round((allocatedGOs.filter(go => go.type === "solar").reduce((sum, go) => sum + go.volume, 0) / allocatedGOs.reduce((sum, go) => sum + go.volume, 0)) * 100) : 0}% of total
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Production Sites</CardTitle>
-            <Badge variant="outline" className="bg-purple-500/10 text-purple-500 border-purple-500/20">
-              Count
-            </Badge>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{new Set(allocatedGOs.map(go => go.assetId)).size}</div>
-            <p className="text-xs text-muted-foreground">
-              Across Denmark
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <Card className="bg-muted/20 border-primary/20">
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="md:w-3/5">
-              <h3 className="text-lg font-medium mb-4">Hourly Matching Performance</h3>
-              <div className="bg-background rounded-lg p-4 border">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="font-medium">Time-matching heatmap</h4>
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <Download className="h-3 w-3" />
-                    Export
+        {/* Energy Certificates Tab Content */}
+        <TabsContent value="certificates" className="space-y-6">
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <CardTitle>Energy Certificates</CardTitle>
+                <div className="flex items-center gap-2">
+                  <div className="relative w-full sm:w-auto">
+                    <input
+                      type="search"
+                      placeholder="Search certificates..."
+                      className="w-full sm:w-[250px] pl-8 h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <Button variant="outline" size="sm">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Filter
                   </Button>
                 </div>
-                <div className="h-[200px] bg-muted/30 rounded flex items-center justify-center">
-                  {/* Placeholder for heatmap visualization */}
-                  <span className="text-muted-foreground">Hourly matching heatmap visualization</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-4">
-                  This heatmap shows hours where your consumption was matched with renewable production.
-                  Green cells indicate full matching, yellow indicates partial matching, and red indicates no matching.
-                </p>
               </div>
-            </div>
-            <div className="md:w-2/5">
-              <h3 className="text-lg font-medium mb-4">Certificate Integrity</h3>
-              <div className="space-y-4">
-                <div className="bg-background rounded-lg p-4 border">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="bg-green-100 text-green-700">Verified</Badge>
-                      <span className="font-medium">Chain of Custody</span>
-                    </div>
-                    <span className="text-green-600">✓</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    All certificates have verified chain of custody from generation to your allocation.
-                  </p>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border">
+                <table className="w-full caption-bottom text-sm">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="h-10 px-4 text-left font-medium">Certificate ID</th>
+                      <th className="h-10 px-4 text-left font-medium">Type</th>
+                      <th className="h-10 px-4 text-left font-medium">Asset</th>
+                      <th className="h-10 px-4 text-left font-medium">Period</th>
+                      <th className="h-10 px-4 text-left font-medium">Volume</th>
+                      <th className="h-10 px-4 text-left font-medium">Status</th>
+                      <th className="h-10 px-4 text-right font-medium">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredCertificates.map((cert) => (
+                      <tr key={cert.id} className="border-b transition-colors hover:bg-muted/50">
+                        <td className="p-4 align-middle font-medium">{cert.id}</td>
+                        <td className="p-4 align-middle">
+                          <Badge variant="outline" className={cert.type === "Wind" 
+                            ? "bg-[#735DFF]/20 text-[#735DFF] hover:bg-[#735DFF]/30"
+                            : "bg-[#D9F0C2]/20 text-green-700 hover:bg-[#D9F0C2]/30"
+                          }>
+                            {cert.type}
+                          </Badge>
+                        </td>
+                        <td className="p-4 align-middle">{cert.asset}</td>
+                        <td className="p-4 align-middle">{cert.period}</td>
+                        <td className="p-4 align-middle">{cert.volume}</td>
+                        <td className="p-4 align-middle">
+                          <Badge variant={cert.status === "active" ? "default" : "secondary"}>
+                            {cert.status === "active" ? "Active" : "Expired"}
+                          </Badge>
+                        </td>
+                        <td className="p-4 align-middle text-right">
+                          <Button variant="ghost" size="sm" className="h-8 px-2 py-0">
+                            <Download className="h-4 w-4 mr-1" />
+                            Export
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+            <CardFooter className="flex items-center justify-between border-t px-6 py-3">
+              <div className="text-xs text-muted-foreground">
+                Showing <strong>{filteredCertificates.length}</strong> of <strong>{certificates.length}</strong> certificates
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" size="sm" disabled>
+                  Previous
+                </Button>
+                <Button variant="outline" size="sm" disabled>
+                  Next
+                </Button>
+              </div>
+            </CardFooter>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Certificate Statistics</CardTitle>
+              <CardDescription>Overview of your energy certificate portfolio</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Active Certificates</div>
+                  <div className="text-2xl font-bold">{certificates.filter(c => c.status === "active").length}</div>
                 </div>
-                <div className="bg-background rounded-lg p-4 border">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="bg-green-100 text-green-700">Verified</Badge>
-                      <span className="font-medium">Registry Validation</span>
-                    </div>
-                    <span className="text-green-600">✓</span>
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Total Volume</div>
+                  <div className="text-2xl font-bold">
+                    {certificates.reduce((sum, cert) => {
+                      const volume = parseFloat(cert.volume.split(' ')[0]);
+                      return isNaN(volume) ? sum : sum + volume;
+                    }, 0).toFixed(1)} GWh
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    All certificates are validated against the official AIB registry.
-                  </p>
                 </div>
-                <div className="bg-background rounded-lg p-4 border">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="bg-green-100 text-green-700">Available</Badge>
-                      <span className="font-medium">Audit Report</span>
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-primary">Download</Button>
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Wind/Solar Ratio</div>
+                  <div className="text-2xl font-bold">
+                    {Math.round((certificates.filter(c => c.type === "Wind").length / certificates.length) * 100)}% / {Math.round((certificates.filter(c => c.type === "Solar").length / certificates.length) * 100)}%
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Download the full audit report of your certificate tracing for compliance purposes.
-                  </p>
                 </div>
               </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <div className="flex justify-end space-x-2 mb-4">
-        <Button
-          variant={viewMode === "map" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setViewMode("map")}
-        >
-          <Map className="mr-2 h-4 w-4" />
-          Map View
-        </Button>
-        <Button 
-          variant={viewMode === "list" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setViewMode("list")}
-        >
-          <List className="mr-2 h-4 w-4" />
-          List View
-        </Button>
-        {viewMode === "map" ? (
-          <Button variant="outline" size="sm" onClick={downloadMap}>
-            <Download className="mr-2 h-4 w-4" />
-            Download Map
-          </Button>
-        ) : (
-          <Button variant="outline" size="sm" onClick={exportData}>
-            <FileDown className="mr-2 h-4 w-4" />
-            Export Data
-          </Button>
-        )}
-      </div>
-      
-      {loading ? (
-        <Card className="p-8">
-          <div className="flex items-center justify-center h-[400px]">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        </Card>
-      ) : viewMode === "map" ? (
-        <Card className="overflow-hidden">
-          <CardHeader>
-            <CardTitle>Asset Locations</CardTitle>
-            <CardDescription>Geographic overview of your energy sources</CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="h-[600px]" ref={mapContainerRef}>
-              <AssetMap guaranteesOfOrigin={allocatedGOs} />
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <GOTrackingTable 
-          guaranteesOfOrigin={allocatedGOs} 
-          title="Allocated Certificates" 
-          showSearch={true}
-        />
-      )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </motion.div>
   );
 };

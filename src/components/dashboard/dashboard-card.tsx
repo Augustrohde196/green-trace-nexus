@@ -23,15 +23,12 @@ export function DashboardCard({
 }: DashboardCardProps) {
   return (
     <motion.div
-      whileHover={{ 
-        y: -3,
-        boxShadow: "0 8px 20px rgba(0, 0, 0, 0.06)",
-        transition: { duration: 0.2 }
-      }}
-      transition={{ duration: 0.2 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
       id={`dashboard-card-${title.toLowerCase().replace(/\s+/g, '-')}`}
     >
-      <Card className={`overflow-hidden border hover:border-primary/50 transition-all ${className}`}>
+      <Card className={`overflow-hidden border border-border/40 transition-colors hover:border-primary/30 ${className}`}>
         <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
           <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
           {Icon && (

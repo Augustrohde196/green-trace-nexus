@@ -40,11 +40,6 @@ const menuItems = [
     url: "/corporate",
   },
   {
-    title: "Certificates",
-    icon: FileText,
-    url: "/corporate/certificates",
-  },
-  {
     title: "Consumption",
     icon: Activity,
     url: "/corporate/consumption",
