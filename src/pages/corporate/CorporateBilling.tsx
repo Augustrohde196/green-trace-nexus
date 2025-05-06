@@ -158,146 +158,146 @@ const CorporateBilling = () => {
               <TabsTrigger value="current">Current Year</TabsTrigger>
               <TabsTrigger value="previous">Previous Years</TabsTrigger>
             </TabsList>
+            <TabsContent value="current" className="m-0">
+              <div className="rounded-md border">
+                <div className="grid grid-cols-12 p-3 bg-muted/50 text-sm font-medium">
+                  <div className="col-span-2">Invoice #</div>
+                  <div className="col-span-3">Date</div>
+                  <div className="col-span-3">Period</div>
+                  <div className="col-span-2">Amount</div>
+                  <div className="col-span-1">Status</div>
+                  <div className="col-span-1"></div>
+                </div>
+                <div className="grid grid-cols-12 p-3 items-center border-t">
+                  <div className="col-span-2 font-medium">#INV-2025-05</div>
+                  <div className="col-span-3">May 1, 2025</div>
+                  <div className="col-span-3">May 2025</div>
+                  <div className="col-span-2">20,00 DKK</div>
+                  <div className="col-span-1">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
+                  </div>
+                  <div className="col-span-1 text-right">
+                    <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2025-05")}>
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-12 p-3 items-center border-t">
+                  <div className="col-span-2 font-medium">#INV-2025-04</div>
+                  <div className="col-span-3">April 1, 2025</div>
+                  <div className="col-span-3">April 2025</div>
+                  <div className="col-span-2">20,00 DKK</div>
+                  <div className="col-span-1">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
+                  </div>
+                  <div className="col-span-1 text-right">
+                    <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2025-04")}>
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-12 p-3 items-center border-t">
+                  <div className="col-span-2 font-medium">#INV-2025-03</div>
+                  <div className="col-span-3">March 1, 2025</div>
+                  <div className="col-span-3">March 2025</div>
+                  <div className="col-span-2">20,00 DKK</div>
+                  <div className="col-span-1">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
+                  </div>
+                  <div className="col-span-1 text-right">
+                    <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2025-03")}>
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-12 p-3 items-center border-t">
+                  <div className="col-span-2 font-medium">#INV-2025-02</div>
+                  <div className="col-span-3">February 1, 2025</div>
+                  <div className="col-span-3">February 2025</div>
+                  <div className="col-span-2">20,00 DKK</div>
+                  <div className="col-span-1">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
+                  </div>
+                  <div className="col-span-1 text-right">
+                    <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2025-02")}>
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-12 p-3 items-center border-t">
+                  <div className="col-span-2 font-medium">#INV-2025-01</div>
+                  <div className="col-span-3">January 1, 2025</div>
+                  <div className="col-span-3">January 2025</div>
+                  <div className="col-span-2">20,00 DKK</div>
+                  <div className="col-span-1">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
+                  </div>
+                  <div className="col-span-1 text-right">
+                    <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2025-01")}>
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="previous" className="m-0">
+              <div className="rounded-md border">
+                <div className="grid grid-cols-12 p-3 bg-muted/50 text-sm font-medium">
+                  <div className="col-span-2">Invoice #</div>
+                  <div className="col-span-3">Date</div>
+                  <div className="col-span-3">Period</div>
+                  <div className="col-span-2">Amount</div>
+                  <div className="col-span-1">Status</div>
+                  <div className="col-span-1"></div>
+                </div>
+                <div className="grid grid-cols-12 p-3 items-center border-t">
+                  <div className="col-span-2 font-medium">#INV-2024-12</div>
+                  <div className="col-span-3">December 1, 2024</div>
+                  <div className="col-span-3">December 2024</div>
+                  <div className="col-span-2">20,00 DKK</div>
+                  <div className="col-span-1">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
+                  </div>
+                  <div className="col-span-1 text-right">
+                    <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2024-12")}>
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-12 p-3 items-center border-t">
+                  <div className="col-span-2 font-medium">#INV-2024-11</div>
+                  <div className="col-span-3">November 1, 2024</div>
+                  <div className="col-span-3">November 2024</div>
+                  <div className="col-span-2">20,00 DKK</div>
+                  <div className="col-span-1">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
+                  </div>
+                  <div className="col-span-1 text-right">
+                    <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2024-11")}>
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-12 p-3 items-center border-t">
+                  <div className="col-span-2 font-medium">#INV-2024-10</div>
+                  <div className="col-span-3">October 1, 2024</div>
+                  <div className="col-span-3">October 2024</div>
+                  <div className="col-span-2">20,00 DKK</div>
+                  <div className="col-span-1">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
+                  </div>
+                  <div className="col-span-1 text-right">
+                    <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2024-10")}>
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
           </Tabs>
         </CardHeader>
         <CardContent>
-          <TabsContent value="current" className="m-0">
-            <div className="rounded-md border">
-              <div className="grid grid-cols-12 p-3 bg-muted/50 text-sm font-medium">
-                <div className="col-span-2">Invoice #</div>
-                <div className="col-span-3">Date</div>
-                <div className="col-span-3">Period</div>
-                <div className="col-span-2">Amount</div>
-                <div className="col-span-1">Status</div>
-                <div className="col-span-1"></div>
-              </div>
-              <div className="grid grid-cols-12 p-3 items-center border-t">
-                <div className="col-span-2 font-medium">#INV-2025-05</div>
-                <div className="col-span-3">May 1, 2025</div>
-                <div className="col-span-3">May 2025</div>
-                <div className="col-span-2">20,00 DKK</div>
-                <div className="col-span-1">
-                  <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
-                </div>
-                <div className="col-span-1 text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2025-05")}>
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 p-3 items-center border-t">
-                <div className="col-span-2 font-medium">#INV-2025-04</div>
-                <div className="col-span-3">April 1, 2025</div>
-                <div className="col-span-3">April 2025</div>
-                <div className="col-span-2">20,00 DKK</div>
-                <div className="col-span-1">
-                  <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
-                </div>
-                <div className="col-span-1 text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2025-04")}>
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 p-3 items-center border-t">
-                <div className="col-span-2 font-medium">#INV-2025-03</div>
-                <div className="col-span-3">March 1, 2025</div>
-                <div className="col-span-3">March 2025</div>
-                <div className="col-span-2">20,00 DKK</div>
-                <div className="col-span-1">
-                  <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
-                </div>
-                <div className="col-span-1 text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2025-03")}>
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 p-3 items-center border-t">
-                <div className="col-span-2 font-medium">#INV-2025-02</div>
-                <div className="col-span-3">February 1, 2025</div>
-                <div className="col-span-3">February 2025</div>
-                <div className="col-span-2">20,00 DKK</div>
-                <div className="col-span-1">
-                  <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
-                </div>
-                <div className="col-span-1 text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2025-02")}>
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 p-3 items-center border-t">
-                <div className="col-span-2 font-medium">#INV-2025-01</div>
-                <div className="col-span-3">January 1, 2025</div>
-                <div className="col-span-3">January 2025</div>
-                <div className="col-span-2">20,00 DKK</div>
-                <div className="col-span-1">
-                  <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
-                </div>
-                <div className="col-span-1 text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2025-01")}>
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="previous" className="m-0">
-            <div className="rounded-md border">
-              <div className="grid grid-cols-12 p-3 bg-muted/50 text-sm font-medium">
-                <div className="col-span-2">Invoice #</div>
-                <div className="col-span-3">Date</div>
-                <div className="col-span-3">Period</div>
-                <div className="col-span-2">Amount</div>
-                <div className="col-span-1">Status</div>
-                <div className="col-span-1"></div>
-              </div>
-              <div className="grid grid-cols-12 p-3 items-center border-t">
-                <div className="col-span-2 font-medium">#INV-2024-12</div>
-                <div className="col-span-3">December 1, 2024</div>
-                <div className="col-span-3">December 2024</div>
-                <div className="col-span-2">20,00 DKK</div>
-                <div className="col-span-1">
-                  <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
-                </div>
-                <div className="col-span-1 text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2024-12")}>
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 p-3 items-center border-t">
-                <div className="col-span-2 font-medium">#INV-2024-11</div>
-                <div className="col-span-3">November 1, 2024</div>
-                <div className="col-span-3">November 2024</div>
-                <div className="col-span-2">20,00 DKK</div>
-                <div className="col-span-1">
-                  <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
-                </div>
-                <div className="col-span-1 text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2024-11")}>
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 p-3 items-center border-t">
-                <div className="col-span-2 font-medium">#INV-2024-10</div>
-                <div className="col-span-3">October 1, 2024</div>
-                <div className="col-span-3">October 2024</div>
-                <div className="col-span-2">20,00 DKK</div>
-                <div className="col-span-1">
-                  <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
-                </div>
-                <div className="col-span-1 text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleDownloadInvoice("2024-10")}>
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
+          {/* The TabsContent moved inside the Tabs component above */}
         </CardContent>
       </Card>
       
