@@ -10,7 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { User, Key, Plug, Shield, Link, ExternalLink, CheckCircle, AlertTriangle } from "lucide-react";
+import { User, Key, Plug, Shield } from "lucide-react";
 
 const CorporateSettings = () => {
   const { toast } = useToast();
@@ -41,10 +41,6 @@ const CorporateSettings = () => {
       };
       reader.readAsDataURL(file);
     }
-  };
-  
-  const openEnerginet = () => {
-    window.open("https://energinet.dk/datahub/selvbetjening", "_blank");
   };
 
   return (
@@ -139,6 +135,46 @@ const CorporateSettings = () => {
               </div>
             </CardContent>
           </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl">Account Preferences</CardTitle>
+              <CardDescription>Manage your account settings</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="font-medium">Email notifications</h3>
+                    <p className="text-sm text-muted-foreground">Receive email updates about your account</p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="font-medium">Report sharing</h3>
+                    <p className="text-sm text-muted-foreground">Allow report sharing with team members</p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="font-medium">API access</h3>
+                    <p className="text-sm text-muted-foreground">Enable access to your data via API</p>
+                  </div>
+                  <Switch />
+                </div>
+              </div>
+              
+              <div className="pt-4 flex justify-end">
+                <Button onClick={() => toast({ title: "Settings saved", description: "Your preferences have been updated." })}>
+                  Save Preferences
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
         
         <TabsContent value="security" className="space-y-6">
@@ -211,80 +247,88 @@ const CorporateSettings = () => {
               <CardDescription>Connect your account with Energinet for meter data</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <Card className="bg-blue-50/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-                <CardContent className="p-4">
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      <Link className="h-10 w-10 text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-800/50 p-2 rounded-full flex-shrink-0" />
-                      <div>
-                        <h3 className="font-medium text-blue-800 dark:text-blue-300">Your account is not yet linked to Energinet</h3>
-                        <p className="text-sm text-blue-700/90 dark:text-blue-400/90 mt-1">
-                          Connect now for automated data updates and certificate handling
-                        </p>
-                      </div>
-                    </div>
-                    <Button 
-                      className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-                      onClick={openEnerginet}
-                    >
-                      Connect Now
-                      <ExternalLink size={16} />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="space-y-2">
-                <h4 className="text-base font-medium mb-2">What you'll get with Energinet connection:</h4>
-                <div className="bg-muted/50 p-4 rounded-lg space-y-4">
-                  <div className="flex gap-3">
-                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle size={14} className="text-green-600" />
-                    </div>
-                    <div>
-                      <h5 className="font-medium">Official meter readings</h5>
-                      <p className="text-sm text-muted-foreground">
-                        Access to official consumption data for all your connected meters
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle size={14} className="text-green-600" />
-                    </div>
-                    <div>
-                      <h5 className="font-medium">Certificate handling</h5>
-                      <p className="text-sm text-muted-foreground">
-                        Automated management of your renewable energy certificates
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle size={14} className="text-green-600" />
-                    </div>
-                    <div>
-                      <h5 className="font-medium">MitID authentication</h5>
-                      <p className="text-sm text-muted-foreground">
-                        Secure access via Denmark's national digital ID system
-                      </p>
-                    </div>
-                  </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium">Connection Status</h3>
+                  <p className="text-sm text-muted-foreground">Your Energinet data connection</p>
                 </div>
+                <Badge className="bg-green-100 text-green-800 border-green-300">Connected</Badge>
               </div>
               
-              <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-amber-800 dark:text-amber-400">Authorization required</h4>
-                    <p className="text-sm text-amber-700/80 dark:text-amber-400/80 mt-1">
-                      You'll be redirected to Energinet's secure portal where you'll need to use your MitID 
-                      to authorize Renuw to access your energy data.
-                    </p>
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 rounded-lg p-4">
+                <div className="flex items-center gap-2">
+                  <Plug className="h-5 w-5 text-green-700 dark:text-green-400" />
+                  <span className="font-medium text-green-800 dark:text-green-400">Your account is successfully connected to Energinet</span>
+                </div>
+                <p className="text-sm text-green-700/80 dark:text-green-500/80 mt-1 ml-7">
+                  Last sync: May 5, 2025 at 09:45
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row sm:justify-end gap-3 mt-6">
+                <Button onClick={() => toast({ title: "Sync initiated", description: "Syncing data with Energinet..." })}
+                  className="sm:order-2"
+                >
+                  Sync Now
+                </Button>
+                <Button variant="outline" onClick={() => toast({ title: "Connection refreshed", description: "Your Energinet connection has been refreshed." })}
+                  className="sm:order-1"
+                >
+                  Refresh Connection
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl">Connected Systems</CardTitle>
+              <CardDescription>Manage connections to external systems</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Building Management System</h3>
+                      <p className="text-sm text-muted-foreground">Connected since Jan 15, 2025</p>
+                    </div>
                   </div>
+                  <div>
+                    <Button variant="ghost" size="sm"
+                      onClick={() => toast({ title: "Disconnected", description: "Building Management System has been disconnected." })}
+                    >
+                      Disconnect
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">GitHub</h3>
+                      <p className="text-sm text-muted-foreground">Connected since Mar 20, 2025</p>
+                    </div>
+                  </div>
+                  <div>
+                    <Button variant="ghost" size="sm"
+                      onClick={() => toast({ title: "Disconnected", description: "GitHub has been disconnected." })}
+                    >
+                      Disconnect
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="mt-6 flex justify-end">
+                  <Button onClick={() => toast({ title: "Connect new system", description: "Coming soon" })}>
+                    Connect New System
+                  </Button>
                 </div>
               </div>
             </CardContent>
