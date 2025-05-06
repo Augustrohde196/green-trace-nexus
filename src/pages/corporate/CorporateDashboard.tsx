@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -281,7 +280,7 @@ const CorporateDashboard = () => {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value) => `${value} MWh (${(value/100).toFixed(0)}%)`} />
+                    <Tooltip formatter={(value) => `${value} MWh (${(Number(value)/totalConsumption * 100).toFixed(0)}%)`} />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>

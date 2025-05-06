@@ -47,36 +47,36 @@ function App() {
         <Router>
           <Routes>
             {/* Auth routes */}
-            <Route path="/auth" element={<AuthLayout />}>
-              <Route path="sign-in" element={<SignInPage />} />
-              <Route path="sign-up" element={<SignUpPage />} />
-              <Route path="reset-password" element={<ResetPasswordPage />} />
+            <Route element={<AuthLayout />}>
+              <Route path="/auth/sign-in" element={<SignInPage />} />
+              <Route path="/auth/sign-up" element={<SignUpPage />} />
+              <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
             </Route>
             
             {/* Corporate routes */}
-            <Route path="/corporate" element={<CorporateLayout />}>
-              <Route index element={<CorporateDashboard />} />
-              <Route path="certificates" element={<CorporateCertificates />} />
-              <Route path="consumption" element={<CorporateConsumption />} />
-              <Route path="tracing" element={<CorporateTracing />} />
-              <Route path="analytics" element={<CorporateAnalytics />} />
-              <Route path="portfolio" element={<CorporatePortfolio />} />
-              <Route path="onboarding" element={<CorporateOnboarding />} />
-              <Route path="reporting" element={<CorporateReporting />} />
-              <Route path="billing" element={<CorporateBilling />} />
-              <Route path="settings" element={<CorporateSettings />} />
+            <Route element={<CorporateLayout />}>
+              <Route path="/corporate" element={<CorporateDashboard />} />
+              <Route path="/corporate/certificates" element={<CorporateCertificates />} />
+              <Route path="/corporate/consumption" element={<CorporateConsumption />} />
+              <Route path="/corporate/tracing" element={<CorporateTracing />} />
+              <Route path="/corporate/analytics" element={<CorporateAnalytics />} />
+              <Route path="/corporate/portfolio" element={<CorporatePortfolio />} />
+              <Route path="/corporate/onboarding" element={<CorporateOnboarding />} />
+              <Route path="/corporate/reporting" element={<CorporateReporting />} />
+              <Route path="/corporate/billing" element={<CorporateBilling />} />
+              <Route path="/corporate/settings" element={<CorporateSettings />} />
             </Route>
             
             {/* Main app routes */}
-            <Route path="/" element={<AppLayout />}>
+            <Route element={<AppLayout />}>
               <Route index element={<Dashboard />} />
-              <Route path="assets" element={<Assets />} />
-              <Route path="customers" element={<Customers />} />
-              <Route path="matching" element={<MatchingEngine />} />
-              <Route path="reporting" element={<Reporting />} />
-              <Route path="billing" element={<Billing />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="analytics" element={<Analytics />} />
+              <Route path="/assets" element={<Assets />} />
+              <Route path="/customers" element={<Customers />} />
+              <Route path="/matching" element={<MatchingEngine />} />
+              <Route path="/reporting" element={<Reporting />} />
+              <Route path="/billing" element={<Billing />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/analytics" element={<Analytics />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

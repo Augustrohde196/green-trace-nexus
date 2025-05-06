@@ -101,7 +101,7 @@
 
 /* Sidebar styling */
 .sidebar {
-  @apply bg-sidebar-bg text-sidebar-foreground border-r;
+  @apply bg-sidebar text-sidebar-foreground border-r;
 }
 
 .sidebar-menu-button {
