@@ -128,7 +128,7 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
                           asChild
                         >
                           <Link to={item.url} className="flex items-center gap-3 py-2 px-3 rounded-md">
-                            <item.icon size={18} className={isActive ? "text-primary" : "text-sidebar-foreground/70"} />
+                            <item.icon size={18} className={isActive ? "text-sidebar-accent-foreground" : "text-sidebar-foreground/70"} />
                             <span className={`text-sm ${isActive ? "text-sidebar-accent-foreground" : "text-sidebar-foreground/90"}`}>
                               {item.title}
                             </span>
@@ -141,7 +141,7 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
-          <SidebarFooter className="px-4 py-3 absolute bottom-0 w-full border-t">
+          <SidebarFooter className="px-4 py-3 absolute bottom-0 w-full">
             <div className="text-xs text-sidebar-foreground/50 font-medium">
               Renuw Corporate Portal v1.0
             </div>
@@ -150,9 +150,11 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
         <div className="flex-1 flex flex-col bg-background">
           <header className="sticky top-0 z-[51] border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-16 items-center gap-4 px-6">
-              {/* Added the sidebar trigger button */}
               <SidebarTrigger />
-              <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">Renuw</span>
+              </div>
+              <div className="flex-1 ml-2">
                 <h1 className="text-xl font-semibold text-[#2C2C2C] dark:text-white">Corporate Portal</h1>
               </div>
               <div className="flex items-center gap-4">
