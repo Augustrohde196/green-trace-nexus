@@ -37,14 +37,22 @@ function deg2rad(deg: number): number {
  * @returns Center point as {lat, lng}
  */
 export function calculateCenter(coordinates: Array<{lat: number, lng: number}>): {lat: number, lng: number} {
-  if (!coordinates.length) return { lat: 0, lng: 0 };
+  if (!coordinates || !coordinates.length) return { lat: 56.2639, lng: 9.5018 }; // Default to Denmark center
   
-  const totalLat = coordinates.reduce((sum, coord) => sum + coord.lat, 0);
-  const totalLng = coordinates.reduce((sum, coord) => sum + coord.lng, 0);
+  // Filter out invalid coordinates
+  const validCoords = coordinates.filter(coord => 
+    coord && typeof coord.lat === 'number' && typeof coord.lng === 'number' &&
+    !isNaN(coord.lat) && !isNaN(coord.lng)
+  );
+  
+  if (!validCoords.length) return { lat: 56.2639, lng: 9.5018 }; // Default to Denmark center
+  
+  const totalLat = validCoords.reduce((sum, coord) => sum + coord.lat, 0);
+  const totalLng = validCoords.reduce((sum, coord) => sum + coord.lng, 0);
   
   return {
-    lat: totalLat / coordinates.length,
-    lng: totalLng / coordinates.length
+    lat: totalLat / validCoords.length,
+    lng: totalLng / validCoords.length
   };
 }
 
@@ -54,10 +62,18 @@ export function calculateCenter(coordinates: Array<{lat: number, lng: number}>):
  * @returns A zoom level between 1 and 20
  */
 export function calculateZoomLevel(coordinates: Array<{lat: number, lng: number}>): number {
-  if (coordinates.length < 2) return 7; // Default zoom for single point or empty array
+  if (!coordinates || coordinates.length < 2) return 7; // Default zoom for single point or empty array
   
-  const lats = coordinates.map(c => c.lat);
-  const lngs = coordinates.map(c => c.lng);
+  // Filter out invalid coordinates
+  const validCoords = coordinates.filter(coord => 
+    coord && typeof coord.lat === 'number' && typeof coord.lng === 'number' &&
+    !isNaN(coord.lat) && !isNaN(coord.lng)
+  );
+  
+  if (validCoords.length < 2) return 7; // Default zoom for insufficient valid points
+  
+  const lats = validCoords.map(c => c.lat);
+  const lngs = validCoords.map(c => c.lng);
   
   const minLat = Math.min(...lats);
   const maxLat = Math.max(...lats);

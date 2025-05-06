@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { HourlyMatchingView } from "@/components/tracing/hourly-matching-view";
+import { calculateCenter, calculateZoomLevel } from "@/utils/map-utils";
 
 const DENMARK_COORDINATES = [
   { region: "Capital Region", name: "Copenhagen", lat: 55.676, lng: 12.568 },
@@ -234,7 +234,8 @@ const CorporateTracing = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAsset, setSelectedAsset] = useState<GuaranteeOfOrigin | null>(null);
   const [isAssetDialogOpen, setIsAssetDialogOpen] = useState(false);
-  const [showHourlyMatching, setShowHourlyMatching] = useState(false);
+  // Change default value to true to show hourly matching by default
+  const [showHourlyMatching, setShowHourlyMatching] = useState(true);
   
   const currentDate = new Date();
   const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
@@ -374,6 +375,10 @@ const CorporateTracing = () => {
   const toggleHourlyMatching = () => {
     setShowHourlyMatching(!showHourlyMatching);
   };
+  
+  // Get map center and zoom from assets
+  const mapCenter = calculateCenter(allocatedGOs.map(go => go.coordinates));
+  const mapZoom = calculateZoomLevel(allocatedGOs.map(go => go.coordinates));
   
   return (
     <motion.div 
@@ -567,8 +572,8 @@ const CorporateTracing = () => {
                 <div ref={mapContainerRef} className="relative h-[600px]">
                   <AssetMap 
                     assets={allocatedGOs} 
-                    initialCenter={{ lat: 56.2639, lng: 9.5018 }} 
-                    initialZoom={7}
+                    initialCenter={mapCenter} 
+                    initialZoom={mapZoom}
                     onAssetClick={handleAssetClick}
                     className="w-full h-full"
                   />
@@ -794,9 +799,9 @@ const CorporateTracing = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Asset Detail Dialog */}
+      {/* Asset Detail Dialog - Fix positioning issue */}
       <Dialog open={isAssetDialogOpen} onOpenChange={setIsAssetDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" style={{ zIndex: 1000 }}>
           <DialogHeader>
             <DialogTitle>{selectedAsset?.assetName || "Asset Details"}</DialogTitle>
             <DialogDescription>

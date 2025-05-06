@@ -11,7 +11,7 @@ import { UpcomingInvoices } from "@/components/billing/upcoming-invoices";
 
 const CorporateBilling = () => {
   const { toast } = useToast();
-  const [activePeriod, setActivePeriod] = useState("current");
+  const [activeTab, setActiveTab] = useState("current");
   
   const handleDownloadInvoice = (invoiceId: string) => {
     toast({
@@ -110,54 +110,64 @@ const CorporateBilling = () => {
               <CardDescription>Your billing history</CardDescription>
             </div>
             <Tabs 
-              value={activePeriod} 
-              onValueChange={setActivePeriod}
-              className="w-[400px]"
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-[220px]"
             >
               <TabsList className="grid grid-cols-2">
                 <TabsTrigger value="current">Current Year</TabsTrigger>
                 <TabsTrigger value="previous">Previous Years</TabsTrigger>
               </TabsList>
+            </Tabs>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={activeTab}>
               <TabsContent value="current">
-                <div className="rounded-lg border overflow-hidden">
-                  <div className="bg-muted/50 px-6 py-4 text-sm font-medium flex items-center">
-                    <div className="w-1/5">Invoice #</div>
-                    <div className="w-1/5">Date</div>
-                    <div className="w-1/5">Period</div>
-                    <div className="w-1/5">Amount</div>
-                    <div className="w-1/5">Status</div>
-                    <div className="w-[90px] text-right">Actions</div>
-                  </div>
-                  
+                <div className="space-y-4">
                   {["05", "04", "03", "02", "01"].map((month) => (
                     <div 
                       key={month} 
-                      className="px-6 py-4 border-t flex items-center hover:bg-muted/20 transition-colors"
+                      className="bg-card border rounded-lg p-4 hover:bg-accent/50 transition-colors group relative overflow-hidden"
                     >
-                      <div className="w-1/5 font-medium">#INV-2025-{month}</div>
-                      <div className="w-1/5 flex items-center">
-                        <Calendar className="h-4 w-4 text-muted-foreground mr-2" />
-                        <span>May {Number(month)}, 2025</span>
+                      <div className="absolute top-0 left-0 w-2 h-full bg-green-500"></div>
+                      <div className="flex items-center justify-between">
+                        <div className="pl-2">
+                          <div className="flex items-center gap-2">
+                            <Receipt className="h-4 w-4 text-primary" />
+                            <h3 className="font-medium">#INV-2025-{month}</h3>
+                          </div>
+                          <div className="flex items-center mt-1 text-sm text-muted-foreground">
+                            <Calendar className="h-3 w-3 text-muted-foreground mr-1" />
+                            <span>May {Number(month)}, 2025</span>
+                            <span className="mx-2">•</span>
+                            <span>Monthly Subscription</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col items-end">
+                          <div className="text-base font-semibold">20.00 DKK</div>
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100 mt-1">Paid</Badge>
+                        </div>
                       </div>
-                      <div className="w-1/5">May 2025</div>
-                      <div className="w-1/5 font-medium">20,00 DKK</div>
-                      <div className="w-1/5">
-                        <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
-                      </div>
-                      <div className="w-[90px] flex justify-end">
+                      
+                      <div className="flex justify-end gap-2 mt-3">
                         <Button 
                           variant="ghost" 
-                          size="icon" 
+                          size="sm"
+                          className="h-8"
                           onClick={() => handleDownloadInvoice(`2025-${month}`)}
                         >
-                          <Receipt className="h-4 w-4" />
+                          <Receipt className="h-4 w-4 mr-2" />
+                          View
                         </Button>
                         <Button 
                           variant="ghost" 
-                          size="icon" 
+                          size="sm"
+                          className="h-8"
                           onClick={() => handleDownloadInvoice(`2025-${month}`)}
                         >
-                          <Download className="h-4 w-4" />
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
                         </Button>
                       </div>
                     </div>
@@ -165,53 +175,55 @@ const CorporateBilling = () => {
                 </div>
               </TabsContent>
               <TabsContent value="previous">
-                <div className="rounded-lg border overflow-hidden">
-                  <div className="bg-muted/50 px-6 py-4 text-sm font-medium flex items-center">
-                    <div className="w-1/5">Invoice #</div>
-                    <div className="w-1/5">Date</div>
-                    <div className="w-1/5">Period</div>
-                    <div className="w-1/5">Amount</div>
-                    <div className="w-1/5">Status</div>
-                    <div className="w-[90px] text-right">Actions</div>
-                  </div>
-                  
+                <div className="space-y-4">
                   {["12", "11", "10"].map((month) => (
                     <div 
                       key={month} 
-                      className="px-6 py-4 border-t flex items-center hover:bg-muted/20 transition-colors"
+                      className="bg-card border rounded-lg p-4 hover:bg-accent/50 transition-colors group relative overflow-hidden"
                     >
-                      <div className="w-1/5 font-medium">#INV-2024-{month}</div>
-                      <div className="w-1/5 flex items-center">
-                        <Calendar className="h-4 w-4 text-muted-foreground mr-2" />
-                        <span>{
-                          month === "12" ? "December" :
-                          month === "11" ? "November" : 
-                          "October"
-                        } {Number(month)}, 2024</span>
+                      <div className="absolute top-0 left-0 w-2 h-full bg-green-500"></div>
+                      <div className="flex items-center justify-between">
+                        <div className="pl-2">
+                          <div className="flex items-center gap-2">
+                            <Receipt className="h-4 w-4 text-primary" />
+                            <h3 className="font-medium">#INV-2024-{month}</h3>
+                          </div>
+                          <div className="flex items-center mt-1 text-sm text-muted-foreground">
+                            <Calendar className="h-3 w-3 text-muted-foreground mr-1" />
+                            <span>{
+                              month === "12" ? "December" :
+                              month === "11" ? "November" : 
+                              "October"
+                            } {Number(month)}, 2024</span>
+                            <span className="mx-2">•</span>
+                            <span>Monthly Subscription</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col items-end">
+                          <div className="text-base font-semibold">20.00 DKK</div>
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100 mt-1">Paid</Badge>
+                        </div>
                       </div>
-                      <div className="w-1/5">{
-                        month === "12" ? "December" :
-                        month === "11" ? "November" : 
-                        "October"
-                      } 2024</div>
-                      <div className="w-1/5 font-medium">20,00 DKK</div>
-                      <div className="w-1/5">
-                        <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Paid</Badge>
-                      </div>
-                      <div className="w-[90px] flex justify-end">
+                      
+                      <div className="flex justify-end gap-2 mt-3">
                         <Button 
                           variant="ghost" 
-                          size="icon" 
+                          size="sm"
+                          className="h-8"
                           onClick={() => handleDownloadInvoice(`2024-${month}`)}
                         >
-                          <Receipt className="h-4 w-4" />
+                          <Receipt className="h-4 w-4 mr-2" />
+                          View
                         </Button>
                         <Button 
                           variant="ghost" 
-                          size="icon" 
+                          size="sm"
+                          className="h-8"
                           onClick={() => handleDownloadInvoice(`2024-${month}`)}
                         >
-                          <Download className="h-4 w-4" />
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
                         </Button>
                       </div>
                     </div>
@@ -219,7 +231,7 @@ const CorporateBilling = () => {
                 </div>
               </TabsContent>
             </Tabs>
-          </CardHeader>
+          </CardContent>
         </Card>
       </div>
     </motion.div>
