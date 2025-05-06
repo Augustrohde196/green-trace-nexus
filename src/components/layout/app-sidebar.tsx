@@ -71,7 +71,7 @@ export function AppSidebar() {
                   asChild
                 >
                   <Link to={item.url} className="flex items-center gap-3">
-                    <item.icon size={18} className={`${isActive ? "text-primary" : "text-sidebar-foreground/70"}`} />
+                    <item.icon size={18} className={`${isActive ? "text-sidebar-accent-foreground" : "text-sidebar-foreground/70"}`} />
                     <span className={`text-sm ${isActive ? "text-sidebar-accent-foreground" : "text-sidebar-foreground/90"}`}>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>

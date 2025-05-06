@@ -1,4 +1,3 @@
-
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Home, FileText, Activity, MapPin, Sliders, Bell, Moon, Sun, User, LogOut, Receipt, Settings } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
@@ -104,8 +103,8 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar>
-          <SidebarHeader className="px-6 py-5">
-            {/* Removed the Corporate Portal title from sidebar */}
+          <SidebarHeader className="flex items-center justify-center px-6 py-5">
+            <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">Renuw</span>
           </SidebarHeader>
           <SidebarContent className="pb-12">
             <SidebarGroup>
@@ -151,10 +150,7 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
           <header className="sticky top-0 z-[51] border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-16 items-center gap-4 px-6">
               <SidebarTrigger />
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">Renuw</span>
-              </div>
-              <div className="flex-1 ml-2">
+              <div className="flex-1">
                 <h1 className="text-xl font-semibold text-[#2C2C2C] dark:text-white">Corporate Portal</h1>
               </div>
               <div className="flex items-center gap-4">
