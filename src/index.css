@@ -35,6 +35,7 @@
  
     --radius: 0.5rem;
     
+    /* Align sidebar colors with #2B2B2B in dark mode */
     --sidebar: 0 0% 100%;
     --sidebar-foreground: 240 6% 17%;
     --sidebar-muted: 240 4% 46%;
@@ -71,7 +72,8 @@
     --input: 240 6% 25%;
     --ring: 255 100% 68%; /* Based on #735DFF */
 
-    --sidebar: 240 6% 17%;
+    /* Match #2B2B2B exactly for sidebar background */
+    --sidebar: 0 0% 17%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-muted: 240 5% 65%;
     --sidebar-accent: 255 100% 68%; /* Based on #735DFF */

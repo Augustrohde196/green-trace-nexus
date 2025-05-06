@@ -1,6 +1,6 @@
 
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Home, FileText, Activity, MapPin, BarChart3, Sliders, Bell, Moon, Sun, User, LogOut, Receipt, Settings } from "lucide-react";
+import { Home, FileText, Activity, MapPin, Sliders, Bell, Moon, Sun, User, LogOut, Receipt, Settings } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -16,6 +16,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger
 } from "@/components/ui/sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import {
@@ -39,7 +40,7 @@ const menuItems = [
     url: "/corporate",
   },
   {
-    title: "My Certificates",
+    title: "Certificates",
     icon: FileText,
     url: "/corporate/certificates",
   },
@@ -49,22 +50,17 @@ const menuItems = [
     url: "/corporate/consumption",
   },
   {
-    title: "Certificate Tracing",
+    title: "Traceability",
     icon: MapPin,
     url: "/corporate/tracing",
   },
   {
-    title: "Analytics",
-    icon: BarChart3,
-    url: "/corporate/analytics",
-  },
-  {
-    title: "Portfolio Settings",
+    title: "Preferences",
     icon: Sliders,
     url: "/corporate/portfolio",
   },
   {
-    title: "ESG Reporting",
+    title: "Reporting",
     icon: FileText,
     url: "/corporate/reporting",
   },
@@ -108,7 +104,6 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
           </SidebarHeader>
           <SidebarContent className="pb-12">
             <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground/60 px-3 py-2">Corporate Portal</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu className="px-2 space-y-1">
                   {menuItems.map((item) => {
@@ -148,8 +143,9 @@ export function CorporateLayout({ children }: CorporateLayoutProps) {
         <div className="flex-1 flex flex-col bg-background">
           <header className="sticky top-0 z-[51] border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-16 items-center gap-4 px-6">
+              <SidebarTrigger />
               <div className="flex-1">
-                {/* Header space */}
+                <h1 className="text-xl font-semibold text-[#2C2C2C] dark:text-white">Corporate Portal</h1>
               </div>
               <div className="flex items-center gap-4">
                 <motion.div 
