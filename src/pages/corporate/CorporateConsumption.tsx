@@ -36,7 +36,7 @@ import {
 } from "@/utils/consumption-data";
 import { format } from "date-fns";
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const CorporateConsumption = () => {
   // State for data

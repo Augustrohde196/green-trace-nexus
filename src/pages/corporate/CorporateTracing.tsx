@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Download, Map, List, FileDown, Filter, FileText, Award, Search, MapPin, BarChart3, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { GuaranteeOfOrigin } from "@/data/go-models";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast"; // Fixed import path
 import html2canvas from "html2canvas";
 import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";

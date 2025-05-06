@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -10,7 +9,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { OnboardingForm } from "@/components/corporate/onboarding/onboarding-form";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const CorporateOnboarding = () => {
   const navigate = useNavigate();

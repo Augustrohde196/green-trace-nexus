@@ -44,7 +44,7 @@ import { Badge } from "@/components/ui/badge";
 import { useMockCustomers } from "@/hooks/use-mock-customers";
 import { goService } from "@/services/go-service";
 import { formatDate } from "@/lib/utils";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast"; // Fixed import path
 
 const PortfolioMixChart = ({ actual, target }) => {
   return (

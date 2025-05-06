@@ -1,8 +1,9 @@
+
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Home, FileText, Activity, MapPin, Sliders, Bell, Moon, Sun, User, LogOut, Receipt, Settings } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast"; // Fixed import path
 import { useWalkthrough } from "@/hooks/use-walkthrough";
 import {
   Sidebar,

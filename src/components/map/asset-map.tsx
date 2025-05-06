@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { GuaranteeOfOrigin } from "@/data/go-models";
 import { Badge } from "@/components/ui/badge";
@@ -43,9 +44,10 @@ export function AssetMap({
         mapboxgl.default.accessToken = MAPBOX_TOKEN;
 
         // Use the provided center or default to Denmark
+        // Fix: Ensure we're passing a proper LngLatLike object, not an array
         const center = initialCenter && initialCenter.lat && initialCenter.lng ? 
-          [initialCenter.lng, initialCenter.lat] : 
-          [9.5018, 56.2639]; // Denmark's center coordinates
+          [initialCenter.lng, initialCenter.lat] as [number, number] : // Explicitly type as tuple
+          [9.5018, 56.2639] as [number, number]; // Denmark's center coordinates
 
         map.current = new mapboxgl.default.Map({
           container: mapContainer.current,
@@ -170,8 +172,9 @@ export function AssetMap({
               
               // Create and add marker
               try {
+                // Fix: Ensure coordinates are properly passed as a tuple
                 const marker = new mapboxgl.default.Marker(el)
-                  .setLngLat([coordinates.lng, coordinates.lat])
+                  .setLngLat([coordinates.lng, coordinates.lat] as [number, number])
                   .addTo(map.current);
                 
                 // Add click event
