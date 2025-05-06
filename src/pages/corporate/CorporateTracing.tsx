@@ -17,8 +17,15 @@ const assets: GuaranteeOfOrigin[] = [
     assetName: "Vindeby Wind Farm",
     type: "wind",
     volume: 1450,
-    date: new Date("2025-04-01"),
-    status: "active",
+    productionTimestamp: "2025-04-01T10:00:00.000Z",
+    status: "available", // Changed from "active" to "available"
+    customerId: null,
+    customerName: null,
+    allocationTimestamp: null,
+    allocationScore: null,
+    gsrn: "571234567890123456",
+    gridArea: "DK1",
+    trackingCode: "GO-WT001-2025",
     coordinates: { lat: 55.1934, lng: 11.1283 }
   },
   {
@@ -27,8 +34,15 @@ const assets: GuaranteeOfOrigin[] = [
     assetName: "Anholt Offshore Wind Farm",
     type: "wind",
     volume: 3200,
-    date: new Date("2025-04-05"),
-    status: "active",
+    productionTimestamp: "2025-04-05T10:00:00.000Z",
+    status: "allocated", // Changed from "active" to "allocated"
+    customerId: "CUST001",
+    customerName: "Acme Corp",
+    allocationTimestamp: "2025-04-07T10:00:00.000Z",
+    allocationScore: 85,
+    gsrn: "571234567890123457",
+    gridArea: "DK1",
+    trackingCode: "GO-WT002-2025",
     coordinates: { lat: 56.5987, lng: 11.2088 }
   },
   {
@@ -37,8 +51,15 @@ const assets: GuaranteeOfOrigin[] = [
     assetName: "Lerchenborg Solar Park",
     type: "solar",
     volume: 900,
-    date: new Date("2025-03-28"),
-    status: "active",
+    productionTimestamp: "2025-03-28T10:00:00.000Z",
+    status: "transferred", // Changed from "active" to "transferred" 
+    customerId: "CUST002",
+    customerName: "EcoEnergy Ltd",
+    allocationTimestamp: "2025-03-30T10:00:00.000Z",
+    allocationScore: 78,
+    gsrn: "571234567890123458",
+    gridArea: "DK2",
+    trackingCode: "GO-SL001-2025",
     coordinates: { lat: 55.5812, lng: 11.1057 }
   },
   {
@@ -47,8 +68,15 @@ const assets: GuaranteeOfOrigin[] = [
     assetName: "Kalundborg Solar Farm",
     type: "solar",
     volume: 780,
-    date: new Date("2025-04-02"),
-    status: "active",
+    productionTimestamp: "2025-04-02T10:00:00.000Z",
+    status: "redeemed", // Changed from "active" to "redeemed"
+    customerId: "CUST003",
+    customerName: "GreenTech A/S",
+    allocationTimestamp: "2025-04-04T10:00:00.000Z",
+    allocationScore: 92,
+    gsrn: "571234567890123459",
+    gridArea: "DK2",
+    trackingCode: "GO-SL002-2025",
     coordinates: { lat: 55.6809, lng: 11.0969 }
   }
 ];
@@ -148,11 +176,11 @@ export default function CorporateTracing() {
                     <div className="text-right">
                       <div className="font-medium">{asset.volume.toLocaleString()} MWh</div>
                       <div className="text-sm text-muted-foreground">
-                        {asset.date.toLocaleDateString('en-DK', {day: 'numeric', month: 'short', year: 'numeric'})}
+                        {new Date(asset.productionTimestamp).toLocaleDateString('en-DK', {day: 'numeric', month: 'short', year: 'numeric'})}
                       </div>
                     </div>
-                    <Badge className={`${asset.status === "active" ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400" : "bg-amber-100 text-amber-800"}`}>
-                      {asset.status === "active" ? "Active" : "Pending"}
+                    <Badge className={`${getStatusColor(asset.status)}`}>
+                      {capitalizeFirstLetter(asset.status)}
                     </Badge>
                   </div>
                 </div>
@@ -164,3 +192,25 @@ export default function CorporateTracing() {
     </motion.div>
   );
 }
+
+// Helper function to get the appropriate status color
+function getStatusColor(status: "available" | "allocated" | "transferred" | "redeemed"): string {
+  switch (status) {
+    case "available":
+      return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+    case "allocated":
+      return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
+    case "transferred":
+      return "bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400";
+    case "redeemed":
+      return "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400";
+    default:
+      return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
+  }
+}
+
+// Helper function to capitalize the first letter
+function capitalizeFirstLetter(string: string): string {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
