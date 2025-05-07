@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Download, FileText, MapPin, Leaf, BatteryIcon, SunMedium,
   Wind, Activity, Calendar, Filter, Award, Zap, Calendar as CalendarIcon,
-  X, ExternalLink, Info, LayoutGrid
+  X, ExternalLink, Info, LayoutGrid, Timer
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
@@ -340,52 +341,83 @@ const CorporateDashboard = () => {
         </div>
       </motion.div>
       
-      {/* Metrics Cards */}
+      {/* Metrics Cards - Fixed styling to match utility portal cards */}
       <motion.div 
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        <motion.div variants={itemVariants} whileHover={subtleHoverVariants.hover}>
-          <DashboardCard
-            title="Annual Consumption"
-            value="245 GWh"
-            description="+2.5% from last year"
-            icon={Activity}
-            iconColor="text-blue-500"
-          />
+        <motion.div variants={itemVariants}>
+          <Card className="overflow-hidden border border-border/40 hover:border-primary/30 h-[140px]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Annual Consumption</CardTitle>
+              <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 text-blue-500">
+                <Activity className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">245 GWh</div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center">
+                +2.5% from last year
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
-        <motion.div variants={itemVariants} whileHover={subtleHoverVariants.hover}>
-          <DashboardCard
-            title="Certificates Coverage"
-            value="14"
-            description="Power sourced from 14 traceable renewable assets"
-            icon={LayoutGrid}
-            iconColor="text-purple-500"
-          />
+        
+        <motion.div variants={itemVariants}>
+          <Card className="overflow-hidden border border-border/40 hover:border-primary/30 h-[140px]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Asset Sources</CardTitle>
+              <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 text-purple-500">
+                <MapPin className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">14</div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center">
+                From 3 Locations
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
-        <motion.div variants={itemVariants} whileHover={subtleHoverVariants.hover}>
-          <DashboardCard
-            title="CO₂ Avoided"
-            value="112 tons"
-            description="Equivalent to 5,100 trees"
-            icon={Leaf}
-            iconColor="text-green-500"
-          />
+        
+        <motion.div variants={itemVariants}>
+          <Card className="overflow-hidden border border-border/40 hover:border-primary/30 h-[140px]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">CO₂ Avoided</CardTitle>
+              <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 text-green-500">
+                <Leaf className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">112 tons</div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center">
+                Equivalent to 5,100 trees
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
-        <motion.div variants={itemVariants} whileHover={subtleHoverVariants.hover}>
-          <DashboardCard
-            title="Portfolio Mix"
-            value="60% / 40%"
-            description="Wind / Solar split"
-            icon={BatteryIcon}
-            iconColor="text-amber-500"
-          />
+        
+        <motion.div variants={itemVariants}>
+          <Card className="overflow-hidden border border-border/40 hover:border-primary/30 h-[140px]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Portfolio Mix</CardTitle>
+              <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 text-amber-500">
+                <BatteryIcon className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">60% / 40%</div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center">
+                Wind / Solar split
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
       </motion.div>
 
-      {/* Energy Usage vs Green Supply Graph */}
+      {/* Energy Usage vs Green Supply Graph - Updated as requested */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -395,14 +427,13 @@ const CorporateDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Time-Matching Scores</CardTitle>
-              <CardDescription>Hourly alignment between consumption and renewable production</CardDescription>
+              <CardTitle>Time Matching Scores</CardTitle>
             </div>
             <div className="flex items-center bg-muted/40 p-1 rounded-md border">
               {dateFilters.map((period) => (
                 <Button
                   key={period.value}
-                  variant={timeMatchingPeriod === period.value ? "secondary" : "ghost"}
+                  variant={timeMatchingPeriod === period.value ? "default" : "ghost"}
                   size="sm"
                   className={`text-xs px-3 rounded-sm ${
                     timeMatchingPeriod === period.value 
@@ -419,7 +450,7 @@ const CorporateDashboard = () => {
           <CardContent>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="month" />
                   <YAxis yAxisId="right" orientation="right" label={{ value: 'Score %', angle: 90, position: 'insideRight' }} domain={[0, 100]} />
@@ -433,36 +464,7 @@ const CorporateDashboard = () => {
                     name="Matching Score (%)" 
                     strokeWidth={2}
                   />
-                  <Line 
-                    yAxisId="right" 
-                    type="monotone" 
-                    dataKey="hourlyAlignment" 
-                    stroke="#8884d8" 
-                    name="Hourly Alignment (%)" 
-                    strokeWidth={1.5} 
-                    dot={false}
-                  />
-                  <Line 
-                    yAxisId="right" 
-                    type="monotone" 
-                    dataKey="peakMatch" 
-                    stroke="#4DA167" 
-                    name="Peak Hours Match (%)" 
-                    strokeWidth={1.5} 
-                    dot={false}
-                    strokeDasharray="5 5"
-                  />
-                  <Line 
-                    yAxisId="right" 
-                    type="monotone" 
-                    dataKey="offPeakMatch" 
-                    stroke="#82ca9d" 
-                    name="Off-Peak Hours Match (%)" 
-                    strokeWidth={1.5} 
-                    dot={false} 
-                    strokeDasharray="3 3"
-                  />
-                </ComposedChart>
+                </LineChart>
               </ResponsiveContainer>
             </div>
             
@@ -654,10 +656,10 @@ const CorporateDashboard = () => {
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
                 <div className="h-20 w-20 rounded-full bg-amber-100 flex items-center justify-center mb-4">
-                  <Zap size={32} className="text-amber-600" />
+                  <Timer size={32} className="text-amber-600" />
                 </div>
-                <div className="text-3xl font-bold">14</div>
-                <div className="text-sm text-muted-foreground">Traceable renewable assets</div>
+                <div className="text-3xl font-bold">{averageScore}%</div>
+                <div className="text-sm text-muted-foreground">Time-Matching Score</div>
               </motion.div>
             </div>
             
