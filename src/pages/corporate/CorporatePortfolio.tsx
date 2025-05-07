@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoIcon, Save, Wind, SunMedium } from "lucide-react";
-import { useToast } from "@/hooks/use-toast"; // Fixed import path
+import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const CorporatePortfolio = () => {
   // Portfolio preference state
@@ -24,9 +25,8 @@ const CorporatePortfolio = () => {
   const [locationMatchingEnabled, setLocationMatchingEnabled] = useState(true);
   const [maxDistance, setMaxDistance] = useState(300);
   
-  // BTM vs FTM preferences
-  const [btmPercentage, setBtmPercentage] = useState(45);
-  const [ftmPercentage, setFtmPercentage] = useState(55);
+  // BTM priority preference
+  const [btmPriorityEnabled, setBtmPriorityEnabled] = useState(true);
   
   // Initialize the toast hook correctly
   const { toast } = useToast();
@@ -43,10 +43,8 @@ const CorporatePortfolio = () => {
     setSolarPreference(100 - newWindValue);
   };
   
-  const handleBtmChange = (value: number[]) => {
-    const newBtmValue = value[0];
-    setBtmPercentage(newBtmValue);
-    setFtmPercentage(100 - newBtmValue);
+  const handleTimeMatchingChange = (value: number[]) => {
+    setTimeMatchingTarget(value[0]);
   };
 
   const handleSave = () => {
@@ -108,8 +106,7 @@ const CorporatePortfolio = () => {
         <AlertTitle>Current Preference Summary</AlertTitle>
         <AlertDescription>
           Your current preferences: Wind {windPreference}%, Solar {solarPreference}%, 
-          {locationMatchingEnabled ? ` Local sources prioritized (max ${maxDistance}km)` : ' No location constraints'}, 
-          BTM {btmPercentage}% / FTM {ftmPercentage}%
+          {locationMatchingEnabled ? ` Local sources prioritized (max ${maxDistance}km)` : ' No location constraints'}
         </AlertDescription>
       </Alert>
       
@@ -117,7 +114,7 @@ const CorporatePortfolio = () => {
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="energy-mix">Energy Mix</TabsTrigger>
           <TabsTrigger value="location">Location Preferences</TabsTrigger>
-          <TabsTrigger value="distribution">Source Distribution</TabsTrigger>
+          <TabsTrigger value="time-matching">Time Matching</TabsTrigger>
         </TabsList>
         
         <TabsContent value="energy-mix" className="space-y-4 pt-4">
@@ -160,6 +157,27 @@ const CorporatePortfolio = () => {
                   step={1}
                   onValueChange={handleSolarChange}
                 />
+                
+                <div className="flex items-center justify-between mt-8">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="btm-priority" className="font-medium">Behind-the-Meter Priority</Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <InfoIcon className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          If your facility has on-site (BTM) energy generation, Renuw will automatically prioritise it to optimise coverage and time-matching.
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <Switch 
+                    id="btm-priority" 
+                    checked={btmPriorityEnabled}
+                    onCheckedChange={setBtmPriorityEnabled}
+                  />
+                </div>
               </div>
               
               <div className="bg-muted/30 p-4 rounded-lg">
@@ -250,53 +268,35 @@ const CorporatePortfolio = () => {
           </Card>
         </TabsContent>
         
-        <TabsContent value="distribution" className="space-y-4 pt-4">
+        <TabsContent value="time-matching" className="space-y-4 pt-4">
           <Card>
             <CardHeader>
-              <CardTitle>BTM vs FTM Distribution</CardTitle>
+              <CardTitle>Time Matching Preference</CardTitle>
               <CardDescription>
-                Set your preferred distribution between Behind-the-Meter and Front-of-Meter energy sources
+                Set your preferred level of time matching between consumption and generation
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <Label htmlFor="btm-slider" className="font-medium">Behind-the-Meter (BTM)</Label>
-                    <span>{btmPercentage}%</span>
+                    <Label htmlFor="time-matching-slider" className="font-medium">Time Matching</Label>
+                    <span>{timeMatchingTarget}%</span>
                   </div>
                   <Slider
-                    id="btm-slider"
-                    value={[btmPercentage]}
+                    id="time-matching-slider"
+                    value={[timeMatchingTarget]}
                     max={100}
                     step={5}
-                    onValueChange={handleBtmChange}
-                  />
-                </div>
-                
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <Label htmlFor="ftm-slider" className="font-medium">Front-of-Meter (FTM)</Label>
-                    <span>{ftmPercentage}%</span>
-                  </div>
-                  <Slider
-                    id="ftm-slider"
-                    value={[ftmPercentage]}
-                    max={100}
-                    step={5}
-                    disabled
+                    onValueChange={handleTimeMatchingChange}
                   />
                 </div>
               </div>
               
               <div className="bg-muted/30 p-4 rounded-lg">
-                <h4 className="font-medium mb-2">What's the difference?</h4>
-                <ul className="space-y-2 text-sm">
-                  <li><strong>Behind-the-Meter (BTM):</strong> Energy generated on-site or directly connected to your facility, like rooftop solar.</li>
-                  <li><strong>Front-of-Meter (FTM):</strong> Energy from grid-connected renewable sources like utility-scale wind farms or solar plants.</li>
-                </ul>
-                <p className="text-sm mt-2">
-                  If you have on-site generation facilities, you can prioritize their use through BTM allocation.
+                <h4 className="font-medium mb-2">Time Matching Explained</h4>
+                <p className="text-sm">
+                  Higher priority means more focus on matching your consumption on an hourly basis with renewable generation.
                 </p>
               </div>
               

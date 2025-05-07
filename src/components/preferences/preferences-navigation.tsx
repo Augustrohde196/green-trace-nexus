@@ -2,18 +2,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Gauge, MapPin, Layers, Clock } from "lucide-react";
+import { Gauge, MapPin, Clock } from "lucide-react";
 import { TimeMatchingPreference } from "./time-matching-preference";
 import { cn } from "@/lib/utils";
 
-type PreferenceView = "energy-mix" | "location" | "sources" | "time-matching";
+type PreferenceView = "energy-mix" | "location" | "time-matching";
 
 export function PreferencesNavigation() {
   const [activeView, setActiveView] = useState<PreferenceView>("energy-mix");
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Button
           variant="outline"
           onClick={() => setActiveView("energy-mix")}
@@ -35,17 +35,6 @@ export function PreferencesNavigation() {
         >
           <MapPin className={cn("h-6 w-6", activeView === "location" ? "text-primary" : "text-muted-foreground")} />
           <span className={activeView === "location" ? "text-primary" : "text-muted-foreground"}>Location Preferences</span>
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => setActiveView("sources")}
-          className={cn(
-            "flex flex-col h-auto py-4 gap-2 items-center justify-center",
-            activeView === "sources" && "border-primary bg-primary/5"
-          )}
-        >
-          <Layers className={cn("h-6 w-6", activeView === "sources" ? "text-primary" : "text-muted-foreground")} />
-          <span className={activeView === "sources" ? "text-primary" : "text-muted-foreground"}>Source Distribution</span>
         </Button>
         <Button
           variant="outline"
@@ -121,52 +110,6 @@ export function PreferencesNavigation() {
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id="germany" className="rounded text-primary" />
                 <label htmlFor="germany">Germany</label>
-              </div>
-            </div>
-            
-            <Button className="mt-6">Save Preferences</Button>
-          </div>
-        </Card>
-      )}
-      
-      {activeView === "sources" && (
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Source Distribution</h2>
-          <p className="text-muted-foreground mb-6">Set your preferences for different types of renewable assets.</p>
-          
-          <div className="space-y-4">
-            {/* Placeholder content for source distribution */}
-            <div className="grid gap-4">
-              <div className="flex items-center justify-between">
-                <label className="font-medium">Offshore Wind</label>
-                <span>40%</span>
-              </div>
-              <div className="h-2 bg-muted rounded-full">
-                <div className="h-full bg-blue-600 rounded-full" style={{ width: '40%' }}></div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <label className="font-medium">Onshore Wind</label>
-                <span>20%</span>
-              </div>
-              <div className="h-2 bg-muted rounded-full">
-                <div className="h-full bg-blue-400 rounded-full" style={{ width: '20%' }}></div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <label className="font-medium">Utility Solar</label>
-                <span>25%</span>
-              </div>
-              <div className="h-2 bg-muted rounded-full">
-                <div className="h-full bg-yellow-500 rounded-full" style={{ width: '25%' }}></div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <label className="font-medium">Rooftop Solar</label>
-                <span>15%</span>
-              </div>
-              <div className="h-2 bg-muted rounded-full">
-                <div className="h-full bg-yellow-400 rounded-full" style={{ width: '15%' }}></div>
               </div>
             </div>
             
