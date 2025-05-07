@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Download, FileText, MapPin, Leaf, BatteryIcon, SunMedium,
   Wind, Activity, Calendar, Filter, Award, Zap, Calendar as CalendarIcon,
-  X, ExternalLink, Info
+  X, ExternalLink, Info, LayoutGrid
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
@@ -22,19 +22,19 @@ import {
   ResponsiveContainer,
   Legend
 } from "recharts";
-import { useToast } from "@/hooks/use-toast"; // Fixed import path
+import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 
 // Sample data for time-matching scores by month
 const timeMatchingData = [
-  { month: "Jan", score: 72, consumption: 18, production: 15 },
-  { month: "Feb", score: 68, consumption: 20, production: 18 },
-  { month: "Mar", score: 85, consumption: 22, production: 25 },
-  { month: "Apr", score: 76, consumption: 24, production: 22 },
-  { month: "May", score: 82, consumption: 25, production: 28 },
-  { month: "Jun", score: 89, consumption: 28, production: 30 },
+  { month: "Jan", score: 72, hourlyAlignment: 65, peakMatch: 58, offPeakMatch: 82 },
+  { month: "Feb", score: 68, hourlyAlignment: 62, peakMatch: 54, offPeakMatch: 78 },
+  { month: "Mar", score: 85, hourlyAlignment: 80, peakMatch: 75, offPeakMatch: 90 },
+  { month: "Apr", score: 76, hourlyAlignment: 70, peakMatch: 65, offPeakMatch: 85 },
+  { month: "May", score: 82, hourlyAlignment: 75, peakMatch: 72, offPeakMatch: 88 },
+  { month: "Jun", score: 89, hourlyAlignment: 84, peakMatch: 80, offPeakMatch: 94 },
 ];
 
 // Generate time-matching data based on filter
@@ -42,52 +42,52 @@ const generateTimeMatchingData = (filter) => {
   switch(filter) {
     case "7d":
       return [
-        { month: "Mon", score: 75, consumption: 10, production: 8 },
-        { month: "Tue", score: 80, consumption: 12, production: 10 },
-        { month: "Wed", score: 78, consumption: 11, production: 10 },
-        { month: "Thu", score: 82, consumption: 13, production: 12 },
-        { month: "Fri", score: 85, consumption: 15, production: 14 },
-        { month: "Sat", score: 80, consumption: 12, production: 11 },
-        { month: "Sun", score: 75, consumption: 10, production: 8 },
+        { month: "Mon", score: 75, hourlyAlignment: 68, peakMatch: 62, offPeakMatch: 82 },
+        { month: "Tue", score: 80, hourlyAlignment: 75, peakMatch: 70, offPeakMatch: 85 },
+        { month: "Wed", score: 78, hourlyAlignment: 72, peakMatch: 68, offPeakMatch: 84 },
+        { month: "Thu", score: 82, hourlyAlignment: 76, peakMatch: 72, offPeakMatch: 88 },
+        { month: "Fri", score: 85, hourlyAlignment: 80, peakMatch: 75, offPeakMatch: 90 },
+        { month: "Sat", score: 80, hourlyAlignment: 75, peakMatch: 68, offPeakMatch: 86 },
+        { month: "Sun", score: 75, hourlyAlignment: 70, peakMatch: 64, offPeakMatch: 82 },
       ];
     case "30d":
       return [
-        { month: "W1", score: 72, consumption: 18, production: 15 },
-        { month: "W2", score: 75, consumption: 19, production: 16 },
-        { month: "W3", score: 79, consumption: 20, production: 18 },
-        { month: "W4", score: 82, consumption: 22, production: 20 },
+        { month: "W1", score: 72, hourlyAlignment: 65, peakMatch: 60, offPeakMatch: 80 },
+        { month: "W2", score: 75, hourlyAlignment: 70, peakMatch: 65, offPeakMatch: 82 },
+        { month: "W3", score: 79, hourlyAlignment: 74, peakMatch: 70, offPeakMatch: 85 },
+        { month: "W4", score: 82, hourlyAlignment: 78, peakMatch: 72, offPeakMatch: 88 },
       ];
     case "3m":
       return [
-        { month: "Apr", score: 76, consumption: 24, production: 22 },
-        { month: "May", score: 82, consumption: 25, production: 28 },
-        { month: "Jun", score: 89, consumption: 28, production: 30 },
+        { month: "Apr", score: 76, hourlyAlignment: 70, peakMatch: 65, offPeakMatch: 85 },
+        { month: "May", score: 82, hourlyAlignment: 75, peakMatch: 72, offPeakMatch: 88 },
+        { month: "Jun", score: 89, hourlyAlignment: 84, peakMatch: 80, offPeakMatch: 94 },
       ];
     case "6m":
       return timeMatchingData;
     case "ytd":
       return [
-        { month: "Jan", score: 72, consumption: 18, production: 15 },
-        { month: "Feb", score: 68, consumption: 20, production: 18 },
-        { month: "Mar", score: 85, consumption: 22, production: 25 },
-        { month: "Apr", score: 76, consumption: 24, production: 22 },
-        { month: "May", score: 82, consumption: 25, production: 28 },
-        { month: "Jun", score: 89, consumption: 28, production: 30 },
+        { month: "Jan", score: 72, hourlyAlignment: 65, peakMatch: 58, offPeakMatch: 82 },
+        { month: "Feb", score: 68, hourlyAlignment: 62, peakMatch: 54, offPeakMatch: 78 },
+        { month: "Mar", score: 85, hourlyAlignment: 80, peakMatch: 75, offPeakMatch: 90 },
+        { month: "Apr", score: 76, hourlyAlignment: 70, peakMatch: 65, offPeakMatch: 85 },
+        { month: "May", score: 82, hourlyAlignment: 75, peakMatch: 72, offPeakMatch: 88 },
+        { month: "Jun", score: 89, hourlyAlignment: 84, peakMatch: 80, offPeakMatch: 94 },
       ];
     case "1y":
       return [
-        { month: "Jan", score: 72, consumption: 18, production: 15 },
-        { month: "Feb", score: 68, consumption: 20, production: 18 },
-        { month: "Mar", score: 85, consumption: 22, production: 25 },
-        { month: "Apr", score: 76, consumption: 24, production: 22 },
-        { month: "May", score: 82, consumption: 25, production: 28 },
-        { month: "Jun", score: 89, consumption: 28, production: 30 },
-        { month: "Jul", score: 92, consumption: 30, production: 32 },
-        { month: "Aug", score: 87, consumption: 28, production: 29 },
-        { month: "Sep", score: 79, consumption: 25, production: 24 },
-        { month: "Oct", score: 73, consumption: 20, production: 18 },
-        { month: "Nov", score: 70, consumption: 18, production: 16 },
-        { month: "Dec", score: 75, consumption: 20, production: 18 },
+        { month: "Jan", score: 72, hourlyAlignment: 65, peakMatch: 58, offPeakMatch: 82 },
+        { month: "Feb", score: 68, hourlyAlignment: 62, peakMatch: 54, offPeakMatch: 78 },
+        { month: "Mar", score: 85, hourlyAlignment: 80, peakMatch: 75, offPeakMatch: 90 },
+        { month: "Apr", score: 76, hourlyAlignment: 70, peakMatch: 65, offPeakMatch: 85 },
+        { month: "May", score: 82, hourlyAlignment: 75, peakMatch: 72, offPeakMatch: 88 },
+        { month: "Jun", score: 89, hourlyAlignment: 84, peakMatch: 80, offPeakMatch: 94 },
+        { month: "Jul", score: 92, hourlyAlignment: 88, peakMatch: 85, offPeakMatch: 95 },
+        { month: "Aug", score: 87, hourlyAlignment: 82, peakMatch: 78, offPeakMatch: 90 },
+        { month: "Sep", score: 79, hourlyAlignment: 74, peakMatch: 70, offPeakMatch: 85 },
+        { month: "Oct", score: 73, hourlyAlignment: 68, peakMatch: 64, offPeakMatch: 80 },
+        { month: "Nov", score: 70, hourlyAlignment: 65, peakMatch: 60, offPeakMatch: 78 },
+        { month: "Dec", score: 75, hourlyAlignment: 70, peakMatch: 65, offPeakMatch: 82 },
       ];
     default:
       return timeMatchingData;
@@ -186,10 +186,6 @@ const CorporateDashboard = () => {
   // Get data based on selected filter
   const filteredData = generateTimeMatchingData(timeMatchingPeriod);
 
-  // Total consumption and production values (derived from the data)
-  const totalConsumption = filteredData.reduce((sum, item) => sum + item.consumption, 0);
-  const totalProduction = filteredData.reduce((sum, item) => sum + item.production, 0);
-  
   // Calculate average time-matching score
   const averageScore = Math.round(
     filteredData.reduce((sum, item) => sum + item.score, 0) / filteredData.length
@@ -363,9 +359,9 @@ const CorporateDashboard = () => {
         <motion.div variants={itemVariants} whileHover={subtleHoverVariants.hover}>
           <DashboardCard
             title="Certificates Coverage"
-            value="92%"
-            description="225 GWh covered with GOs"
-            icon={FileText}
+            value="14"
+            description="Power sourced from 14 traceable renewable assets"
+            icon={LayoutGrid}
             iconColor="text-purple-500"
           />
         </motion.div>
@@ -400,7 +396,7 @@ const CorporateDashboard = () => {
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Time-Matching Scores</CardTitle>
-              <CardDescription>Energy consumption vs. renewable allocation over time</CardDescription>
+              <CardDescription>Hourly alignment between consumption and renewable production</CardDescription>
             </div>
             <div className="flex items-center bg-muted/40 p-1 rounded-md border">
               {dateFilters.map((period) => (
@@ -410,7 +406,7 @@ const CorporateDashboard = () => {
                   size="sm"
                   className={`text-xs px-3 rounded-sm ${
                     timeMatchingPeriod === period.value 
-                      ? "bg-background shadow-sm" 
+                      ? "bg-primary text-primary-foreground shadow-sm" 
                       : "hover:bg-background/60"
                   }`}
                   onClick={() => setTimeMatchingPeriod(period.value)}
@@ -426,13 +422,46 @@ const CorporateDashboard = () => {
                 <ComposedChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="month" />
-                  <YAxis yAxisId="left" orientation="left" label={{ value: 'GWh', angle: -90, position: 'insideLeft' }} />
                   <YAxis yAxisId="right" orientation="right" label={{ value: 'Score %', angle: 90, position: 'insideRight' }} domain={[0, 100]} />
                   <Tooltip />
                   <Legend />
-                  <Bar yAxisId="left" dataKey="consumption" fill="#8884d8" name="Consumption (GWh)" />
-                  <Bar yAxisId="left" dataKey="production" fill="#4DA167" name="Production (GWh)" />
-                  <Line yAxisId="right" type="monotone" dataKey="score" stroke="#ff7300" name="Matching Score (%)" />
+                  <Line 
+                    yAxisId="right" 
+                    type="monotone" 
+                    dataKey="score" 
+                    stroke="#ff7300" 
+                    name="Matching Score (%)" 
+                    strokeWidth={2}
+                  />
+                  <Line 
+                    yAxisId="right" 
+                    type="monotone" 
+                    dataKey="hourlyAlignment" 
+                    stroke="#8884d8" 
+                    name="Hourly Alignment (%)" 
+                    strokeWidth={1.5} 
+                    dot={false}
+                  />
+                  <Line 
+                    yAxisId="right" 
+                    type="monotone" 
+                    dataKey="peakMatch" 
+                    stroke="#4DA167" 
+                    name="Peak Hours Match (%)" 
+                    strokeWidth={1.5} 
+                    dot={false}
+                    strokeDasharray="5 5"
+                  />
+                  <Line 
+                    yAxisId="right" 
+                    type="monotone" 
+                    dataKey="offPeakMatch" 
+                    stroke="#82ca9d" 
+                    name="Off-Peak Hours Match (%)" 
+                    strokeWidth={1.5} 
+                    dot={false} 
+                    strokeDasharray="3 3"
+                  />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
@@ -578,7 +607,7 @@ const CorporateDashboard = () => {
         </Card>
       </motion.div>
 
-      {/* Environmental Impact - New Section */}
+      {/* Environmental Impact - Updated Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -627,8 +656,8 @@ const CorporateDashboard = () => {
                 <div className="h-20 w-20 rounded-full bg-amber-100 flex items-center justify-center mb-4">
                   <Zap size={32} className="text-amber-600" />
                 </div>
-                <div className="text-3xl font-bold">92%</div>
-                <div className="text-sm text-muted-foreground">Renewable energy coverage</div>
+                <div className="text-3xl font-bold">14</div>
+                <div className="text-sm text-muted-foreground">Traceable renewable assets</div>
               </motion.div>
             </div>
             
