@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { 
@@ -25,7 +26,7 @@ import {
   Line,
   ReferenceLine
 } from "recharts";
-import { Download, ZoomIn, ZoomOut, RefreshCw, Power, Info } from "lucide-react";
+import { Download, ZoomIn, ZoomOut, RefreshCw, Power, Info, BarChart3, Activity, Clock } from "lucide-react";
 import { 
   generateConsumptionData, 
   aggregateToDaily, 
@@ -37,6 +38,7 @@ import {
 import { format } from "date-fns";
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 const CorporateConsumption = () => {
   // State for data
@@ -128,6 +130,9 @@ const CorporateConsumption = () => {
   const totalGOs = dailyData.reduce((sum, point) => sum + (point.goValue || 0), 0);
   const coveragePercentage = Math.round((totalGOs / totalConsumption) * 100);
   
+  // Calculate time matching score (simplified example - in reality would be more complex)
+  const timeMatchingScore = Math.round(coveragePercentage * 0.85);
+  
   // Handle download
   const downloadCSV = (data: any[], prefix: string) => {
     try {
@@ -160,6 +165,17 @@ const CorporateConsumption = () => {
     }
   };
   
+  // Custom tooltip formatter for consumption chart
+  const customTooltipFormatter = (value: any, name: string, props: any) => {
+    if (name === "value") {
+      return [`${value.toLocaleString()} MWh`, 'Consumption'];
+    }
+    if (name === "goValue") {
+      return [`${value.toLocaleString()} MWh`, 'GO Production'];
+    }
+    return [value, name];
+  };
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -168,21 +184,18 @@ const CorporateConsumption = () => {
           <p className="text-muted-foreground">Monitor and analyze your energy consumption</p>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="timeframe" className="font-medium">Timeframe:</Label>
-            <Select value={timeframe} onValueChange={setTimeframe}>
-              <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="30 days" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7">7 days</SelectItem>
-                <SelectItem value="30">30 days</SelectItem>
-                <SelectItem value="90">90 days</SelectItem>
-                <SelectItem value="180">180 days</SelectItem>
-                <SelectItem value="365">1 year</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={timeframe} onValueChange={setTimeframe}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="30 days" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">7 days</SelectItem>
+              <SelectItem value="30">30 days</SelectItem>
+              <SelectItem value="90">90 days</SelectItem>
+              <SelectItem value="180">180 days</SelectItem>
+              <SelectItem value="365">1 year</SelectItem>
+            </SelectContent>
+          </Select>
           <Button 
             variant="outline" 
             size="icon" 
@@ -195,46 +208,91 @@ const CorporateConsumption = () => {
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Daily Average</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{Math.round(totalConsumption / dailyData.length).toLocaleString()} MWh</div>
-            <p className="text-xs text-muted-foreground">Based on last {timeframe} days</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Consumption</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{(totalConsumption / 1000).toFixed(1)} GWh</div>
-            <p className="text-xs text-muted-foreground">For selected period</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Peak Demand</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {Math.max(...hourlyData.map(h => h.value)).toLocaleString()} MWh
-            </div>
-            <p className="text-xs text-muted-foreground">Highest in selected period</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">GO Coverage</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{coveragePercentage}%</div>
-            <p className="text-xs text-muted-foreground">
-              {coveragePercentage >= 100 ? "Full renewable coverage" : `${(100 - coveragePercentage)}% non-renewable`}
-            </p>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="overflow-hidden border border-border/40 transition-colors hover:border-primary/30">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Daily Average</CardTitle>
+              <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 text-primary transition-colors">
+                <BarChart3 className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{Math.round(totalConsumption / dailyData.length).toLocaleString()} MWh</div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center">
+                Based on last {timeframe} days
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <Card className="overflow-hidden border border-border/40 transition-colors hover:border-primary/30">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Consumption</CardTitle>
+              <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 text-primary transition-colors">
+                <Power className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{(totalConsumption / 1000).toFixed(1)} GWh</div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center">
+                For selected period
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <Card className="overflow-hidden border border-border/40 transition-colors hover:border-primary/30">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Peak Demand</CardTitle>
+              <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 text-primary transition-colors">
+                <Activity className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {Math.max(...hourlyData.map(h => h.value)).toLocaleString()} MWh
+              </div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center">
+                Highest in selected period
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <Card className="overflow-hidden border border-border/40 transition-colors hover:border-primary/30">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Time Matching Score</CardTitle>
+              <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 text-primary transition-colors">
+                <Clock className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{timeMatchingScore}%</div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center">
+                {timeMatchingScore >= 80 ? "Excellent time matching" : timeMatchingScore >= 60 ? "Good time matching" : "Needs improvement"}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
       
       <Card>
@@ -293,7 +351,7 @@ const CorporateConsumption = () => {
                   label={{ value: 'MWh', angle: -90, position: 'insideLeft' }}
                 />
                 <Tooltip 
-                  formatter={(value: number) => [`${value.toLocaleString()} MWh`, '']}
+                  formatter={customTooltipFormatter}
                   labelFormatter={(label) => `Date: ${label}`}
                 />
                 <Legend />
@@ -371,7 +429,9 @@ const CorporateConsumption = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="hour" />
                     <YAxis label={{ value: 'MWh', angle: -90, position: 'insideLeft' }} />
-                    <Tooltip formatter={(value: number) => [`${value.toLocaleString()} MWh`, '']} />
+                    <Tooltip 
+                      formatter={(value: number) => [`${value.toLocaleString()} MWh`, 'Avg. Consumption']} 
+                    />
                     <Legend />
                     <Bar 
                       dataKey="consumption" 
@@ -428,7 +488,11 @@ const CorporateConsumption = () => {
                     />
                     <YAxis label={{ value: 'MWh', angle: -90, position: 'insideLeft' }} />
                     <Tooltip 
-                      formatter={(value: number) => [`${value.toLocaleString()} MWh`, '']}
+                      formatter={(value: number, name: string) => {
+                        if (name === "value") return [`${value.toLocaleString()} MWh`, 'Consumption'];
+                        if (name === "goValue") return [`${value.toLocaleString()} MWh`, 'GO Production'];
+                        return [value, name];
+                      }}
                       labelFormatter={(label) => `Time: ${label}`}
                     />
                     <Legend />
@@ -483,7 +547,11 @@ const CorporateConsumption = () => {
                     />
                     <YAxis label={{ value: 'MWh', angle: -90, position: 'insideLeft' }} />
                     <Tooltip 
-                      formatter={(value: number) => [`${value.toLocaleString()} MWh`, '']}
+                      formatter={(value: number, name: string) => {
+                        if (name === "value") return [`${value.toLocaleString()} MWh`, 'Consumption'];
+                        if (name === "goValue") return [`${value.toLocaleString()} MWh`, 'GO Production'];
+                        return [value, name];
+                      }}
                     />
                     <Legend />
                     <Bar 
@@ -536,7 +604,11 @@ const CorporateConsumption = () => {
                     />
                     <YAxis label={{ value: 'MWh', angle: -90, position: 'insideLeft' }} />
                     <Tooltip 
-                      formatter={(value: number) => [`${value.toLocaleString()} MWh`, '']}
+                      formatter={(value: number, name: string) => {
+                        if (name === "value") return [`${value.toLocaleString()} MWh`, 'Consumption'];
+                        if (name === "goValue") return [`${value.toLocaleString()} MWh`, 'GO Production'];
+                        return [value, name];
+                      }}
                     />
                     <Legend />
                     <Bar 

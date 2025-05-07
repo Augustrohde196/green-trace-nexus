@@ -32,7 +32,6 @@ import CorporateCertificates from "@/pages/corporate/CorporateCertificates";
 import CorporateConsumption from "@/pages/corporate/CorporateConsumption";
 import CorporateOnboarding from "@/pages/corporate/CorporateOnboarding";
 import CorporateReporting from "@/pages/corporate/CorporateReporting";
-import CorporateBilling from "@/pages/corporate/CorporateBilling";
 import CorporateSettings from "@/pages/corporate/CorporateSettings";
 
 // Provider components
@@ -57,13 +56,12 @@ function App() {
             <Route element={<CorporateLayout><Outlet /></CorporateLayout>}>
               <Route path="/corporate" element={<CorporateDashboard />} />
               <Route path="/corporate/certificates" element={<CorporateCertificates />} />
+              <Route path="/corporate/traceability" element={<CorporateTracing />} />
               <Route path="/corporate/consumption" element={<CorporateConsumption />} />
-              <Route path="/corporate/tracing" element={<CorporateTracing />} />
               <Route path="/corporate/analytics" element={<CorporateAnalytics />} />
               <Route path="/corporate/portfolio" element={<CorporatePortfolio />} />
               <Route path="/corporate/onboarding" element={<CorporateOnboarding />} />
               <Route path="/corporate/reporting" element={<CorporateReporting />} />
-              <Route path="/corporate/billing" element={<CorporateBilling />} />
               <Route path="/corporate/settings" element={<CorporateSettings />} />
             </Route>
             
