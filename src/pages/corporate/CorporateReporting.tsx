@@ -1,116 +1,170 @@
+
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
-  Calendar, 
-  Download, 
-  Filter, 
+  Calendar,
+  Download,
   FileText, 
-  Search, 
-  ChevronRight, 
-  CheckCircle, 
-  Clock, 
-  BarChart, 
-  FileBarChart, 
+  FileChartPie,
   DownloadCloud,
-  Globe,
-  Mail,
-  Share2
+  ChevronDown,
+  FileChartColumn,
+  CalendarDays
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast"; // Fixed import path
+import { useToast } from "@/hooks/use-toast";
+
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Separator } from "@/components/ui/separator";
 
 // Define report type interfaces
 interface Report {
   id: string;
   title: string;
-  type: "sustainability" | "consumption" | "impact" | "summary";
+  type: "scope2" | "custom";
   period: string;
   status: "ready" | "processing" | "scheduled";
   lastUpdated: string;
   fileSize?: string;
   description: string;
+  metrics?: {
+    totalConsumption?: string;
+    totalRenewable?: string;
+    renewablePercentage?: string;
+    timeMatchingScore?: string;
+    marketBasedEmissions?: string;
+  };
+  sourceBreakdown?: {
+    source: string;
+    percentage: number;
+  }[];
 }
 
 const CorporateReporting = () => {
   const { toast } = useToast();
+  const [reportType, setReportType] = useState<string>("scope2");
+  const [timeframe, setTimeframe] = useState<string>("month");
+  const [generatingReport, setGeneratingReport] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   
+  // Mock reports data
   const reports: Report[] = [
     {
-      id: "SUST-2025-Q2-001",
-      title: "Q2 2025 Sustainability Report",
-      type: "sustainability",
-      period: "Q2 2025",
-      status: "ready",
-      lastUpdated: "May 4, 2025",
-      fileSize: "3.4 MB",
-      description: "Comprehensive overview of your organization's sustainability metrics for Q2 2025. This report includes carbon emissions data, renewable energy usage statistics, and sustainability targets progress."
-    },
-    {
-      id: "CONS-2025-04-001",
-      title: "April 2025 Energy Consumption Analysis",
-      type: "consumption",
-      period: "April 2025",
-      status: "ready",
-      lastUpdated: "May 3, 2025",
-      fileSize: "2.1 MB",
-      description: "Detailed analysis of your organization's energy consumption patterns for April 2025, including peak usage times, efficiency metrics, and comparison with previous periods."
-    },
-    {
-      id: "IMPC-2025-Q1-001",
-      title: "Q1 2025 Environmental Impact Assessment",
-      type: "impact",
+      id: "S2-2025-Q1",
+      title: "Q1 2025 Renewable Energy Certificate Report",
+      type: "scope2",
       period: "Q1 2025",
       status: "ready",
-      lastUpdated: "April 15, 2025",
-      fileSize: "4.8 MB",
-      description: "Assessment of your organization's environmental impact for Q1 2025. Includes carbon footprint calculations, emissions reduction achievements, and environmental compliance status."
+      lastUpdated: "April 4, 2025",
+      fileSize: "3.2 MB",
+      description: "Scope 2 Emissions report for Q1 2025 including renewable energy procurement details, time-matching analysis, and emissions calculations.",
+      metrics: {
+        totalConsumption: "453.2 MWh",
+        totalRenewable: "442.7 MWh",
+        renewablePercentage: "97.7%",
+        timeMatchingScore: "82.4%",
+        marketBasedEmissions: "1.2 tCO2e"
+      },
+      sourceBreakdown: [
+        { source: "Wind", percentage: 64 },
+        { source: "Solar", percentage: 28 },
+        { source: "Hydro", percentage: 8 }
+      ]
     },
     {
-      id: "SUMM-2025-Q1-001",
-      title: "Q1 2025 Executive Summary",
-      type: "summary",
-      period: "Q1 2025",
+      id: "S2-2025-MAR",
+      title: "March 2025 Renewable Energy Certificate Report",
+      type: "scope2",
+      period: "March 2025",
       status: "ready",
-      lastUpdated: "April 10, 2025",
-      fileSize: "1.2 MB",
-      description: "Executive summary of all sustainability and energy metrics for Q1 2025. Designed for leadership and stakeholder communications with high-level insights and key performance indicators."
+      lastUpdated: "April 2, 2025",
+      fileSize: "2.8 MB",
+      description: "Monthly Scope 2 Emissions report for March 2025 including renewable energy procurement details and emissions calculations.",
+      metrics: {
+        totalConsumption: "152.6 MWh",
+        totalRenewable: "152.6 MWh",
+        renewablePercentage: "100%",
+        timeMatchingScore: "85.3%",
+        marketBasedEmissions: "0 tCO2e"
+      },
+      sourceBreakdown: [
+        { source: "Wind", percentage: 68 },
+        { source: "Solar", percentage: 25 },
+        { source: "Hydro", percentage: 7 }
+      ]
     },
     {
-      id: "SUST-2025-Q1-001",
-      title: "Q1 2025 Sustainability Report",
-      type: "sustainability",
-      period: "Q1 2025",
+      id: "S2-2025-FEB",
+      title: "February 2025 Renewable Energy Certificate Report",
+      type: "scope2",
+      period: "February 2025",
       status: "ready",
-      lastUpdated: "April 5, 2025",
-      fileSize: "3.7 MB",
-      description: "Comprehensive overview of your organization's sustainability metrics for Q1 2025. This report includes carbon emissions data, renewable energy usage statistics, and sustainability targets progress."
+      lastUpdated: "March 3, 2025",
+      fileSize: "2.7 MB",
+      description: "Monthly Scope 2 Emissions report for February 2025 including renewable energy procurement details and emissions calculations.",
+      metrics: {
+        totalConsumption: "142.3 MWh",
+        totalRenewable: "140.1 MWh",
+        renewablePercentage: "98.5%",
+        timeMatchingScore: "79.8%",
+        marketBasedEmissions: "0.42 tCO2e"
+      }
     },
     {
-      id: "SUMM-2025-05-001",
-      title: "May 2025 Executive Summary",
-      type: "summary",
-      period: "May 2025",
-      status: "processing",
-      lastUpdated: "Processing",
-      description: "Executive summary of all sustainability and energy metrics for May 2025. Currently being processed and will be available shortly."
+      id: "S2-2025-JAN",
+      title: "January 2025 Renewable Energy Certificate Report",
+      type: "scope2",
+      period: "January 2025",
+      status: "ready",
+      lastUpdated: "February 2, 2025",
+      fileSize: "2.5 MB",
+      description: "Monthly Scope 2 Emissions report for January 2025 including renewable energy procurement details and emissions calculations.",
+      metrics: {
+        totalConsumption: "158.3 MWh",
+        totalRenewable: "150.0 MWh",
+        renewablePercentage: "94.8%",
+        timeMatchingScore: "82.1%",
+        marketBasedEmissions: "0.78 tCO2e"
+      }
     },
     {
-      id: "CONS-2025-05-001",
-      title: "May 2025 Energy Consumption Analysis",
-      type: "consumption",
+      id: "S2-2025-MAY",
+      title: "May 2025 Renewable Energy Certificate Report",
+      type: "scope2",
       period: "May 2025",
       status: "scheduled",
       lastUpdated: "Scheduled for June 1, 2025",
-      description: "Detailed analysis of your organization's energy consumption patterns for May 2025. This report is scheduled for generation on June 1, 2025."
+      description: "Monthly Scope 2 Emissions report for May 2025 including renewable energy procurement details and emissions calculations."
     }
+  ];
+  
+  const timePeriods = [
+    { label: "Current Month", value: "month" },
+    { label: "Last Quarter", value: "quarter" },
+    { label: "Year to Date", value: "ytd" },
+    { label: "Custom Range", value: "custom" },
   ];
   
   const filteredReports = reports.filter(report => 
@@ -120,51 +174,48 @@ const CorporateReporting = () => {
     report.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
+  const handleGenerateReport = () => {
+    setGeneratingReport(true);
+    
+    // Mock report generation
+    setTimeout(() => {
+      setGeneratingReport(false);
+      
+      toast({
+        title: "Report Generated Successfully",
+        description: `Your ${reportType === "scope2" ? "Scope 2 Emissions" : "Custom"} report for the selected period is ready.`
+      });
+      
+      // Show the most recent report
+      setSelectedReport(reports[0]);
+      setIsReportModalOpen(true);
+    }, 2000);
+  };
+  
   const handleViewReport = (report: Report) => {
     setSelectedReport(report);
     setIsReportModalOpen(true);
   };
   
-  const handleDownloadReport = (reportId: string) => {
+  const handleDownloadReport = (format: "pdf" | "csv") => {
     toast({
-      title: "Download started",
-      description: `Report ${reportId} is being downloaded.`
+      title: `${format.toUpperCase()} Download Started`,
+      description: `Your report is being downloaded in ${format.toUpperCase()} format.`
     });
   };
   
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "ready":
-        return <Badge className="bg-green-100 text-green-800">Ready</Badge>;
+        return <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Ready</Badge>;
       case "processing":
-        return <Badge className="bg-blue-100 text-blue-800">Processing</Badge>;
+        return <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">Processing</Badge>;
       case "scheduled":
-        return <Badge className="bg-amber-100 text-amber-800">Scheduled</Badge>;
+        return <Badge variant="outline" className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">Scheduled</Badge>;
       default:
         return <Badge variant="outline">Unknown</Badge>;
     }
   };
-  
-  const getReportTypeIcon = (type: string) => {
-    switch (type) {
-      case "sustainability":
-        return <Globe className="h-5 w-5 text-emerald-500" />;
-      case "consumption":
-        return <BarChart className="h-5 w-5 text-blue-500" />;
-      case "impact":
-        return <FileBarChart className="h-5 w-5 text-purple-500" />;
-      case "summary":
-        return <FileText className="h-5 w-5 text-amber-500" />;
-      default:
-        return <FileText className="h-5 w-5" />;
-    }
-  };
-  
-  const [activeTab, setActiveTab] = useState<"all" | "sustainability" | "consumption" | "impact" | "summary">("all");
-  
-  const tabFilteredReports = activeTab === "all" 
-    ? filteredReports 
-    : filteredReports.filter(report => report.type === activeTab);
   
   return (
     <motion.div 
@@ -175,334 +226,351 @@ const CorporateReporting = () => {
     >
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Reporting</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Reporting & Export</h2>
           <p className="text-muted-foreground">
-            Access and manage your sustainability and energy reports
+            Generate and download reports for compliance and disclosure
           </p>
         </div>
-        <Button className="gap-2">
-          <Download className="h-4 w-4" />
-          Export All Data
-        </Button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              Reports Available
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{reports.filter(r => r.status === "ready").length}</div>
-            <p className="text-sm text-muted-foreground">Ready for download</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Clock className="h-5 w-5 text-blue-500" />
-              Reports Processing
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{reports.filter(r => r.status === "processing").length}</div>
-            <p className="text-sm text-muted-foreground">Being generated</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-amber-500" />
-              Scheduled Reports
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{reports.filter(r => r.status === "scheduled").length}</div>
-            <p className="text-sm text-muted-foreground">Upcoming reports</p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center justify-between">
-            <div className="text-xl">Your Reports</div>
-            <Button variant="outline" className="gap-2">
-              <Calendar className="h-4 w-4" />
-              May 2025
-            </Button>
-          </CardTitle>
-          <CardDescription>
-            Access and download your sustainability and energy reports
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="w-full md:w-auto relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search reports..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-full md:w-[300px]"
-              />
-            </div>
-            
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full md:w-auto">
-              <TabsList className="grid grid-cols-5 w-full md:w-auto">
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="sustainability">Sustainability</TabsTrigger>
-                <TabsTrigger value="consumption">Consumption</TabsTrigger>
-                <TabsTrigger value="impact">Impact</TabsTrigger>
-                <TabsTrigger value="summary">Summary</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-          
-          <div className="border rounded-lg overflow-hidden">
-            <div className="bg-muted/50 p-3 grid grid-cols-12 gap-4 text-sm font-medium">
-              <div className="col-span-5">Report</div>
-              <div className="col-span-2">Period</div>
-              <div className="col-span-2">Last Updated</div>
-              <div className="col-span-1">Status</div>
-              <div className="col-span-2 text-right">Actions</div>
-            </div>
-            
-            <div className="divide-y">
-              {tabFilteredReports.length > 0 ? (
-                tabFilteredReports.map((report) => (
-                  <div 
-                    key={report.id} 
-                    className="p-3 grid grid-cols-12 gap-4 items-center hover:bg-muted/20 transition-colors"
-                  >
-                    <div className="col-span-5">
-                      <div className="flex items-center gap-3">
-                        <div className="flex-shrink-0">
-                          {getReportTypeIcon(report.type)}
-                        </div>
-                        <div>
-                          <h4 className="font-medium">{report.title}</h4>
-                          <p className="text-xs text-muted-foreground">{report.id}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-span-2 text-sm">{report.period}</div>
-                    <div className="col-span-2 text-sm">{report.lastUpdated}</div>
-                    <div className="col-span-1">{getStatusBadge(report.status)}</div>
-                    <div className="col-span-2 flex justify-end gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleViewReport(report)}
-                        disabled={report.status !== "ready"}
-                      >
-                        <FileText className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleDownloadReport(report.id)}
-                        disabled={report.status !== "ready"}
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="p-6 text-center">
-                  <p className="text-muted-foreground">No reports found matching your criteria.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <Card className="md:col-span-8">
           <CardHeader>
-            <CardTitle>Schedule a Report</CardTitle>
-            <CardDescription>Set up automatic report generation</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              Generate Report
+            </CardTitle>
+            <CardDescription>Create new reports for compliance and disclosure</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium">Monthly Consumption Report</h3>
-                  <Badge className="bg-green-100 text-green-800">Active</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Generates energy consumption reports on the 1st of each month
-                </p>
-                <div className="flex justify-end">
-                  <Button variant="outline" size="sm">Configure</Button>
-                </div>
+          <CardContent className="grid md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Report Type</label>
+              <Select value={reportType} onValueChange={setReportType}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a report type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="scope2">Renewable Energy Certificate Report (Scope 2)</SelectItem>
+                    <SelectItem value="custom">Custom Report</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              
+              <div className="text-xs text-muted-foreground mt-1">
+                <span>GHG Protocol compliant Scope 2 emissions report</span>
               </div>
             </div>
             
-            <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium">Quarterly Sustainability Report</h3>
-                  <Badge className="bg-green-100 text-green-800">Active</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Generates comprehensive sustainability reports at the end of each quarter
-                </p>
-                <div className="flex justify-end">
-                  <Button variant="outline" size="sm">Configure</Button>
-                </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Time Period</label>
+              <Select value={timeframe} onValueChange={setTimeframe}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a time period" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {timePeriods.map(period => (
+                      <SelectItem key={period.value} value={period.value}>{period.label}</SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              
+              <div className="text-xs text-muted-foreground mt-1">
+                <span>
+                  {timeframe === 'month' && 'Data from the current calendar month'}
+                  {timeframe === 'quarter' && 'Data from the current quarter'}
+                  {timeframe === 'ytd' && 'All data from January 1st until now'}
+                  {timeframe === 'custom' && 'Select a custom date range'}
+                </span>
               </div>
             </div>
             
-            <Button className="w-full" onClick={() => toast({ title: "Coming soon", description: "This feature will be available shortly." })}>
-              Schedule New Report
-            </Button>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Report Templates</CardTitle>
-            <CardDescription>Customize your report templates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <FileBarChart className="h-5 w-5 text-blue-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Standard Report</h3>
-                    <p className="text-sm text-muted-foreground">Basic template with essential metrics</p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm" className="gap-1">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Output Format</label>
+              <Select defaultValue="pdf">
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a format" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="pdf">PDF Report</SelectItem>
+                    <SelectItem value="csv">CSV Data Export</SelectItem>
+                    <SelectItem value="both">Both Formats</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               
-              <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <Globe className="h-5 w-5 text-green-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Sustainability Report</h3>
-                    <p className="text-sm text-muted-foreground">Detailed environmental impact metrics</p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm" className="gap-1">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+              <div className="text-xs text-muted-foreground mt-1">
+                <span>PDF includes visualizations, CSV contains raw data</span>
               </div>
-              
-              <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
-                    <FileText className="h-5 w-5 text-purple-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Executive Summary</h3>
-                    <p className="text-sm text-muted-foreground">Condensed overview for leadership</p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm" className="gap-1">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <Button variant="outline" className="w-full" onClick={() => toast({ title: "Coming soon", description: "This feature will be available shortly." })}>
-                Create Custom Template
+            </div>
+            
+            <div className="md:col-span-3 pt-4">
+              <Button 
+                onClick={handleGenerateReport} 
+                disabled={generatingReport}
+                className="w-full"
+              >
+                {generatingReport ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Generating Report...
+                  </>
+                ) : (
+                  <>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Generate Report
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>
         </Card>
+        
+        <Card className="md:col-span-4">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              Recent Reports
+            </CardTitle>
+            <CardDescription>Quick access to your latest reports</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {filteredReports.slice(0, 3).map((report) => (
+              <div key={report.id} className="flex items-center justify-between gap-4 p-2 hover:bg-muted/40 rounded-md -mx-2 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <FileChartPie className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <div className="font-medium truncate max-w-[150px]">{report.period}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {report.lastUpdated}
+                    </div>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => handleViewReport(report)} className="gap-1">
+                  View
+                </Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Report History</CardTitle>
+          <CardDescription>View and download previously generated reports</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="rounded-md overflow-hidden">
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead>Report</TableHead>
+                  <TableHead>Period</TableHead>
+                  <TableHead>Last Updated</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredReports.map((report) => (
+                  <TableRow key={report.id} className="hover:bg-muted/20">
+                    <TableCell className="font-medium">{report.title}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <CalendarDays size={14} className="mr-2 text-muted-foreground" />
+                        {report.period}
+                      </div>
+                    </TableCell>
+                    <TableCell>{report.lastUpdated}</TableCell>
+                    <TableCell>{getStatusBadge(report.status)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex gap-2 justify-end">
+                        {report.status === "ready" && (
+                          <>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="gap-1"
+                              onClick={() => handleViewReport(report)}
+                            >
+                              <FileText size={14} />
+                              View
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="gap-1"
+                              onClick={() => handleDownloadReport("pdf")}
+                            >
+                              <Download size={14} />
+                              PDF
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="gap-1"
+                              onClick={() => handleDownloadReport("csv")}
+                            >
+                              <Download size={14} />
+                              CSV
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
       
-      {/* Report Preview Dialog */}
+      {/* Report Viewer Dialog */}
       <Dialog open={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle className="text-xl">{selectedReport?.title}</DialogTitle>
+            <DialogTitle>{selectedReport?.title || "Report Preview"}</DialogTitle>
             <DialogDescription>
-              {selectedReport?.id} • {selectedReport?.period}
+              {selectedReport?.description || "Detailed report information"}
             </DialogDescription>
           </DialogHeader>
           
           {selectedReport && (
-            <div className="space-y-6">
-              <div className="bg-muted/20 p-4 rounded-lg">
-                <div className="flex flex-wrap gap-4">
-                  <div className="flex-1 min-w-[200px]">
-                    <div className="text-sm text-muted-foreground mb-1">Report ID</div>
-                    <div className="font-medium">{selectedReport.id}</div>
-                  </div>
-                  <div className="flex-1 min-w-[200px]">
-                    <div className="text-sm text-muted-foreground mb-1">Type</div>
-                    <div className="font-medium capitalize">{selectedReport.type}</div>
-                  </div>
-                  <div className="flex-1 min-w-[200px]">
-                    <div className="text-sm text-muted-foreground mb-1">Period</div>
-                    <div className="font-medium">{selectedReport.period}</div>
-                  </div>
-                  <div className="flex-1 min-w-[200px]">
-                    <div className="text-sm text-muted-foreground mb-1">Last Updated</div>
-                    <div className="font-medium">{selectedReport.lastUpdated}</div>
+            <div className="space-y-8 py-4">
+              {/* Report Header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">{selectedReport.title}</h3>
+                  <p className="text-sm text-muted-foreground">Generated on {selectedReport.lastUpdated}</p>
+                </div>
+                {getStatusBadge(selectedReport.status)}
+              </div>
+              
+              <Separator />
+              
+              {/* Key Metrics */}
+              {selectedReport.metrics && (
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Key Metrics</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    {selectedReport.metrics.totalConsumption && (
+                      <Card className="bg-muted/30">
+                        <CardContent className="p-4">
+                          <div className="text-sm text-muted-foreground">
+                            Total Consumption
+                          </div>
+                          <div className="text-xl font-bold mt-1">{selectedReport.metrics.totalConsumption}</div>
+                        </CardContent>
+                      </Card>
+                    )}
+                    
+                    {selectedReport.metrics.totalRenewable && (
+                      <Card className="bg-muted/30">
+                        <CardContent className="p-4">
+                          <div className="text-sm text-muted-foreground">
+                            Renewable Energy
+                          </div>
+                          <div className="text-xl font-bold mt-1">{selectedReport.metrics.totalRenewable}</div>
+                        </CardContent>
+                      </Card>
+                    )}
+                    
+                    {selectedReport.metrics.renewablePercentage && (
+                      <Card className="bg-muted/30">
+                        <CardContent className="p-4">
+                          <div className="text-sm text-muted-foreground">
+                            Renewable %
+                          </div>
+                          <div className="text-xl font-bold mt-1">{selectedReport.metrics.renewablePercentage}</div>
+                        </CardContent>
+                      </Card>
+                    )}
+                    
+                    {selectedReport.metrics.timeMatchingScore && (
+                      <Card className="bg-muted/30">
+                        <CardContent className="p-4">
+                          <div className="text-sm text-muted-foreground">
+                            Time Matching
+                          </div>
+                          <div className="text-xl font-bold mt-1">{selectedReport.metrics.timeMatchingScore}</div>
+                        </CardContent>
+                      </Card>
+                    )}
+                    
+                    {selectedReport.metrics.marketBasedEmissions && (
+                      <Card className="bg-muted/30">
+                        <CardContent className="p-4">
+                          <div className="text-sm text-muted-foreground">
+                            Market-Based Emissions
+                          </div>
+                          <div className="text-xl font-bold mt-1">{selectedReport.metrics.marketBasedEmissions}</div>
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 </div>
-              </div>
+              )}
               
-              <div className="space-y-2">
-                <h3 className="font-medium">Description</h3>
-                <p className="text-muted-foreground">{selectedReport.description}</p>
-              </div>
+              {/* Source Breakdown */}
+              {selectedReport.sourceBreakdown && (
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Renewable Energy Sources</h4>
+                  <Card className="bg-muted/30">
+                    <CardContent className="p-4">
+                      <div className="space-y-4">
+                        {selectedReport.sourceBreakdown.map((source, index) => (
+                          <div key={index}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-medium">{source.source}</span>
+                              <span className="text-sm">{source.percentage}%</span>
+                            </div>
+                            <div className="w-full bg-muted rounded-full h-2.5">
+                              <div 
+                                className="h-2.5 rounded-full bg-primary" 
+                                style={{ width: `${source.percentage}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
               
-              <div className="bg-muted/10 rounded-lg border p-8 flex flex-col items-center justify-center">
-                <FileBarChart className="h-16 w-16 text-muted-foreground mb-4" />
-                <h3 className="font-medium text-lg mb-1">Report Preview</h3>
-                <p className="text-sm text-muted-foreground text-center mb-6">
-                  This is a preview of your {selectedReport.title}.
-                  Download the full report for complete data and insights.
+              {/* Emissions Note */}
+              <div className="bg-muted/30 rounded-md p-4 border border-muted">
+                <h4 className="text-sm font-medium mb-2">Compliance Information</h4>
+                <p className="text-sm text-muted-foreground">
+                  This report follows the GHG Protocol Scope 2 Guidance for market-based accounting. All renewable energy certificates are sourced from verified Guarantee of Origin (GO) certificates. 
+                  {selectedReport.metrics?.renewablePercentage !== "100%" && (
+                    <span className="block mt-2">
+                      <strong>Note:</strong> {selectedReport.metrics?.renewablePercentage !== "100%" ? `${100 - parseFloat(selectedReport.metrics?.renewablePercentage || "0")}%` : "0%"} of 
+                      consumption was not matched by renewable energy and is accounted for using grid average emission factors.
+                    </span>
+                  )}
                 </p>
-                <div className="flex gap-3">
-                  <Button className="gap-2" onClick={() => handleDownloadReport(selectedReport.id)}>
-                    <DownloadCloud className="h-4 w-4" />
-                    Download Report
-                  </Button>
-                  <Button variant="outline" className="gap-2" onClick={() => toast({ title: "Report shared", description: "Report URL copied to clipboard" })}>
-                    <Share2 className="h-4 w-4" />
-                    Share
-                  </Button>
-                </div>
               </div>
               
-              <div className="bg-muted/10 rounded-lg border p-6">
-                <h3 className="font-medium mb-4">Report Distribution</h3>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <Mail className="h-4 w-4 text-muted-foreground mr-2" />
-                    <span>Email this report</span>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => toast({ title: "Email sent", description: "Report has been emailed to your address" })}>
-                    Send Email
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 text-muted-foreground mr-2" />
-                    <span>Schedule regular delivery</span>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => toast({ title: "Coming soon", description: "This feature will be available shortly." })}>
-                    Set Schedule
-                  </Button>
-                </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" className="gap-2" onClick={() => handleDownloadReport("csv")}>
+                  <DownloadCloud className="h-4 w-4" />
+                  Download CSV Data
+                </Button>
+                <Button className="gap-2" onClick={() => handleDownloadReport("pdf")}>
+                  <FileChartColumn className="h-4 w-4" />
+                  Download PDF Report
+                </Button>
               </div>
             </div>
           )}

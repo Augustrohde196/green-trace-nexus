@@ -33,11 +33,6 @@ const menuItems = [
     url: "/corporate/portfolio",
   },
   {
-    title: "Certificates",
-    icon: BarChart3,
-    url: "/corporate/certificates",
-  },
-  {
     title: "Reporting",
     icon: FileText,
     url: "/corporate/reporting",
