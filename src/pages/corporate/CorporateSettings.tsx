@@ -10,11 +10,12 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { User, Key, Plug, Shield, ExternalLink } from "lucide-react";
+import { User, Key, Plug, Shield, ExternalLink, FileText, Download, CheckCircle, AlertTriangle } from "lucide-react";
 
 const CorporateSettings = () => {
   const { toast } = useToast();
   const [profileImage, setProfileImage] = useState("/placeholder.svg");
+  const [contractSigned, setContractSigned] = useState(true);
   
   const handleSaveProfile = () => {
     toast({
@@ -50,6 +51,13 @@ const CorporateSettings = () => {
     toast({
       title: "Redirecting to Energinet",
       description: "Please complete the authorization process with your MitID."
+    });
+  };
+
+  const handleDownloadAgreement = () => {
+    toast({
+      title: "Agreement download initiated",
+      description: "Your agreement document will download shortly."
     });
   };
 
@@ -146,7 +154,48 @@ const CorporateSettings = () => {
             </CardContent>
           </Card>
           
-          {/* Account Preferences Card removed */}
+          {/* New Agreement Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <FileText className="h-5 w-5 text-primary" />
+                Your Service Agreement
+              </CardTitle>
+              <CardDescription>
+                Renuw Corporate Platform Agreement
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="font-medium">Corporate Service Contract</div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  {contractSigned ? (
+                    <>
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                        <CheckCircle size={12} className="mr-1" />
+                        Signed
+                      </Badge>
+                      <Button className="gap-2" onClick={handleDownloadAgreement}>
+                        <Download size={16} />
+                        Download Agreement
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                        <AlertTriangle size={12} className="mr-1" />
+                        Pending
+                      </Badge>
+                      <Button>Sign Agreement</Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
         
         <TabsContent value="security" className="space-y-6">

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Card,
@@ -19,12 +18,10 @@ import {
   Mail, 
   Lock, 
   ShieldCheck, 
-  Database,
   FileText, 
   Download, 
   CheckCircle,
   AlertTriangle,
-  ExternalLink
 } from "lucide-react";
 import { mockCustomers } from "@/data/mock-data";
 import { motion } from "framer-motion";
@@ -49,11 +46,6 @@ export default function Settings() {
     }
   };
   
-  // Mock data for Energinet integration
-  const integratedClients = ["Novo Nordisk", "LEGO Group", "Maersk"];
-  const nonIntegratedClients = ["Carlsberg", "Vestas"];
-  const integrationRate = (integratedClients.length / (integratedClients.length + nonIntegratedClients.length)) * 100;
-  
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
     // Password change logic would go here
@@ -62,11 +54,6 @@ export default function Settings() {
       new: "",
       confirm: "",
     });
-  };
-  
-  const handleEnerginetConnect = () => {
-    // Open a new window to the Energinet authorization URL
-    window.open('https://energinet.dk/authorize', '_blank');
   };
 
   return (
@@ -92,10 +79,6 @@ export default function Settings() {
           <TabsTrigger value="security" className="animate-in fade-in-25 duration-300">
             <ShieldCheck size={16} className="mr-2" />
             Security
-          </TabsTrigger>
-          <TabsTrigger value="integration" className="animate-in fade-in-50 duration-300">
-            <Database size={16} className="mr-2" />
-            Energinet Data Integration
           </TabsTrigger>
         </TabsList>
 
@@ -301,123 +284,6 @@ export default function Settings() {
                     <li>Never share your login credentials</li>
                     <li>Log out when using shared computers</li>
                   </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </TabsContent>
-        
-        {/* Energinet Data Integration Tab */}
-        <TabsContent value="integration">
-          <motion.div 
-            className="space-y-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="h-5 w-5 text-primary" />
-                  Energinet Data Integration
-                </CardTitle>
-                <CardDescription>
-                  Manage access to customer consumption data via Energinet
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* New Energinet banner for non-connected state */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                    <div className="space-y-2">
-                      <h3 className="font-medium text-blue-800 dark:text-blue-400">Your account is not yet linked to Energinet</h3>
-                      <p className="text-sm text-blue-700/80 dark:text-blue-500/80">
-                        Connect to Energinet to enable automated data updates for:
-                      </p>
-                      <ul className="text-sm text-blue-700/80 dark:text-blue-500/80 list-disc pl-5">
-                        <li>Official meter readings</li>
-                        <li>Certificate handling</li>
-                      </ul>
-                      <p className="text-xs text-blue-700/80 dark:text-blue-500/80">
-                        You'll need to use your MitID (national digital ID) to grant Renuw access.
-                      </p>
-                    </div>
-                    <Button 
-                      onClick={handleEnerginetConnect} 
-                      className="gap-2 whitespace-nowrap"
-                    >
-                      Connect Now
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center mb-1">
-                    <div className="text-sm font-medium">Integration Status</div>
-                    <div className="text-sm">{integrationRate.toFixed(0)}% of clients integrated</div>
-                  </div>
-                  <Progress value={integrationRate} className="h-2" />
-                  <div className="text-xs text-muted-foreground">
-                    {integratedClients.length} out of {integratedClients.length + nonIntegratedClients.length} clients have authorized Renuw to access their consumption data
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="text-sm font-medium mb-3 flex items-center">
-                      <CheckCircle size={16} className="text-green-500 mr-2" />
-                      Integrated Clients
-                    </h4>
-                    <div className="space-y-3">
-                      {integratedClients.map((client, index) => (
-                        <Card key={index} className="bg-green-50/30 dark:bg-green-900/10">
-                          <CardContent className="p-3 flex justify-between items-center">
-                            <div>
-                              <div className="font-medium">{client}</div>
-                              <div className="text-xs text-green-600 dark:text-green-400">Data access authorized</div>
-                            </div>
-                            <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                              <CheckCircle size={12} className="mr-1" />
-                              Active
-                            </Badge>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-sm font-medium mb-3 flex items-center">
-                      <AlertTriangle size={16} className="text-amber-500 mr-2" />
-                      Non-Integrated Clients
-                    </h4>
-                    <div className="space-y-3">
-                      {nonIntegratedClients.map((client, index) => (
-                        <Card key={index} className="bg-amber-50/30 dark:bg-amber-900/10">
-                          <CardContent className="p-3 flex justify-between items-center">
-                            <div>
-                              <div className="font-medium">{client}</div>
-                              <div className="text-xs text-amber-600 dark:text-amber-400">
-                                Awaiting authorization
-                              </div>
-                            </div>
-                            <Button size="sm" variant="outline" className="h-8">Send Invite</Button>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-blue-50 dark:bg-blue-900/10 rounded-md p-4">
-                  <h4 className="text-sm font-medium text-blue-800 dark:text-blue-400 mb-2">
-                    About Energinet Data Integration
-                  </h4>
-                  <p className="text-sm text-blue-700 dark:text-blue-300">
-                    Authorized access to Energinet's consumption data enables accurate and real-time 
-                    temporal matching between production and consumption, providing better GO allocation precision.
-                  </p>
                 </div>
               </CardContent>
             </Card>
