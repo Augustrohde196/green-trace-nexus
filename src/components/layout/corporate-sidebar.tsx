@@ -1,5 +1,5 @@
 
-import { Home, BarChart3, FileText, MapPin, Power, Settings } from "lucide-react";
+import { Home, BarChart3, FileText, MapPin, LayoutDashboard, Settings, LineChart, FolderOpen } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -10,7 +10,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { motion } from "framer-motion";
 
 const menuItems = [
   {
@@ -25,8 +24,13 @@ const menuItems = [
   },
   {
     title: "Consumption",
-    icon: Power,
+    icon: LineChart,
     url: "/corporate/consumption",
+  },
+  {
+    title: "Portfolio",
+    icon: FolderOpen,
+    url: "/corporate/portfolio",
   },
   {
     title: "Certificates",
