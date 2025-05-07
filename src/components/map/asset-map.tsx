@@ -60,11 +60,11 @@ export function AssetMap({
         mapboxgl.default.accessToken = MAPBOX_TOKEN;
 
         // Use the provided center or default to Denmark
-        // Fix: Ensure we're passing a proper LngLatLike object, not an array
         const center = initialCenter && initialCenter.lat && initialCenter.lng ? 
-          [initialCenter.lng, initialCenter.lat] as [number, number] : // Explicitly type as tuple
+          [initialCenter.lng, initialCenter.lat] as [number, number] : 
           [9.5018, 56.2639] as [number, number]; // Denmark's center coordinates
 
+        // Updated map style to light blue background to match screenshot
         map.current = new mapboxgl.default.Map({
           container: mapContainer.current,
           style: 'mapbox://styles/mapbox/light-v11',
@@ -77,9 +77,18 @@ export function AssetMap({
 
         // Add navigation controls
         map.current.addControl(new mapboxgl.default.NavigationControl(), 'top-right');
-
-        // Make sure the map is fully loaded before adding markers
+        
+        // Customize the map to have a light blue background
         map.current.on('load', () => {
+          // Add light blue background
+          map.current.addLayer({
+            id: 'background',
+            type: 'background',
+            paint: {
+              'background-color': '#f0f8ff' // Light blue background
+            }
+          }, 'land');
+          
           console.log('Map loaded, adding markers for', assets.length, 'assets');
           // Clear existing markers
           if (markers.current && markers.current.length) {
@@ -101,103 +110,77 @@ export function AssetMap({
               
               const { coordinates, type, assetName, volume } = asset;
               
-              // Create marker element
+              // Create marker element - updated to match screenshot
               const el = document.createElement('div');
               el.className = 'relative group cursor-pointer';
               
+              // Create popup content - updated design to match screenshot
+              const popupContent = document.createElement('div');
+              popupContent.className = 'absolute bottom-12 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-lg text-sm hidden group-hover:block whitespace-nowrap z-10 w-64';
+              popupContent.innerHTML = `
+                <div class="font-bold mb-2">${assetName}</div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <div class="text-xs text-gray-500">Type:</div>
+                    <div>${type === 'wind' ? 'Wind' : 'Solar'}</div>
+                  </div>
+                  <div>
+                    <div class="text-xs text-gray-500">Location:</div>
+                    <div>Denmark</div>
+                  </div>
+                  <div>
+                    <div class="text-xs text-gray-500">Supply:</div>
+                    <div>${Math.round(volume)} MWh (${Math.round(volume / totalVolume * 100)}%)</div>
+                  </div>
+                </div>
+              `;
+              
+              // Create the marker icon - using custom design to match screenshot
               const markerIcon = document.createElement('div');
-              markerIcon.className = type === 'wind' 
-                ? 'bg-blue-500 p-1 rounded-full h-5 w-5 flex items-center justify-center text-white' 
-                : 'bg-amber-500 p-1 rounded-full h-5 w-5 flex items-center justify-center text-white';
               
-              const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-              iconSvg.setAttribute('width', '14');
-              iconSvg.setAttribute('height', '14');
-              iconSvg.setAttribute('viewBox', '0 0 24 24');
-              iconSvg.setAttribute('fill', 'none');
-              iconSvg.setAttribute('stroke', 'currentColor');
-              iconSvg.setAttribute('stroke-width', '2');
-              iconSvg.setAttribute('stroke-linecap', 'round');
-              iconSvg.setAttribute('stroke-linejoin', 'round');
-              
-              // Add path for the icon based on asset type
               if (type === 'wind') {
-                const path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path1.setAttribute('d', 'M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2');
-                iconSvg.appendChild(path1);
-                
-                const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path2.setAttribute('d', 'M9.6 4.6A2 2 0 1 1 11 8H2');
-                iconSvg.appendChild(path2);
-                
-                const path3 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path3.setAttribute('d', 'M12.6 19.4A2 2 0 1 0 14 16H2');
-                iconSvg.appendChild(path3);
+                // Wind icon with blue background
+                markerIcon.className = 'flex items-center justify-center';
+                markerIcon.innerHTML = `
+                  <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"></path>
+                      <path d="M9.6 4.6A2 2 0 1 1 11 8H2"></path>
+                      <path d="M12.6 19.4A2 2 0 1 0 14 16H2"></path>
+                    </svg>
+                  </div>
+                `;
               } else {
-                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('cx', '12');
-                circle.setAttribute('cy', '12');
-                circle.setAttribute('r', '5');
-                iconSvg.appendChild(circle);
-                
-                const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line1.setAttribute('x1', '12');
-                line1.setAttribute('y1', '1');
-                line1.setAttribute('x2', '12');
-                line1.setAttribute('y2', '3');
-                iconSvg.appendChild(line1);
-                
-                const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line2.setAttribute('x1', '12');
-                line2.setAttribute('y1', '21');
-                line2.setAttribute('x2', '12');
-                line2.setAttribute('y2', '23');
-                iconSvg.appendChild(line2);
-                
-                const line3 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line3.setAttribute('x1', '4.22');
-                line3.setAttribute('y1', '4.22');
-                line3.setAttribute('x2', '5.64');
-                line3.setAttribute('y2', '5.64');
-                iconSvg.appendChild(line3);
-                
-                const line4 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line4.setAttribute('x1', '18.36');
-                line4.setAttribute('y1', '18.36');
-                line4.setAttribute('x2', '19.78');
-                line4.setAttribute('y2', '19.78');
-                iconSvg.appendChild(line4);
-                
-                const line5 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line5.setAttribute('x1', '1');
-                line5.setAttribute('y1', '12');
-                line5.setAttribute('x2', '3');
-                line5.setAttribute('y2', '12');
-                iconSvg.appendChild(line5);
-                
-                const line6 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line6.setAttribute('x1', '21');
-                line6.setAttribute('y1', '12');
-                line6.setAttribute('x2', '23');
-                line6.setAttribute('y2', '12');
-                iconSvg.appendChild(line6);
+                // Solar icon with amber background
+                markerIcon.className = 'flex items-center justify-center';
+                markerIcon.innerHTML = `
+                  <div class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="5"></circle>
+                      <line x1="12" y1="1" x2="12" y2="3"></line>
+                      <line x1="12" y1="21" x2="12" y2="23"></line>
+                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                      <line x1="1" y1="12" x2="3" y2="12"></line>
+                      <line x1="21" y1="12" x2="23" y2="12"></line>
+                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                  </div>
+                `;
               }
               
-              markerIcon.appendChild(iconSvg);
-              el.appendChild(markerIcon);
+              // Add name label under the icon to match screenshot
+              const nameLabel = document.createElement('div');
+              nameLabel.className = 'absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow-sm text-xs whitespace-nowrap font-medium';
+              nameLabel.textContent = assetName;
               
-              // Add tooltip
-              const tooltip = document.createElement('div');
-              tooltip.className = 'absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 p-2 rounded shadow-md text-xs hidden group-hover:block whitespace-nowrap z-10';
-              tooltip.innerHTML = `
-                <div class="font-semibold">${assetName}</div>
-                <div class="text-gray-500">${Math.round(volume)} MWh</div>
-              `;
-              el.appendChild(tooltip);
+              el.appendChild(markerIcon);
+              el.appendChild(nameLabel);
+              el.appendChild(popupContent);
               
               // Create and add marker
               try {
-                // Fix: Ensure coordinates are properly passed as a tuple
                 const marker = new mapboxgl.default.Marker(el)
                   .setLngLat([coordinates.lng, coordinates.lat] as [number, number])
                   .addTo(map.current);
@@ -251,6 +234,9 @@ export function AssetMap({
     };
   }, [assets, initialCenter, initialZoom, onAssetClick]);
 
+  // Calculate total volume for percentage display in marker popups
+  const totalVolume = assets.reduce((sum, asset) => sum + asset.volume, 0);
+
   return (
     <div className={className}>
       <div ref={mapContainer} className="w-full h-full rounded-md overflow-hidden" />
@@ -265,6 +251,9 @@ export function AssetMap({
             <span>Solar</span>
           </div>
         </div>
+      </div>
+      <div className="absolute top-4 right-4 px-4 py-2 bg-white/80 dark:bg-gray-800/80 rounded-md text-sm">
+        Map view of asset locations
       </div>
     </div>
   );

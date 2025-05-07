@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Download, Map, List, FileDown, Filter, FileText, Award, Search, MapPin, BarChart3, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { GuaranteeOfOrigin } from "@/data/go-models";
-import { useToast } from "@/hooks/use-toast"; // Fixed import path
+import { useToast } from "@/hooks/use-toast"; 
 import html2canvas from "html2canvas";
 import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -227,7 +228,7 @@ const certificates = [
 const CorporateTracing = () => {
   const { toast } = useToast();
   const [allocatedGOs, setAllocatedGOs] = useState<GuaranteeOfOrigin[]>([]);
-  const [viewMode, setViewMode] = useState<"map" | "list">("list");
+  const [viewMode, setViewMode] = useState<"map" | "list">("map"); // Default to map view
   const [loading, setLoading] = useState(true);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<"origin" | "certificates">("origin");
@@ -430,9 +431,7 @@ const CorporateTracing = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{(allocatedGOs.reduce((sum, go) => sum + go.volume, 0)).toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">
-                  From {allocatedGOs.length} certificates
-                </p>
+                {/* Removed "From x certificates" text */}
               </CardContent>
             </Card>
             
@@ -482,53 +481,7 @@ const CorporateTracing = () => {
             </Card>
           </div>
           
-          <Card className="bg-muted/20 border-primary/20">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-semibold flex items-center">
-                <BarChart3 className="h-5 w-5 mr-2 text-primary" />
-                Hourly Matching Details
-              </CardTitle>
-              <CardDescription>
-                View your hour-by-hour renewable energy matching status
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <div>
-                    <h3 className="font-medium">Time Matching Performance</h3>
-                    <p className="text-sm text-muted-foreground">Hour-by-hour renewable coverage for May 2025</p>
-                  </div>
-                  <Button onClick={toggleHourlyMatching} variant="outline" className="gap-2">
-                    <Clock className="h-4 w-4" />
-                    {showHourlyMatching ? "Hide Hourly Detail" : "View Hourly Detail"}
-                  </Button>
-                </div>
-                
-                {showHourlyMatching ? (
-                  <div className="border rounded-lg overflow-hidden">
-                    <HourlyMatchingView />
-                  </div>
-                ) : (
-                  <div className="text-center p-8 border border-dashed rounded-lg">
-                    <Clock className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
-                    <h3 className="text-muted-foreground font-medium mb-1">Hourly Matching Details</h3>
-                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                      Click "View Hourly Detail" to see your hour-by-hour renewable energy matching status for this period.
-                    </p>
-                  </div>
-                )}
-                
-                <div className="flex mt-4">
-                  <Button variant="outline" size="sm" className="ml-auto gap-2">
-                    <FileDown className="h-4 w-4" />
-                    Export Hourly Data (CSV)
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
+          {/* Reordered: Map view first, then hourly matching details */}
           <div className="flex justify-end space-x-2 mb-4">
             <Button
               variant={viewMode === "map" ? "default" : "outline"}
@@ -635,6 +588,53 @@ const CorporateTracing = () => {
               </CardContent>
             </Card>
           )}
+          
+          <Card className="bg-muted/20 border-primary/20">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold flex items-center">
+                <BarChart3 className="h-5 w-5 mr-2 text-primary" />
+                Hourly Matching Details
+              </CardTitle>
+              <CardDescription>
+                View your hour-by-hour renewable energy matching status
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <h3 className="font-medium">Time Matching Performance</h3>
+                    <p className="text-sm text-muted-foreground">Hour-by-hour renewable coverage for May 2025</p>
+                  </div>
+                  <Button onClick={toggleHourlyMatching} variant="outline" className="gap-2">
+                    <Clock className="h-4 w-4" />
+                    {showHourlyMatching ? "Hide Hourly Detail" : "View Hourly Detail"}
+                  </Button>
+                </div>
+                
+                {showHourlyMatching ? (
+                  <div className="border rounded-lg overflow-hidden">
+                    <HourlyMatchingView />
+                  </div>
+                ) : (
+                  <div className="text-center p-8 border border-dashed rounded-lg">
+                    <Clock className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+                    <h3 className="text-muted-foreground font-medium mb-1">Hourly Matching Details</h3>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                      Click "View Hourly Detail" to see your hour-by-hour renewable energy matching status for this period.
+                    </p>
+                  </div>
+                )}
+                
+                <div className="flex mt-4">
+                  <Button variant="outline" size="sm" className="ml-auto gap-2">
+                    <FileDown className="h-4 w-4" />
+                    Export Hourly Data (CSV)
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
         
         {/* Energy Certificates Tab Content */}
