@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Card,
@@ -22,9 +23,20 @@ import {
   Download, 
   CheckCircle,
   AlertTriangle,
+  Plug,
+  Check,
+  X,
 } from "lucide-react";
 import { mockCustomers } from "@/data/mock-data";
 import { motion } from "framer-motion";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -45,6 +57,19 @@ export default function Settings() {
       email: "anders.jensen@energidanmark.dk"
     }
   };
+  
+  // Mock client integration data
+  const clientIntegrations = [
+    { name: "Copenhagen Energy Ltd", integrated: true },
+    { name: "Aarhus Power Co.", integrated: true },
+    { name: "Nordic Renewables", integrated: true },
+    { name: "Odense Energy Services", integrated: false },
+    { name: "Aalborg Utilities", integrated: false },
+  ];
+  
+  const integratedCount = clientIntegrations.filter(client => client.integrated).length;
+  const totalClients = clientIntegrations.length;
+  const integrationPercentage = (integratedCount / totalClients) * 100;
   
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +104,10 @@ export default function Settings() {
           <TabsTrigger value="security" className="animate-in fade-in-25 duration-300">
             <ShieldCheck size={16} className="mr-2" />
             Security
+          </TabsTrigger>
+          <TabsTrigger value="integrations" className="animate-in fade-in-50 duration-300">
+            <Plug size={16} className="mr-2" />
+            Integrations
           </TabsTrigger>
         </TabsList>
 
@@ -285,6 +314,88 @@ export default function Settings() {
                     <li>Log out when using shared computers</li>
                   </ul>
                 </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </TabsContent>
+        
+        {/* Integrations Tab */}
+        <TabsContent value="integrations">
+          <motion.div 
+            className="space-y-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Energinet Integration</CardTitle>
+                <CardDescription>Connect your clients with Energinet for meter data</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Integration Status */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-blue-800 dark:text-blue-400">Client Energinet Integrations</h3>
+                      <p className="text-sm text-blue-700/80 dark:text-blue-500/80">
+                        {integratedCount} out of {totalClients} clients have authorized Renuw to access their consumption data
+                      </p>
+                    </div>
+                    <Button 
+                      className="gap-2 whitespace-nowrap"
+                    >
+                      Send Invite
+                      <Mail className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Progress bar */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Integration progress</span>
+                    <span className="font-medium">{integratedCount}/{totalClients} clients</span>
+                  </div>
+                  <Progress value={integrationPercentage} className="h-2" />
+                </div>
+                
+                {/* Client integration table */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Client Integration Status</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Client</TableHead>
+                          <TableHead className="text-right">Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {clientIntegrations.map((client, index) => (
+                          <TableRow key={index}>
+                            <TableCell>{client.name}</TableCell>
+                            <TableCell className="text-right">
+                              {client.integrated ? (
+                                <Badge variant="success" className="flex items-center gap-1 ml-auto w-fit">
+                                  <Check size={12} />
+                                  Integrated
+                                </Badge>
+                              ) : (
+                                <Badge variant="warning" className="flex items-center gap-1 ml-auto w-fit">
+                                  <X size={12} />
+                                  Not Integrated
+                                </Badge>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
               </CardContent>
             </Card>
           </motion.div>
