@@ -11,40 +11,41 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const menuItems = [
   {
-    title: "Dashboard",
+    titleKey: "dashboard",
     icon: Home,
     url: "/",
   },
   {
-    title: "Assets",
+    titleKey: "assets",
     icon: BarChart3,
     url: "/assets",
   },
   {
-    title: "Customers",
+    titleKey: "customers",
     icon: Users,
     url: "/customers",
   },
   {
-    title: "Allocation",
+    titleKey: "allocation",
     icon: Zap,
     url: "/matching",
   },
   {
-    title: "Reporting",
+    titleKey: "reporting",
     icon: FileText,
     url: "/reporting",
   },
   {
-    title: "Billing",
+    titleKey: "billing",
     icon: Receipt,
     url: "/billing",
   },
   {
-    title: "Settings",
+    titleKey: "settings",
     icon: Settings,
     url: "/settings",
   }
@@ -52,6 +53,7 @@ const menuItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const { t } = useLanguage();
 
   return (
     <Sidebar>
@@ -65,14 +67,14 @@ export function AppSidebar() {
                             (item.url !== '/' && location.pathname.startsWith(item.url));
             
             return (
-              <SidebarMenuItem key={item.title} className="sidebar-menu-item">
+              <SidebarMenuItem key={item.titleKey} className="sidebar-menu-item">
                 <SidebarMenuButton 
                   className={`transition-all duration-200 ${isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground/90"}`}
                   asChild
                 >
                   <Link to={item.url} className="flex items-center gap-3">
                     <item.icon size={18} className={`${isActive ? "text-sidebar-accent-foreground" : "text-sidebar-foreground/70"}`} />
-                    <span className={`text-sm ${isActive ? "text-sidebar-accent-foreground" : "text-sidebar-foreground/90"}`}>{item.title}</span>
+                    <span className={`text-sm ${isActive ? "text-sidebar-accent-foreground" : "text-sidebar-foreground/90"}`}>{t(item.titleKey)}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

@@ -15,7 +15,7 @@ import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "./language-selector";
 
-export function AppHeader() {
+export function CorporateHeader() {
   const { theme, setTheme } = useTheme();
   const { t } = useLanguage();
 
@@ -29,7 +29,7 @@ export function AppHeader() {
       <div className="flex h-16 items-center gap-4 px-6">
         <SidebarTrigger />
         <div className="flex-1">
-          <h1 className="text-xl font-semibold text-[#2C2C2C] dark:text-white">{t("utilityPortal")}</h1>
+          <h1 className="text-xl font-semibold text-[#2C2C2C] dark:text-white">{t("corporatePortal")}</h1>
         </div>
         <div className="flex items-center gap-3">
           <Button 
