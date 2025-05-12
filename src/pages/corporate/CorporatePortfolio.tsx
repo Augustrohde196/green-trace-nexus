@@ -11,8 +11,12 @@ import { InfoIcon, Save, Wind, SunMedium } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const CorporatePortfolio = () => {
+  // Get translation function
+  const { t } = useLanguage();
+  
   // Portfolio preference state
   const [windPreference, setWindPreference] = useState(70);
   const [solarPreference, setSolarPreference] = useState(30);
@@ -49,7 +53,7 @@ const CorporatePortfolio = () => {
 
   const handleSave = () => {
     toast({
-      title: "Portfolio preferences saved",
+      title: t("savePreferences"),
       description: "Your portfolio settings have been updated successfully. Future allocations will use these settings.",
     });
   };
@@ -62,8 +66,8 @@ const CorporatePortfolio = () => {
       transition={{ duration: 0.5 }}
     >
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Portfolio Preferences</h2>
-        <p className="text-muted-foreground">Customize your energy portfolio preferences</p>
+        <h2 className="text-3xl font-bold tracking-tight">{t("portfolioPreferences")}</h2>
+        <p className="text-muted-foreground">{t("customizePortfolio")}</p>
       </div>
       
       <Card className="border-primary/20">
@@ -72,27 +76,27 @@ const CorporatePortfolio = () => {
             <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a2 2 0 0 0 0-4h-2a2 2 0 0 0 0 4h2zM6 15a2 2 0 0 0 0 4h2a2 2 0 0 0 0-4H6zM16 15a2 2 0 0 1 0 4h-2a2 2 0 0 1 0-4h2zM8 8a2 2 0 0 1 0-4h2a2 2 0 0 1 0 4H8zM12 9v6"/></svg>
             </div>
-            Your Utility Provider
+            {t("yourUtilityProvider")}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
             <div>
               <h3 className="text-xl font-semibold">Energi Danmark A/S</h3>
-              <p className="text-muted-foreground mt-1">Contract since January 2023</p>
+              <p className="text-muted-foreground mt-1">{t("contractSince")}</p>
               <div className="mt-2 flex items-center gap-2">
-                <span className="text-sm font-medium">Account Manager:</span>
+                <span className="text-sm font-medium">{t("accountManager")}:</span>
                 <span className="text-sm">Marie Jørgensen</span>
               </div>
             </div>
             <div className="mt-4 md:mt-0 p-4 bg-muted/30 rounded-lg">
               <div className="text-sm">
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                  <span className="text-muted-foreground">Contact Email:</span>
+                  <span className="text-muted-foreground">{t("contactEmail")}:</span>
                   <span>support@energidanmark.dk</span>
-                  <span className="text-muted-foreground">Phone Number:</span>
+                  <span className="text-muted-foreground">{t("phoneNumber")}:</span>
                   <span>+45 7015 1060</span>
-                  <span className="text-muted-foreground">Contract End:</span>
+                  <span className="text-muted-foreground">{t("contractEnd")}:</span>
                   <span>December 2025</span>
                 </div>
               </div>
@@ -103,26 +107,26 @@ const CorporatePortfolio = () => {
       
       <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
         <InfoIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-        <AlertTitle>Current Preference Summary</AlertTitle>
+        <AlertTitle>{t("currentPreferenceSummary")}</AlertTitle>
         <AlertDescription>
-          Your current preferences: Wind {windPreference}%, Solar {solarPreference}%, 
-          {locationMatchingEnabled ? ` Local sources prioritized (max ${maxDistance}km)` : ' No location constraints'}
+          {t("wind")} {windPreference}%, {t("solar")} {solarPreference}%, 
+          {locationMatchingEnabled ? ` ${t("local")} (${maxDistance}km)` : ` ${t("noLocationConstraints")}`}
         </AlertDescription>
       </Alert>
       
       <Tabs defaultValue="energy-mix" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="energy-mix">Energy Mix</TabsTrigger>
-          <TabsTrigger value="location">Location Preferences</TabsTrigger>
-          <TabsTrigger value="time-matching">Time Matching</TabsTrigger>
+          <TabsTrigger value="energy-mix">{t("energyMixTab")}</TabsTrigger>
+          <TabsTrigger value="location">{t("locationTab")}</TabsTrigger>
+          <TabsTrigger value="time-matching">{t("timeMatchingTab")}</TabsTrigger>
         </TabsList>
         
         <TabsContent value="energy-mix" className="space-y-4 pt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Source Type Mix</CardTitle>
+              <CardTitle>{t("sourceTypeMix")}</CardTitle>
               <CardDescription>
-                Set your preferred percentage split between renewable energy sources
+                {t("setPercentageSplit")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
@@ -130,7 +134,7 @@ const CorporatePortfolio = () => {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <Wind className="h-5 w-5 text-blue-500" />
-                    <Label htmlFor="wind-slider" className="font-medium">Wind Energy</Label>
+                    <Label htmlFor="wind-slider" className="font-medium">{t("windEnergy")}</Label>
                   </div>
                   <span className="font-medium">{windPreference}%</span>
                 </div>
@@ -146,7 +150,7 @@ const CorporatePortfolio = () => {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <SunMedium className="h-5 w-5 text-yellow-500" />
-                    <Label htmlFor="solar-slider" className="font-medium">Solar Energy</Label>
+                    <Label htmlFor="solar-slider" className="font-medium">{t("solarEnergy")}</Label>
                   </div>
                   <span className="font-medium">{solarPreference}%</span>
                 </div>
@@ -160,7 +164,7 @@ const CorporatePortfolio = () => {
                 
                 <div className="flex items-center justify-between mt-8">
                   <div className="flex items-center gap-2">
-                    <Label htmlFor="btm-priority" className="font-medium">Behind-the-Meter Priority</Label>
+                    <Label htmlFor="btm-priority" className="font-medium">{t("behindTheMeterPriority")}</Label>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
@@ -196,7 +200,7 @@ const CorporatePortfolio = () => {
               <div className="flex justify-end">
                 <Button onClick={handleSave}>
                   <Save className="mr-2 h-4 w-4" />
-                  Save Preferences
+                  {t("savePreferences")}
                 </Button>
               </div>
             </CardContent>
@@ -206,9 +210,9 @@ const CorporatePortfolio = () => {
         <TabsContent value="location" className="space-y-4 pt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Geographical Preferences</CardTitle>
+              <CardTitle>{t("geographicalPreferences")}</CardTitle>
               <CardDescription>
-                Set your location-based preferences to prioritize energy production closer to your consumption
+                {t("setLocationPreferences")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -219,9 +223,9 @@ const CorporatePortfolio = () => {
                   onCheckedChange={setLocationMatchingEnabled}
                 />
                 <div>
-                  <Label htmlFor="location-matching" className="font-medium">Prioritize local production</Label>
+                  <Label htmlFor="location-matching" className="font-medium">{t("prioritizeLocal")}</Label>
                   <p className="text-sm text-muted-foreground mt-1">
-                    When enabled, we will prioritize energy produced closer to your consumption location
+                    {t("whenEnabled")}
                   </p>
                 </div>
               </div>
@@ -230,7 +234,7 @@ const CorporatePortfolio = () => {
                 <div className="mt-6 space-y-4">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <Label htmlFor="distance-slider">Maximum Distance</Label>
+                      <Label htmlFor="distance-slider">{t("maximumDistance")}</Label>
                       <span className="font-medium">{maxDistance} km</span>
                     </div>
                     <Slider
@@ -242,17 +246,15 @@ const CorporatePortfolio = () => {
                       onValueChange={(value) => setMaxDistance(value[0])}
                     />
                     <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                      <span>Local (50km)</span>
-                      <span>Regional (500km)</span>
-                      <span>International (1000km)</span>
+                      <span>{t("local")}</span>
+                      <span>{t("regional")}</span>
+                      <span>{t("international")}</span>
                     </div>
                   </div>
                   
                   <div className="bg-muted/30 p-4 rounded-lg mt-4">
                     <p className="text-sm">
-                      Lower distances prioritize energy produced closer to your consumption, 
-                      but may limit available options. The system will always try to meet your 
-                      volume requirements first, even if it means going beyond your preferred distance.
+                      {t("lowerDistances")}
                     </p>
                   </div>
                 </div>
@@ -261,7 +263,7 @@ const CorporatePortfolio = () => {
               <div className="flex justify-end">
                 <Button onClick={handleSave}>
                   <Save className="mr-2 h-4 w-4" />
-                  Save Preferences
+                  {t("savePreferences")}
                 </Button>
               </div>
             </CardContent>
@@ -271,16 +273,16 @@ const CorporatePortfolio = () => {
         <TabsContent value="time-matching" className="space-y-4 pt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Time Matching Preference</CardTitle>
+              <CardTitle>{t("timeMatchingPreference")}</CardTitle>
               <CardDescription>
-                Set your preferred level of time matching between consumption and generation
+                {t("setPreferredLevel")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <Label htmlFor="time-matching-slider" className="font-medium">Time Matching</Label>
+                    <Label htmlFor="time-matching-slider" className="font-medium">{t("timeMatching")}</Label>
                     <span>{timeMatchingTarget}%</span>
                   </div>
                   <Slider
@@ -294,16 +296,16 @@ const CorporatePortfolio = () => {
               </div>
               
               <div className="bg-muted/30 p-4 rounded-lg">
-                <h4 className="font-medium mb-2">Time Matching Explained</h4>
+                <h4 className="font-medium mb-2">{t("timeMatchingExplained")}</h4>
                 <p className="text-sm">
-                  Higher priority means more focus on matching your consumption on an hourly basis with renewable generation.
+                  {t("higherPriorityMeans")}
                 </p>
               </div>
               
               <div className="flex justify-end">
                 <Button onClick={handleSave}>
                   <Save className="mr-2 h-4 w-4" />
-                  Save Preferences
+                  {t("savePreferences")}
                 </Button>
               </div>
             </CardContent>

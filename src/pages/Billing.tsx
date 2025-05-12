@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Import billing components
 import { BillingHeader } from "@/components/billing/billing-header";
@@ -23,6 +24,7 @@ export default function Billing() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [isContractDialogOpen, setIsContractDialogOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const { t } = useLanguage();
   
   // Get billing data
   const billingData = getBillingData();

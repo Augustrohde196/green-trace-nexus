@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -10,10 +11,12 @@ import {
 } from "@/components/ui/card";
 import { OnboardingForm } from "@/components/corporate/onboarding/onboarding-form";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const CorporateOnboarding = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleComplete = () => {

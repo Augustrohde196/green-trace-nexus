@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Search, Download, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Table,
   TableBody,
@@ -81,29 +82,31 @@ const certificates = [
 ];
 
 const CorporateCertificates = () => {
+  const { t } = useLanguage();
+
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">My Certificates</h2>
-        <p className="text-muted-foreground">View and manage your energy certificates</p>
+        <h2 className="text-3xl font-bold tracking-tight">{t("myCertificates")}</h2>
+        <p className="text-muted-foreground">{t("viewAndManage")}</p>
       </div>
       
       <Card>
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle>Energy Certificates</CardTitle>
+            <CardTitle>{t("energyCertificates")}</CardTitle>
             <div className="flex items-center gap-2">
               <div className="relative w-full sm:w-auto">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search certificates..."
+                  placeholder={t("searchCertificates")}
                   className="w-full sm:w-[250px] pl-8"
                 />
               </div>
               <Button variant="outline" size="sm">
                 <Filter className="mr-2 h-4 w-4" />
-                Filter
+                {t("filter")}
               </Button>
             </div>
           </div>
@@ -112,13 +115,13 @@ const CorporateCertificates = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Certificate ID</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Asset</TableHead>
-                <TableHead>Period</TableHead>
-                <TableHead>Volume</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("certificateID")}</TableHead>
+                <TableHead>{t("type")}</TableHead>
+                <TableHead>{t("asset")}</TableHead>
+                <TableHead>{t("period")}</TableHead>
+                <TableHead>{t("volume")}</TableHead>
+                <TableHead>{t("status")}</TableHead>
+                <TableHead className="text-right">{t("actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -138,13 +141,13 @@ const CorporateCertificates = () => {
                   <TableCell>{cert.volume}</TableCell>
                   <TableCell>
                     <Badge variant={cert.status === "active" ? "default" : "secondary"}>
-                      {cert.status === "active" ? "Active" : "Expired"}
+                      {cert.status === "active" ? t("active") : t("expired")}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm">
                       <Download className="h-4 w-4 mr-2" />
-                      Export
+                      {t("export")}
                     </Button>
                   </TableCell>
                 </TableRow>

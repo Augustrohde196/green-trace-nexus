@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BillingHeaderProps {
   calendarOpen: boolean;
@@ -23,6 +24,8 @@ export function BillingHeader({
   selectDate,
   selectedMonth 
 }: BillingHeaderProps) {
+  const { t } = useLanguage();
+  
   return (
     <motion.div 
       className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
@@ -31,9 +34,9 @@ export function BillingHeader({
       transition={{ duration: 0.5 }}
     >
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Billing</h2>
+        <h2 className="text-3xl font-bold tracking-tight">{t("billing")}</h2>
         <p className="text-muted-foreground">
-          Platform usage, pricing terms, and monthly billing estimate
+          {t("platformUsage")}
         </p>
       </div>
       <div className="flex flex-col gap-2 sm:flex-row">
@@ -45,7 +48,7 @@ export function BillingHeader({
               onClick={() => setCalendarOpen(true)}
             >
               <Calendar size={16} />
-              Select Period
+              {t("selectPeriod")}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="end">
@@ -76,7 +79,7 @@ export function BillingHeader({
           className="gap-2"
         >
           <Download size={16} />
-          Download Invoice PDF
+          {t("downloadInvoice")}
         </Button>
       </div>
     </motion.div>

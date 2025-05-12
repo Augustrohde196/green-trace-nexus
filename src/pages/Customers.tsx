@@ -8,11 +8,13 @@ import { CustomerMetricsCards } from "@/components/customers/customer-metrics-ca
 import { CustomerFilters } from "@/components/customers/customer-filters";
 import { useCustomerFilters } from "@/hooks/use-customer-filters";
 import { AddCustomerSheet } from "@/components/customers/add-customer-sheet";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Customers() {
   const { customers, addCustomer } = useMockCustomers();
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const { t } = useLanguage();
   
   // Use the extracted custom hook for filtering
   const { 

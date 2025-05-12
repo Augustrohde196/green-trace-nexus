@@ -3,9 +3,11 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const NotFound = () => {
   const location = useLocation();
+  const { t } = useLanguage();
 
   useEffect(() => {
     console.error(
@@ -19,13 +21,13 @@ const NotFound = () => {
       <div className="text-center space-y-6">
         <div className="space-y-2">
           <h1 className="text-4xl font-bold text-renuwGreen">404</h1>
-          <p className="text-xl text-muted-foreground">Page not found</p>
+          <p className="text-xl text-muted-foreground">{t("pageNotFound")}</p>
         </div>
         <p className="max-w-md text-muted-foreground">
-          We couldn't find the page you were looking for. Please check the URL and try again.
+          {t("couldNotFindPage")}
         </p>
         <Button asChild>
-          <Link to="/">Return to Dashboard</Link>
+          <Link to="/">{t("returnToDashboard")}</Link>
         </Button>
       </div>
     </div>

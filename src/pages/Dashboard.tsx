@@ -7,11 +7,13 @@ import { ProductionChart } from "@/components/dashboard/production-chart";
 import { EnergyMixChart } from "@/components/dashboard/energy-mix-chart";
 import { ProjectionsChart } from "@/components/dashboard/projections-chart";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Dashboard = () => {
   // In a real app, we would fetch this data from a server
   const metrics = calculateDashboardMetrics();
   const [timeRange, setTimeRange] = useState<"week" | "month" | "year">("month");
+  const { t } = useLanguage();
   
   return (
     <motion.div 

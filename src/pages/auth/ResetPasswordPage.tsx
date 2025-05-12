@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Mail, Loader2 } from "lucide-react";
@@ -6,12 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/layout/auth-layout";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ResetPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +25,7 @@ const ResetPasswordPage = () => {
       setLoading(false);
       setSubmitted(true);
       toast({
-        title: "Reset link sent",
+        title: t("resetLinkSent"),
         description: "If the email exists in our system, you'll receive a reset link shortly.",
       });
     }, 1500);
@@ -32,16 +35,16 @@ const ResetPasswordPage = () => {
     <AuthLayout>
       <div className="mx-auto flex w-full flex-col space-y-6 sm:w-[350px] md:w-[450px]">
         <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Reset Password</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("resetPassword")}</h1>
           <p className="text-sm text-muted-foreground">
-            Enter your email address and we'll send you a link to reset your password
+            {t("enterEmail")}
           </p>
         </div>
 
         {!submitted ? (
           <form onSubmit={handleSubmit} className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("email")}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -62,24 +65,24 @@ const ResetPasswordPage = () => {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  <span>Sending</span>
+                  <span>{t("sending")}</span>
                 </>
               ) : (
-                <span>Send Reset Link</span>
+                <span>{t("sendResetLink")}</span>
               )}
             </Button>
           </form>
         ) : (
           <div className="grid gap-6">
             <div className="rounded-lg border p-6 bg-muted/50">
-              <h3 className="font-medium mb-2">Check your email</h3>
+              <h3 className="font-medium mb-2">{t("checkEmail")}</h3>
               <p className="text-sm text-muted-foreground">
-                We've sent a password reset link to <strong>{email}</strong>
+                {t("resetLinkSent")} <strong>{email}</strong>
               </p>
             </div>
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Didn't receive the email? Check your spam folder or try again.
+                {t("didntReceiveEmail")}
               </p>
             </div>
           </div>
@@ -88,7 +91,7 @@ const ResetPasswordPage = () => {
         <div className="text-center">
           <Link to="/auth/sign-in" className="text-sm flex items-center justify-center gap-1 text-primary hover:underline">
             <ArrowLeft className="h-4 w-4" />
-            <span>Back to sign in</span>
+            <span>{t("backToSignIn")}</span>
           </Link>
         </div>
       </div>
