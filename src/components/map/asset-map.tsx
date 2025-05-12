@@ -100,7 +100,9 @@ export function AssetMap({
           
           // Add markers for each asset
           if (assets && assets.length > 0) {
-            const newMarkers = [];
+            // This is the fix: initialize markers array directly and use it throughout
+            // Changed "newMarkers" to "markers.current"
+            markers.current = [];
             
             for (const asset of assets) {
               if (!asset.coordinates || !asset.coordinates.lat || !asset.coordinates.lng) {
@@ -192,13 +194,11 @@ export function AssetMap({
                   }
                 });
                 
-                newMarkers.push(marker);
+                markers.current.push(marker);
               } catch (err) {
                 console.error('Error creating marker:', err);
               }
             }
-            
-            markers.current = newMarkers.filter(Boolean);
           } else {
             // If no assets are provided, add some default assets to showcase the map functionality
             console.log('No assets provided, adding example assets for demonstration');
@@ -227,6 +227,7 @@ export function AssetMap({
               }
             ];
             
+            // Fix here too: use markers.current directly instead of newMarkers
             for (const asset of defaultAssets) {
               const el = document.createElement('div');
               el.className = 'relative group cursor-pointer';
@@ -299,13 +300,11 @@ export function AssetMap({
                   .setLngLat([asset.coordinates.lng, asset.coordinates.lat])
                   .addTo(map.current);
                 
-                newMarkers.push(marker);
+                markers.current.push(marker);
               } catch (err) {
                 console.error('Error creating default marker:', err);
               }
             }
-            
-            markers.current = newMarkers.filter(Boolean);
           }
         });
       } catch (error) {
