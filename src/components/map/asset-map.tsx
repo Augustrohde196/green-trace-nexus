@@ -199,6 +199,113 @@ export function AssetMap({
             }
             
             markers.current = newMarkers.filter(Boolean);
+          } else {
+            // If no assets are provided, add some default assets to showcase the map functionality
+            console.log('No assets provided, adding example assets for demonstration');
+            
+            const defaultAssets = [
+              {
+                id: 'default-wind-1',
+                assetName: 'Hvide Sande Wind',
+                type: 'wind',
+                volume: 18,
+                coordinates: { lat: 55.9, lng: 8.13 }
+              },
+              {
+                id: 'default-wind-2',
+                assetName: 'Nordsee Wind Farm',
+                type: 'wind',
+                volume: 35,
+                coordinates: { lat: 55.5, lng: 8.0 }
+              },
+              {
+                id: 'default-solar-1',
+                assetName: 'Nykøbing Solar Park',
+                type: 'solar',
+                volume: 25,
+                coordinates: { lat: 56.9, lng: 10.3 }
+              }
+            ];
+            
+            for (const asset of defaultAssets) {
+              const el = document.createElement('div');
+              el.className = 'relative group cursor-pointer';
+              
+              // Create popup content for default assets
+              const popupContent = document.createElement('div');
+              popupContent.className = 'absolute bottom-12 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-lg text-sm hidden group-hover:block whitespace-nowrap z-10 w-64';
+              popupContent.innerHTML = `
+                <div class="font-bold mb-2">${asset.assetName}</div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <div class="text-xs text-gray-500">Type:</div>
+                    <div>${asset.type === 'wind' ? 'Wind' : 'Solar'}</div>
+                  </div>
+                  <div>
+                    <div class="text-xs text-gray-500">Location:</div>
+                    <div>Denmark</div>
+                  </div>
+                  <div>
+                    <div class="text-xs text-gray-500">Supply:</div>
+                    <div>${asset.volume} MWh</div>
+                  </div>
+                </div>
+              `;
+              
+              // Create the marker icon for default assets
+              const markerIcon = document.createElement('div');
+              
+              if (asset.type === 'wind') {
+                markerIcon.className = 'flex items-center justify-center';
+                markerIcon.innerHTML = `
+                  <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"></path>
+                      <path d="M9.6 4.6A2 2 0 1 1 11 8H2"></path>
+                      <path d="M12.6 19.4A2 2 0 1 0 14 16H2"></path>
+                    </svg>
+                  </div>
+                `;
+              } else {
+                markerIcon.className = 'flex items-center justify-center';
+                markerIcon.innerHTML = `
+                  <div class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="5"></circle>
+                      <line x1="12" y1="1" x2="12" y2="3"></line>
+                      <line x1="12" y1="21" x2="12" y2="23"></line>
+                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                      <line x1="1" y1="12" x2="3" y2="12"></line>
+                      <line x1="21" y1="12" x2="23" y2="12"></line>
+                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                  </div>
+                `;
+              }
+              
+              // Add name label for default assets
+              const nameLabel = document.createElement('div');
+              nameLabel.className = 'absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow-sm text-xs whitespace-nowrap font-medium';
+              nameLabel.textContent = asset.assetName;
+              
+              el.appendChild(markerIcon);
+              el.appendChild(nameLabel);
+              el.appendChild(popupContent);
+              
+              try {
+                const marker = new mapboxgl.default.Marker(el)
+                  .setLngLat([asset.coordinates.lng, asset.coordinates.lat])
+                  .addTo(map.current);
+                
+                newMarkers.push(marker);
+              } catch (err) {
+                console.error('Error creating default marker:', err);
+              }
+            }
+            
+            markers.current = newMarkers.filter(Boolean);
           }
         });
       } catch (error) {
