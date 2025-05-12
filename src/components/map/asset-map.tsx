@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
-import { GuaranteeOfOrigin } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Wind, Sun } from "lucide-react";
+import { GuaranteeOfOrigin } from "@/data/go-models";
 
 interface AssetMapProps {
   assets: GuaranteeOfOrigin[];
