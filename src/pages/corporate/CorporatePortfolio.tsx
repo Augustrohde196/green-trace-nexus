@@ -1,17 +1,14 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoIcon, Save, Wind, SunMedium } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+// Import our new components
+import { PortfolioHeader } from "@/components/corporate/portfolio/portfolio-header";
+import { UtilityProviderCard } from "@/components/corporate/portfolio/utility-provider-card";
+import { PreferencesSummaryAlert } from "@/components/corporate/portfolio/preferences-summary-alert";
+import { PortfolioTabs } from "@/components/corporate/portfolio/portfolio-tabs";
 
 const CorporatePortfolio = () => {
   // Get translation function
@@ -32,25 +29,9 @@ const CorporatePortfolio = () => {
   // BTM priority preference
   const [btmPriorityEnabled, setBtmPriorityEnabled] = useState(true);
   
-  // Initialize the toast hook correctly
+  // Initialize the toast hook
   const { toast } = useToast();
-
-  const handleSolarChange = (value: number[]) => {
-    const newSolarValue = value[0];
-    setSolarPreference(newSolarValue);
-    setWindPreference(100 - newSolarValue);
-  };
-
-  const handleWindChange = (value: number[]) => {
-    const newWindValue = value[0];
-    setWindPreference(newWindValue);
-    setSolarPreference(100 - newWindValue);
-  };
   
-  const handleTimeMatchingChange = (value: number[]) => {
-    setTimeMatchingTarget(value[0]);
-  };
-
   const handleSave = () => {
     toast({
       title: t("savePreferences"),
@@ -65,253 +46,32 @@ const CorporatePortfolio = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">{t("portfolioPreferences")}</h2>
-        <p className="text-muted-foreground">{t("customizePortfolio")}</p>
-      </div>
+      <PortfolioHeader />
       
-      <Card className="border-primary/20">
-        <CardHeader className="bg-primary/5">
-          <CardTitle className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a2 2 0 0 0 0-4h-2a2 2 0 0 0 0 4h2zM6 15a2 2 0 0 0 0 4h2a2 2 0 0 0 0-4H6zM16 15a2 2 0 0 1 0 4h-2a2 2 0 0 1 0-4h2zM8 8a2 2 0 0 1 0-4h2a2 2 0 0 1 0 4H8zM12 9v6"/></svg>
-            </div>
-            {t("yourUtilityProvider")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
-            <div>
-              <h3 className="text-xl font-semibold">Energi Danmark A/S</h3>
-              <p className="text-muted-foreground mt-1">{t("contractSince")}</p>
-              <div className="mt-2 flex items-center gap-2">
-                <span className="text-sm font-medium">{t("accountManager")}:</span>
-                <span className="text-sm">Marie Jørgensen</span>
-              </div>
-            </div>
-            <div className="mt-4 md:mt-0 p-4 bg-muted/30 rounded-lg">
-              <div className="text-sm">
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                  <span className="text-muted-foreground">{t("contactEmail")}:</span>
-                  <span>support@energidanmark.dk</span>
-                  <span className="text-muted-foreground">{t("phoneNumber")}:</span>
-                  <span>+45 7015 1060</span>
-                  <span className="text-muted-foreground">{t("contractEnd")}:</span>
-                  <span>December 2025</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <UtilityProviderCard />
       
-      <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-        <InfoIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-        <AlertTitle>{t("currentPreferenceSummary")}</AlertTitle>
-        <AlertDescription>
-          {t("wind")} {windPreference}%, {t("solar")} {solarPreference}%, 
-          {locationMatchingEnabled ? ` ${t("local")} (${maxDistance}km)` : ` ${t("noLocationConstraints")}`}
-        </AlertDescription>
-      </Alert>
+      <PreferencesSummaryAlert 
+        windPreference={windPreference}
+        solarPreference={solarPreference}
+        locationMatchingEnabled={locationMatchingEnabled}
+        maxDistance={maxDistance}
+      />
       
-      <Tabs defaultValue="energy-mix" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="energy-mix">{t("energyMixTab")}</TabsTrigger>
-          <TabsTrigger value="location">{t("locationTab")}</TabsTrigger>
-          <TabsTrigger value="time-matching">{t("timeMatchingTab")}</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="energy-mix" className="space-y-4 pt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("sourceTypeMix")}</CardTitle>
-              <CardDescription>
-                {t("setPercentageSplit")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-8">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Wind className="h-5 w-5 text-blue-500" />
-                    <Label htmlFor="wind-slider" className="font-medium">{t("windEnergy")}</Label>
-                  </div>
-                  <span className="font-medium">{windPreference}%</span>
-                </div>
-                <Slider
-                  id="wind-slider"
-                  value={[windPreference]}
-                  max={100}
-                  step={1}
-                  onValueChange={handleWindChange}
-                  className="mb-6"
-                />
-                
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <SunMedium className="h-5 w-5 text-yellow-500" />
-                    <Label htmlFor="solar-slider" className="font-medium">{t("solarEnergy")}</Label>
-                  </div>
-                  <span className="font-medium">{solarPreference}%</span>
-                </div>
-                <Slider
-                  id="solar-slider"
-                  value={[solarPreference]}
-                  max={100}
-                  step={1}
-                  onValueChange={handleSolarChange}
-                />
-                
-                <div className="flex items-center justify-between mt-8">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="btm-priority" className="font-medium">{t("behindTheMeterPriority")}</Label>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <InfoIcon className="h-4 w-4 text-muted-foreground" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-xs">
-                          If your facility has on-site (BTM) energy generation, Renuw will automatically prioritise it to optimise coverage and time-matching.
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <Switch 
-                    id="btm-priority" 
-                    checked={btmPriorityEnabled}
-                    onCheckedChange={setBtmPriorityEnabled}
-                  />
-                </div>
-              </div>
-              
-              <div className="bg-muted/30 p-4 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <InfoIcon className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm">
-                      These preferences will guide how your renewable energy is sourced. 
-                      Our allocation engine will try to match your consumption with these 
-                      preferences when possible.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex justify-end">
-                <Button onClick={handleSave}>
-                  <Save className="mr-2 h-4 w-4" />
-                  {t("savePreferences")}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="location" className="space-y-4 pt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("geographicalPreferences")}</CardTitle>
-              <CardDescription>
-                {t("setLocationPreferences")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center space-x-4">
-                <Switch 
-                  id="location-matching" 
-                  checked={locationMatchingEnabled}
-                  onCheckedChange={setLocationMatchingEnabled}
-                />
-                <div>
-                  <Label htmlFor="location-matching" className="font-medium">{t("prioritizeLocal")}</Label>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {t("whenEnabled")}
-                  </p>
-                </div>
-              </div>
-              
-              {locationMatchingEnabled && (
-                <div className="mt-6 space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <Label htmlFor="distance-slider">{t("maximumDistance")}</Label>
-                      <span className="font-medium">{maxDistance} km</span>
-                    </div>
-                    <Slider
-                      id="distance-slider"
-                      value={[maxDistance]}
-                      min={50}
-                      max={1000}
-                      step={50}
-                      onValueChange={(value) => setMaxDistance(value[0])}
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                      <span>{t("local")}</span>
-                      <span>{t("regional")}</span>
-                      <span>{t("international")}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-muted/30 p-4 rounded-lg mt-4">
-                    <p className="text-sm">
-                      {t("lowerDistances")}
-                    </p>
-                  </div>
-                </div>
-              )}
-              
-              <div className="flex justify-end">
-                <Button onClick={handleSave}>
-                  <Save className="mr-2 h-4 w-4" />
-                  {t("savePreferences")}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="time-matching" className="space-y-4 pt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("timeMatchingPreference")}</CardTitle>
-              <CardDescription>
-                {t("setPreferredLevel")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <Label htmlFor="time-matching-slider" className="font-medium">{t("timeMatching")}</Label>
-                    <span>{timeMatchingTarget}%</span>
-                  </div>
-                  <Slider
-                    id="time-matching-slider"
-                    value={[timeMatchingTarget]}
-                    max={100}
-                    step={5}
-                    onValueChange={handleTimeMatchingChange}
-                  />
-                </div>
-              </div>
-              
-              <div className="bg-muted/30 p-4 rounded-lg">
-                <h4 className="font-medium mb-2">{t("timeMatchingExplained")}</h4>
-                <p className="text-sm">
-                  {t("higherPriorityMeans")}
-                </p>
-              </div>
-              
-              <div className="flex justify-end">
-                <Button onClick={handleSave}>
-                  <Save className="mr-2 h-4 w-4" />
-                  {t("savePreferences")}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <PortfolioTabs
+        windPreference={windPreference}
+        setWindPreference={setWindPreference}
+        solarPreference={solarPreference}
+        setSolarPreference={setSolarPreference}
+        btmPriorityEnabled={btmPriorityEnabled}
+        setBtmPriorityEnabled={setBtmPriorityEnabled}
+        timeMatchingTarget={timeMatchingTarget}
+        setTimeMatchingTarget={setTimeMatchingTarget}
+        locationMatchingEnabled={locationMatchingEnabled}
+        setLocationMatchingEnabled={setLocationMatchingEnabled}
+        maxDistance={maxDistance}
+        setMaxDistance={setMaxDistance}
+        onSave={handleSave}
+      />
     </motion.div>
   );
 };
