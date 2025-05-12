@@ -19,10 +19,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { LanguageSelector } from "@/components/language-selector";
+import { useLanguage } from "@/components/language-provider";
 
 export function AppHeader() {
   const { theme, setTheme } = useTheme();
   const { startWalkthrough } = useWalkthrough();
+  const { t } = useLanguage();
 
   return (
     <motion.header 
@@ -34,7 +37,7 @@ export function AppHeader() {
       <div className="flex h-16 items-center gap-4 px-6">
         <SidebarTrigger />
         <div className="flex-1">
-          <h1 className="text-xl font-semibold text-[#2C2C2C] dark:text-white">Utility Portal</h1>
+          <h1 className="text-xl font-semibold text-[#2C2C2C] dark:text-white">{t("app.title")}</h1>
         </div>
         <div className="flex items-center gap-3">
           <TooltipProvider delayDuration={300}>
@@ -44,7 +47,7 @@ export function AppHeader() {
                   variant="outline" 
                   size="icon" 
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                  title={theme === "dark" ? t("theme.light") : t("theme.dark")}
                   className="rounded-full hover:bg-muted transition-colors border-none cursor-pointer"
                   type="button"
                 >
@@ -52,7 +55,18 @@ export function AppHeader() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                {theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                {theme === "dark" ? t("theme.light") : t("theme.dark")}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <LanguageSelector />
+              </TooltipTrigger>
+              <TooltipContent>
+                {t("language")}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -73,7 +87,7 @@ export function AppHeader() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Notifications & Walkthrough</p>
+                <p>{t("notifications")}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -99,16 +113,16 @@ export function AppHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer">
                 <User size={16} className="mr-2" />
-                Profile
+                {t("profile")}
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 <Settings size={16} className="mr-2" />
-                Settings
+                {t("settings")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 focus:bg-red-50 dark:focus:text-red-400">
                 <LogOut size={16} className="mr-2" />
-                Sign out
+                {t("signout")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

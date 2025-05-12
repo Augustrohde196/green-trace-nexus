@@ -38,49 +38,52 @@ import CorporateSettings from "@/pages/corporate/CorporateSettings";
 import { ThemeProvider } from "@/components/theme-provider";
 import { WalkthroughProvider } from "@/hooks/use-walkthrough";
 import { Toaster } from "@/components/ui/toaster";
+import { LanguageProvider } from "@/components/language-provider";
 
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <WalkthroughProvider>
-        <Router>
-          <Routes>
-            {/* Auth routes */}
-            <Route element={<AuthLayout><Outlet /></AuthLayout>}>
-              <Route path="/auth/sign-in" element={<SignInPage />} />
-              <Route path="/auth/sign-up" element={<SignUpPage />} />
-              <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
-            </Route>
-            
-            {/* Corporate routes */}
-            <Route element={<CorporateLayout><Outlet /></CorporateLayout>}>
-              <Route path="/corporate" element={<CorporateDashboard />} />
-              <Route path="/corporate/certificates" element={<CorporateCertificates />} />
-              <Route path="/corporate/traceability" element={<CorporateTracing />} />
-              <Route path="/corporate/consumption" element={<CorporateConsumption />} />
-              <Route path="/corporate/analytics" element={<CorporateAnalytics />} />
-              <Route path="/corporate/portfolio" element={<CorporatePortfolio />} />
-              <Route path="/corporate/onboarding" element={<CorporateOnboarding />} />
-              <Route path="/corporate/reporting" element={<CorporateReporting />} />
-              <Route path="/corporate/settings" element={<CorporateSettings />} />
-            </Route>
-            
-            {/* Main app routes */}
-            <Route element={<AppLayout><Outlet /></AppLayout>}>
-              <Route index element={<Dashboard />} />
-              <Route path="/assets" element={<Assets />} />
-              <Route path="/customers" element={<Customers />} />
-              <Route path="/matching" element={<MatchingEngine />} />
-              <Route path="/reporting" element={<Reporting />} />
-              <Route path="/billing" element={<Billing />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
-        </Router>
-        <Toaster />
-      </WalkthroughProvider>
+      <LanguageProvider>
+        <WalkthroughProvider>
+          <Router>
+            <Routes>
+              {/* Auth routes */}
+              <Route element={<AuthLayout><Outlet /></AuthLayout>}>
+                <Route path="/auth/sign-in" element={<SignInPage />} />
+                <Route path="/auth/sign-up" element={<SignUpPage />} />
+                <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+              </Route>
+              
+              {/* Corporate routes */}
+              <Route element={<CorporateLayout><Outlet /></CorporateLayout>}>
+                <Route path="/corporate" element={<CorporateDashboard />} />
+                <Route path="/corporate/certificates" element={<CorporateCertificates />} />
+                <Route path="/corporate/traceability" element={<CorporateTracing />} />
+                <Route path="/corporate/consumption" element={<CorporateConsumption />} />
+                <Route path="/corporate/analytics" element={<CorporateAnalytics />} />
+                <Route path="/corporate/portfolio" element={<CorporatePortfolio />} />
+                <Route path="/corporate/onboarding" element={<CorporateOnboarding />} />
+                <Route path="/corporate/reporting" element={<CorporateReporting />} />
+                <Route path="/corporate/settings" element={<CorporateSettings />} />
+              </Route>
+              
+              {/* Main app routes */}
+              <Route element={<AppLayout><Outlet /></AppLayout>}>
+                <Route index element={<Dashboard />} />
+                <Route path="/assets" element={<Assets />} />
+                <Route path="/customers" element={<Customers />} />
+                <Route path="/matching" element={<MatchingEngine />} />
+                <Route path="/reporting" element={<Reporting />} />
+                <Route path="/billing" element={<Billing />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+          </Router>
+          <Toaster />
+        </WalkthroughProvider>
+      </LanguageProvider>
     </ThemeProvider>
   );
 }
