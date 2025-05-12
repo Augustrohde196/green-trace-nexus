@@ -39,7 +39,7 @@ const DEFAULT_ASSETS: GuaranteeOfOrigin[] = [
     gsrn: '578999123456',
     gridArea: 'DK1 - West Jutland',
     trackingCode: 'DK-TRK-1234',
-    coordinates: { lat: 55.9, lng: 8.13, x: 45, y: 110 }
+    coordinates: { lat: 55.9, lng: 8.13 }
   },
   {
     id: 'default-wind-2',
@@ -56,7 +56,7 @@ const DEFAULT_ASSETS: GuaranteeOfOrigin[] = [
     gsrn: '578999123457',
     gridArea: 'DK1 - West Jutland',
     trackingCode: 'DK-TRK-1235',
-    coordinates: { lat: 55.5, lng: 8.0, x: 20, y: 135 }
+    coordinates: { lat: 55.5, lng: 8.0 }
   },
   {
     id: 'default-wind-3',
@@ -73,7 +73,7 @@ const DEFAULT_ASSETS: GuaranteeOfOrigin[] = [
     gsrn: '578999123458',
     gridArea: 'DK2 - East Denmark',
     trackingCode: 'DK-TRK-1236',
-    coordinates: { lat: 55.7, lng: 12.6, x: 150, y: 95 }
+    coordinates: { lat: 55.7, lng: 12.6 }
   },
   {
     id: 'default-solar-1',
@@ -90,7 +90,7 @@ const DEFAULT_ASSETS: GuaranteeOfOrigin[] = [
     gsrn: '578999123459',
     gridArea: 'Zealand',
     trackingCode: 'DK-TRK-1237',
-    coordinates: { lat: 56.9, lng: 10.3, x: 120, y: 70 }
+    coordinates: { lat: 56.9, lng: 10.3 }
   },
   {
     id: 'default-solar-2',
@@ -107,7 +107,7 @@ const DEFAULT_ASSETS: GuaranteeOfOrigin[] = [
     gsrn: '578999123460',
     gridArea: 'DK2 - East Denmark',
     trackingCode: 'DK-TRK-1238',
-    coordinates: { lat: 55.6, lng: 12.5, x: 155, y: 110 }
+    coordinates: { lat: 55.6, lng: 12.5 }
   },
   {
     id: 'default-solar-3',
@@ -124,9 +124,18 @@ const DEFAULT_ASSETS: GuaranteeOfOrigin[] = [
     gsrn: '578999123461',
     gridArea: 'Central Denmark',
     trackingCode: 'DK-TRK-1239',
-    coordinates: { lat: 55.9, lng: 9.8, x: 70, y: 110 }
+    coordinates: { lat: 55.9, lng: 9.8 }
   }
 ];
+
+// Helper function to convert lat/lng to SVG x/y coordinates
+const convertToSvgCoordinates = (lat: number, lng: number): { x: number, y: number } => {
+  // Simple conversion for Denmark's approximate bounds
+  // Denmark's approx bounds: lat 54.5-58, lng 8-13
+  const x = ((lng - 8) / 5) * 200; // Scale to SVG width
+  const y = 220 - ((lat - 54.5) / 3.5) * 200; // Scale to SVG height and invert (SVG y increases downward)
+  return { x, y };
+};
 
 export function AssetMap({ 
   assets = [], 
@@ -209,10 +218,8 @@ export function AssetMap({
           
           {/* Asset Markers */}
           {displayAssets.map(asset => {
-            // Calculate x, y coordinates based on lat, lng or use predefined x, y if available
-            const x = (asset.coordinates as any).x || (150 + (asset.coordinates.lng - 10) * 10);
-            const y = (asset.coordinates as any).y || (120 - (asset.coordinates.lat - 55) * 20);
-            
+            // Convert lat/lng to SVG coordinates
+            const { x, y } = convertToSvgCoordinates(asset.coordinates.lat, asset.coordinates.lng);
             const isHovered = hoveredAsset === asset.id;
             
             return (
