@@ -2,7 +2,7 @@
 import React from 'react';
 import { GuaranteeOfOrigin } from "@/data/go-models";
 import { Badge } from "@/components/ui/badge";
-import { Wind, Sun } from "lucide-react";
+import { Wind, Sun, Waves, Navigation, Compass } from "lucide-react";
 
 interface AssetMapProps {
   assets: GuaranteeOfOrigin[];
@@ -20,40 +20,65 @@ export function AssetMap({
   // Calculate total volume for percentage calculations
   const totalVolume = assets.reduce((sum, asset) => sum + asset.volume, 0);
   
-  // Group assets by type
-  const windAssets = assets.filter(asset => asset.type === 'wind');
-  const solarAssets = assets.filter(asset => asset.type === 'solar');
+  // Select a limited number of assets
+  const windAssets = assets.filter(asset => asset.type === 'wind').slice(0, 4);
+  const solarAssets = assets.filter(asset => asset.type === 'solar').slice(0, 3);
   
   return (
     <div className={`relative w-full h-full rounded-md overflow-hidden ${className}`}>
-      {/* Static map background - using a gradient background to simulate a map */}
-      <div className="absolute inset-0 bg-gradient-to-b from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-900">
-        {/* Grid lines to simulate map grid */}
-        <div className="absolute inset-0" style={{ 
-          backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px)',
-          backgroundSize: '50px 50px'
-        }}></div>
+      {/* Denmark-inspired map background */}
+      <div className="absolute inset-0 bg-blue-100 dark:bg-blue-950">
+        {/* Map landmass */}
+        <div className="absolute inset-[5%] bg-amber-50 dark:bg-amber-950/30 rounded-lg">
+          {/* Main peninsula (Jutland) */}
+          <div className="absolute left-[10%] top-[5%] w-[40%] h-[75%] bg-green-50 dark:bg-green-950/30 rounded-[30%_70%_55%_45%/55%_30%_70%_45%]"></div>
+          
+          {/* Zealand island */}
+          <div className="absolute right-[15%] top-[30%] w-[30%] h-[40%] bg-green-50 dark:bg-green-950/30 rounded-[40%_60%_60%_40%/60%_30%_70%_40%]"></div>
+          
+          {/* Funen island */}
+          <div className="absolute left-[53%] top-[50%] w-[20%] h-[30%] bg-green-50 dark:bg-green-950/30 rounded-[40%_60%_60%_40%/60%_40%_60%_40%]"></div>
+          
+          {/* Small islands */}
+          <div className="absolute right-[10%] bottom-[15%] w-[15%] h-[10%] bg-green-50 dark:bg-green-950/30 rounded-[40%_60%_60%_40%]"></div>
+          <div className="absolute left-[20%] bottom-[10%] w-[10%] h-[15%] bg-green-50 dark:bg-green-950/30 rounded-[60%_40%_70%_30%]"></div>
+        </div>
         
-        {/* Some terrain features to make it look like a map */}
-        <div className="absolute left-[10%] top-[20%] w-[30%] h-[15%] bg-green-100/30 dark:bg-green-900/20 rounded-full blur-xl"></div>
-        <div className="absolute right-[15%] bottom-[25%] w-[25%] h-[20%] bg-green-100/40 dark:bg-green-900/30 rounded-full blur-xl"></div>
-        <div className="absolute left-[40%] bottom-[10%] w-[35%] h-[10%] bg-blue-100/40 dark:bg-blue-900/30 rounded-3xl blur-xl"></div>
+        {/* Water features */}
+        <div className="absolute left-[45%] top-[20%] w-[15%] h-[25%] bg-blue-200/50 dark:bg-blue-800/30 rounded-full blur-sm"></div>
+        <div className="absolute left-[35%] bottom-[30%] w-[20%] h-[15%] bg-blue-200/50 dark:bg-blue-800/30 rounded-full blur-sm"></div>
+        
+        {/* Grid lines */}
+        <div className="absolute inset-0" style={{ 
+          backgroundImage: 'linear-gradient(to right, rgba(20,80,160,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(20,80,160,0.05) 1px, transparent 1px)',
+          backgroundSize: '40px 40px'
+        }}></div>
       </div>
       
-      {/* Asset Markers */}
+      {/* Compass rose */}
+      <div className="absolute right-[8%] bottom-[8%] bg-white/80 dark:bg-gray-800/80 p-1 rounded-full shadow-sm backdrop-blur-sm flex items-center justify-center">
+        <Compass className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+      </div>
+      
+      {/* Asset Markers - Wind */}
       <div className="absolute inset-0">
-        {/* Map Wind assets */}
         {windAssets.map((asset, index) => {
-          // Calculate position based on index for demonstration
-          const leftPos = 15 + (index % 5) * 15;
-          const topPos = 10 + Math.floor(index / 5) * 20;
+          // Randomized positions for wind assets
+          const positions = [
+            { left: '15%', top: '22%' },  // North Jutland
+            { left: '25%', top: '45%' },  // Mid Jutland
+            { left: '18%', top: '75%' },  // South Jutland
+            { left: '75%', top: '35%' },  // East Zealand
+          ];
+          
+          const pos = positions[index] || { left: '20%', top: '30%' };
           const volumePercent = Math.round((asset.volume / totalVolume) * 100);
           
           return (
             <div 
               key={asset.id} 
               className="absolute cursor-pointer group"
-              style={{ left: `${leftPos}%`, top: `${topPos}%` }}
+              style={{ left: pos.left, top: pos.top }}
               onClick={() => onAssetClick?.(asset)}
             >
               {/* Asset Icon with animation */}
@@ -96,18 +121,23 @@ export function AssetMap({
           );
         })}
         
-        {/* Map Solar assets */}
+        {/* Asset Markers - Solar */}
         {solarAssets.map((asset, index) => {
-          // Calculate position based on index for demonstration
-          const leftPos = 20 + (index % 4) * 18;
-          const topPos = 35 + Math.floor(index / 4) * 20;
+          // Randomized positions for solar assets
+          const positions = [
+            { left: '65%', top: '60%' },  // South Zealand
+            { left: '48%', top: '52%' },  // Funen
+            { left: '35%', top: '30%' }   // East Jutland
+          ];
+          
+          const pos = positions[index] || { left: '40%', top: '40%' };
           const volumePercent = Math.round((asset.volume / totalVolume) * 100);
           
           return (
             <div 
               key={asset.id} 
               className="absolute cursor-pointer group"
-              style={{ left: `${leftPos}%`, top: `${topPos}%` }}
+              style={{ left: pos.left, top: pos.top }}
               onClick={() => onAssetClick?.(asset)}
             >
               {/* Asset Icon with animation */}
@@ -152,7 +182,7 @@ export function AssetMap({
       </div>
       
       {/* Map Legend */}
-      <div className="absolute bottom-4 right-4 bg-white/90 dark:bg-gray-800/90 p-2 rounded-md shadow-md backdrop-blur-sm border border-gray-100 dark:border-gray-700">
+      <div className="absolute bottom-4 left-4 bg-white/90 dark:bg-gray-800/90 p-2 rounded-md shadow-md backdrop-blur-sm border border-gray-100 dark:border-gray-700">
         <div className="flex items-center gap-2 text-sm font-medium">
           <div className="flex items-center">
             <div className="bg-blue-500 rounded-full h-3 w-3 mr-1"></div>
@@ -165,12 +195,34 @@ export function AssetMap({
         </div>
       </div>
       
+      {/* City markers */}
+      <div className="absolute left-[25%] top-[15%] flex items-center">
+        <div className="h-1.5 w-1.5 bg-gray-700 dark:bg-gray-300 rounded-full"></div>
+        <span className="text-[10px] ml-1 text-gray-700 dark:text-gray-300">Aalborg</span>
+      </div>
+      
+      <div className="absolute right-[25%] top-[40%] flex items-center">
+        <div className="h-1.5 w-1.5 bg-gray-700 dark:bg-gray-300 rounded-full"></div>
+        <span className="text-[10px] ml-1 text-gray-700 dark:text-gray-300">Copenhagen</span>
+      </div>
+      
+      <div className="absolute left-[50%] top-[50%] flex items-center">
+        <div className="h-1.5 w-1.5 bg-gray-700 dark:bg-gray-300 rounded-full"></div>
+        <span className="text-[10px] ml-1 text-gray-700 dark:text-gray-300">Odense</span>
+      </div>
+      
+      <div className="absolute left-[35%] top-[45%] flex items-center">
+        <div className="h-1.5 w-1.5 bg-gray-700 dark:bg-gray-300 rounded-full"></div>
+        <span className="text-[10px] ml-1 text-gray-700 dark:text-gray-300">Aarhus</span>
+      </div>
+      
       {/* Map Title */}
-      <div className="absolute top-4 right-4 px-4 py-2 bg-white/90 dark:bg-gray-800/90 rounded-md text-sm font-medium shadow-md backdrop-blur-sm border border-gray-100 dark:border-gray-700">
-        Renewable Energy Assets Map
+      <div className="absolute top-4 left-4 px-4 py-2 bg-white/90 dark:bg-gray-800/90 rounded-md text-sm font-medium shadow-md backdrop-blur-sm border border-gray-100 dark:border-gray-700 flex items-center">
+        <Navigation className="h-4 w-4 mr-2 text-primary" />
+        Denmark Renewable Energy Assets
       </div>
 
-      {/* Add the animation styles to the global class system */}
+      {/* Add the animation styles */}
       <style>
         {`
           @keyframes pulse-slow {
