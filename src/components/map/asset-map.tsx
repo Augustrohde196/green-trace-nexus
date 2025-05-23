@@ -170,24 +170,26 @@ export function AssetMap({
         Renewable Energy Assets Map
       </div>
 
-      {/* Add custom CSS animation styles */}
-      <style jsx>{`
-        @keyframes pulse-slow {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.1); }
-          100% { transform: scale(1); }
-        }
-        @keyframes ping-slow {
-          0% { transform: scale(0.95); opacity: 1; }
-          75%, 100% { transform: scale(1.25); opacity: 0; }
-        }
-        .animate-pulse-slow {
-          animation: pulse-slow 3s ease-in-out infinite;
-        }
-        .animate-ping-slow {
-          animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
-        }
-      `}</style>
+      {/* Add the animation styles to the global class system */}
+      <style>
+        {`
+          @keyframes pulse-slow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+          }
+          @keyframes ping-slow {
+            0% { transform: scale(0.95); opacity: 1; }
+            75%, 100% { transform: scale(1.25); opacity: 0; }
+          }
+          .animate-pulse-slow {
+            animation: pulse-slow 3s ease-in-out infinite;
+          }
+          .animate-ping-slow {
+            animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+          }
+        `}
+      </style>
     </div>
   );
 }
