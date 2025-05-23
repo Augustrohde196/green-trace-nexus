@@ -64,10 +64,10 @@ export function AssetMap({
           [initialCenter.lng, initialCenter.lat] as [number, number] : 
           [9.5018, 56.2639] as [number, number]; // Denmark's center coordinates
 
-        // Updated map style to light blue background to match screenshot
+        // Use a more visually appealing map style
         map.current = new mapboxgl.default.Map({
           container: mapContainer.current,
-          style: 'mapbox://styles/mapbox/light-v11',
+          style: 'mapbox://styles/mapbox/outdoors-v12', // More detailed and visually appealing style
           center: center,
           zoom: initialZoom || 7,
         });
@@ -78,16 +78,24 @@ export function AssetMap({
         // Add navigation controls
         map.current.addControl(new mapboxgl.default.NavigationControl(), 'top-right');
         
-        // Customize the map to have a light blue background
+        // Enhance map visual appearance
         map.current.on('load', () => {
-          // Add light blue background
-          map.current.addLayer({
-            id: 'background',
-            type: 'background',
-            paint: {
-              'background-color': '#f0f8ff' // Light blue background
-            }
-          }, 'land');
+          // Add a light blue background with terrain effect
+          if (map.current.getSource('mapbox-dem')) return;
+          
+          // Add terrain and sky for more visual appeal
+          map.current.addSource('mapbox-dem', {
+            'type': 'raster-dem',
+            'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+            'tileSize': 512,
+            'maxzoom': 14
+          });
+          
+          // Add terrain effect to make map more 3D-like
+          map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+
+          // Add water color enhancement
+          map.current.setPaintProperty('water', 'fill-color', '#a4d1e8');
           
           console.log('Map loaded, adding markers for', assets.length, 'assets');
           // Clear existing markers
@@ -98,9 +106,12 @@ export function AssetMap({
             markers.current = [];
           }
           
-          // Add markers for each asset
+          // Add markers for each asset with improved styling
           if (assets && assets.length > 0) {
             const newMarkers = [];
+            
+            // Calculate total volume for percentage calculations
+            const totalVolume = assets.reduce((sum, asset) => sum + asset.volume, 0);
             
             for (const asset of assets) {
               if (!asset.coordinates || !asset.coordinates.lat || !asset.coordinates.lng) {
@@ -110,40 +121,54 @@ export function AssetMap({
               
               const { coordinates, type, assetName, volume } = asset;
               
-              // Create marker element - updated to match screenshot
+              // Create marker element with enhanced styling
               const el = document.createElement('div');
               el.className = 'relative group cursor-pointer';
               
-              // Create popup content - updated design to match screenshot
+              // Create detailed popup content with more information
               const popupContent = document.createElement('div');
-              popupContent.className = 'absolute bottom-12 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 p-3 rounded-md shadow-lg text-sm hidden group-hover:block whitespace-nowrap z-10 w-64';
+              popupContent.className = 'absolute bottom-14 left-1/2 transform -translate-x-1/2 bg-white/95 dark:bg-gray-800/95 p-4 rounded-lg shadow-xl text-sm hidden group-hover:block z-10 w-72 backdrop-blur-sm border border-gray-200 dark:border-gray-700';
+              
+              const volumePercent = Math.round((volume / totalVolume) * 100);
+              const capacityMW = (volume / 24).toFixed(1); // Simulated capacity based on volume
+              
               popupContent.innerHTML = `
-                <div class="font-bold mb-2">${assetName}</div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="font-bold text-base mb-2">${assetName}</div>
+                <div class="grid grid-cols-2 gap-4 mb-3">
                   <div>
-                    <div class="text-xs text-gray-500">Type:</div>
-                    <div>${type === 'wind' ? 'Wind' : 'Solar'}</div>
+                    <div class="text-xs text-gray-500 mb-1">Energy Type</div>
+                    <div class="flex items-center">
+                      ${type === 'wind' ? 
+                        '<div class="w-4 h-4 bg-blue-500 rounded-full mr-2"></div> Wind Energy' : 
+                        '<div class="w-4 h-4 bg-amber-500 rounded-full mr-2"></div> Solar Energy'}
+                    </div>
                   </div>
                   <div>
-                    <div class="text-xs text-gray-500">Location:</div>
-                    <div>Denmark</div>
+                    <div class="text-xs text-gray-500 mb-1">Capacity</div>
+                    <div class="font-medium">${capacityMW} MW</div>
                   </div>
                   <div>
-                    <div class="text-xs text-gray-500">Supply:</div>
-                    <div>${Math.round(volume)} MWh (${Math.round(volume / totalVolume * 100)}%)</div>
+                    <div class="text-xs text-gray-500 mb-1">Production</div>
+                    <div class="font-medium">${Math.round(volume)} MWh</div>
+                  </div>
+                  <div>
+                    <div class="text-xs text-gray-500 mb-1">Share</div>
+                    <div class="font-medium">${volumePercent}% of total</div>
                   </div>
                 </div>
+                <div class="text-xs text-blue-600 dark:text-blue-400">Click for more details</div>
               `;
               
-              // Create the marker icon - using custom design to match screenshot
+              // Create the marker icon with enhanced visual styling
               const markerIcon = document.createElement('div');
               
               if (type === 'wind') {
-                // Wind icon with blue background
+                // Wind icon with pulsing effect and shadow
                 markerIcon.className = 'flex items-center justify-center';
                 markerIcon.innerHTML = `
-                  <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg relative animate-pulse-slow">
+                    <div class="absolute w-14 h-14 bg-blue-400/20 rounded-full animate-ping-slow"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"></path>
                       <path d="M9.6 4.6A2 2 0 1 1 11 8H2"></path>
                       <path d="M12.6 19.4A2 2 0 1 0 14 16H2"></path>
@@ -151,11 +176,12 @@ export function AssetMap({
                   </div>
                 `;
               } else {
-                // Solar icon with amber background
+                // Solar icon with pulsing effect and shadow
                 markerIcon.className = 'flex items-center justify-center';
                 markerIcon.innerHTML = `
-                  <div class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <div class="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white shadow-lg relative animate-pulse-slow">
+                    <div class="absolute w-14 h-14 bg-amber-400/20 rounded-full animate-ping-slow"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="5"></circle>
                       <line x1="12" y1="1" x2="12" y2="3"></line>
                       <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -170,22 +196,27 @@ export function AssetMap({
                 `;
               }
               
-              // Add name label under the icon to match screenshot
+              // Add name label under the icon with improved styling
               const nameLabel = document.createElement('div');
-              nameLabel.className = 'absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow-sm text-xs whitespace-nowrap font-medium';
+              nameLabel.className = 'absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 px-2 py-1 rounded-md shadow-md text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 backdrop-blur-sm';
               nameLabel.textContent = assetName;
               
+              // Assemble the marker elements
               el.appendChild(markerIcon);
               el.appendChild(nameLabel);
               el.appendChild(popupContent);
               
-              // Create and add marker
+              // Create and add marker with custom offsets to improve positioning
               try {
-                const marker = new mapboxgl.default.Marker(el)
-                  .setLngLat([coordinates.lng, coordinates.lat] as [number, number])
-                  .addTo(map.current);
+                const marker = new mapboxgl.default.Marker({
+                  element: el,
+                  anchor: 'bottom',
+                  offset: [0, 0]
+                })
+                .setLngLat([coordinates.lng, coordinates.lat] as [number, number])
+                .addTo(map.current);
                 
-                // Add click event
+                // Add click event for detailed view
                 el.addEventListener('click', () => {
                   if (onAssetClick) {
                     onAssetClick(asset);
@@ -200,7 +231,84 @@ export function AssetMap({
             
             markers.current = newMarkers.filter(Boolean);
           }
+          
+          // Add a custom layer for map styling to enhance visual appeal
+          if (!map.current.getLayer('custom-atmosphere')) {
+            map.current.addLayer({
+              'id': 'custom-atmosphere',
+              'type': 'sky',
+              'paint': {
+                'sky-opacity': [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  0, 0,
+                  5, 0.3,
+                  8, 0.5
+                ],
+                'sky-type': 'atmosphere',
+                'sky-atmosphere-sun': [0.0, 0.0],
+                'sky-atmosphere-sun-intensity': 20
+              }
+            });
+          }
         });
+
+        // Add map interaction effects for better user experience
+        map.current.on('mouseenter', 'water', () => {
+          map.current.getCanvas().style.cursor = 'pointer';
+        });
+        
+        map.current.on('mouseleave', 'water', () => {
+          map.current.getCanvas().style.cursor = '';
+        });
+
+        // Add animation to the map to make it more engaging
+        let rotateInterval: number | null = null;
+        const startRotation = () => {
+          if (rotateInterval) clearInterval(rotateInterval);
+          
+          rotateInterval = window.setInterval(() => {
+            if (map.current) {
+              map.current.easeTo({ 
+                bearing: map.current.getBearing() + 0.1,
+                duration: 0,
+                easing: (n) => n
+              });
+            }
+          }, 100);
+        };
+        
+        // Add interactive rotation when the user clicks on the map
+        map.current.on('click', () => {
+          if (rotateInterval) {
+            clearInterval(rotateInterval);
+            rotateInterval = null;
+          } else {
+            startRotation();
+          }
+        });
+        
+        // Apply custom marker animations via CSS
+        const style = document.createElement('style');
+        style.textContent = `
+          @keyframes pulse-slow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+          }
+          @keyframes ping-slow {
+            0% { transform: scale(0.95); opacity: 1; }
+            75%, 100% { transform: scale(1.25); opacity: 0; }
+          }
+          .animate-pulse-slow {
+            animation: pulse-slow 3s ease-in-out infinite;
+          }
+          .animate-ping-slow {
+            animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+          }
+        `;
+        document.head.appendChild(style);
       } catch (error) {
         console.error("Error loading mapbox-gl:", error);
       }
@@ -240,8 +348,8 @@ export function AssetMap({
   return (
     <div className={className}>
       <div ref={mapContainer} className="w-full h-full rounded-md overflow-hidden" />
-      <div className="absolute bottom-4 right-4 bg-white dark:bg-gray-800 p-2 rounded-md shadow-md">
-        <div className="flex items-center gap-2 text-sm">
+      <div className="absolute bottom-4 right-4 bg-white/90 dark:bg-gray-800/90 p-2 rounded-md shadow-md backdrop-blur-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-2 text-sm font-medium">
           <div className="flex items-center">
             <div className="bg-blue-500 rounded-full h-3 w-3 mr-1"></div>
             <span>Wind</span>
@@ -252,8 +360,8 @@ export function AssetMap({
           </div>
         </div>
       </div>
-      <div className="absolute top-4 right-4 px-4 py-2 bg-white/80 dark:bg-gray-800/80 rounded-md text-sm">
-        Map view of asset locations
+      <div className="absolute top-4 right-4 px-4 py-2 bg-white/90 dark:bg-gray-800/90 rounded-md text-sm font-medium shadow-md backdrop-blur-sm border border-gray-100 dark:border-gray-700">
+        Renewable Energy Assets Map
       </div>
     </div>
   );
