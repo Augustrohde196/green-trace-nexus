@@ -216,10 +216,10 @@ export function AssetMap({
         <span className="text-[10px] ml-1 text-gray-700 dark:text-gray-300">Aarhus</span>
       </div>
       
-      {/* Map Title */}
+      {/* Map Title - Changed from "Denmark Renewable Energy Assets" to "Renewable Energy Assets" */}
       <div className="absolute top-4 left-4 px-4 py-2 bg-white/90 dark:bg-gray-800/90 rounded-md text-sm font-medium shadow-md backdrop-blur-sm border border-gray-100 dark:border-gray-700 flex items-center">
         <Navigation className="h-4 w-4 mr-2 text-primary" />
-        Denmark Renewable Energy Assets
+        Renewable Energy Assets
       </div>
 
       {/* Add the animation styles */}
